@@ -1,0 +1,33 @@
+# Drop tables.
+#
+# Rarity is rolled separately from the item pool, so rarity distribution is
+# tuned in one place rather than duplicated across every table.
+# See docs/items.md section 8.
+
+- id: droptable.stretch1.patrol
+  rolls: 1
+  entries:
+    - weight: 6000
+      type: nothing
+    - weight: 3000
+      type: material
+      materialId: material.emberash
+      quantity: [1, 3]
+    - weight: 1000
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [1, 6]
+
+- id: droptable.stretch1.elite
+  rolls: 2
+  entries:
+    - weight: 3000
+      type: nothing
+    - weight: 4000
+      type: material
+      materialId: material.emberash
+      quantity: [2, 5]
+    - weight: 3000
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [4, 9]

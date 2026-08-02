@@ -110,6 +110,10 @@ final class DeterministicRngTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
+        // Deliberately out of range: the runtime guard must hold even though
+        // the declared type forbids it, because bounds are frequently derived
+        // from a count that could be zero.
+        /** @phpstan-ignore argument.type */
         DeterministicRng::below(self::SEED, 1, 0, RollPurpose::HitCheck, 0, 0);
     }
 

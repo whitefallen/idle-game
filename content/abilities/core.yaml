@@ -1,0 +1,87 @@
+# The baseline ability kit.
+#
+# ability.measured_strike is the guaranteed fallback: zero cost, no cooldown.
+# Every battle plan's final unconditional rule must name an ability of that
+# shape, so that evaluation always resolves to an action.
+
+- id: ability.measured_strike
+  localisationKey: ability.measured_strike
+  focusCost: 0
+  cooldownRounds: 0
+  damageCoefficientBp: 10000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+
+- id: ability.sweeping_arc
+  localisationKey: ability.sweeping_arc
+  focusCost: 12
+  cooldownRounds: 2
+  damageCoefficientBp: 7000
+  healCoefficientBp: 0
+  school: physical
+  selector: all_enemies
+
+- id: ability.rupture
+  localisationKey: ability.rupture
+  focusCost: 10
+  cooldownRounds: 3
+  damageCoefficientBp: 13000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+  effectId: effect.bleeding
+  effectChanceBp: 7500
+
+- id: ability.ignite
+  localisationKey: ability.ignite
+  focusCost: 14
+  cooldownRounds: 4
+  damageCoefficientBp: 9000
+  healCoefficientBp: 0
+  school: arcane
+  selector: lowest_health_enemy
+  effectId: effect.burning
+  effectChanceBp: 8000
+
+- id: ability.emberdraught
+  localisationKey: ability.emberdraught
+  focusCost: 15
+  cooldownRounds: 3
+  damageCoefficientBp: 0
+  healCoefficientBp: 9000
+  school: nature
+  selector: self
+  effectId: effect.resolve
+  effectChanceBp: 10000
+
+- id: ability.sunder
+  localisationKey: ability.sunder
+  focusCost: 8
+  cooldownRounds: 3
+  damageCoefficientBp: 5000
+  healCoefficientBp: 0
+  school: physical
+  selector: highest_health_enemy
+  effectId: effect.sundered
+  effectChanceBp: 9000
+
+# Monster-only. Kept in the same pool because the engine draws no distinction
+# between player and monster abilities — one implementation, one set of rules.
+- id: ability.blight_lash
+  localisationKey: ability.blight_lash
+  focusCost: 0
+  cooldownRounds: 0
+  damageCoefficientBp: 10000
+  healCoefficientBp: 0
+  school: nature
+  selector: random_enemy
+
+- id: ability.corrosive_spray
+  localisationKey: ability.corrosive_spray
+  focusCost: 12
+  cooldownRounds: 3
+  damageCoefficientBp: 6000
+  healCoefficientBp: 0
+  school: nature
+  selector: all_enemies

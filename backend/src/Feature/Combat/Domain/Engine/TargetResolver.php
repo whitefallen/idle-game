@@ -34,17 +34,18 @@ final class TargetResolver
         int $round,
         int $rollIndex,
     ): array {
-        if ($selector === TargetSelector::SelfOnly) {
-            return [$actor];
-        }
-
         $candidates = self::livingCandidates($selector, $actor, $allStates);
 
         if ($candidates === []) {
             return [];
         }
 
+        // Every selector is handled explicitly rather than via a default arm,
+        // so adding one to the enum breaks the build here instead of silently
+        // falling through to the wrong behaviour.
         return match ($selector) {
+            TargetSelector::SelfOnly => [$actor],
+
             TargetSelector::AllEnemies => $candidates,
 
             TargetSelector::LowestHealthEnemy,
@@ -62,8 +63,6 @@ final class TargetResolver
                     count($candidates),
                 )],
             ],
-
-            TargetSelector::SelfOnly => [$actor],
         };
     }
 

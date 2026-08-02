@@ -1,0 +1,71 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://emberwatch.local/schema/item.schema.json",
+    "title": "Item definitions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "localisationKey", "slot", "ilvl", "icon", "vendorValue", "requirements"],
+        "properties": {
+            "id": { "type": "string", "pattern": "^item\\.[a-z][a-z0-9_]*$" },
+            "localisationKey": { "type": "string", "minLength": 1 },
+            "slot": {
+                "enum": ["Head", "Chest", "Legs", "Hands", "Feet", "MainHand", "OffHand", "Amulet", "Ring1", "Ring2"]
+            },
+            "twoHanded": { "type": "boolean" },
+            "weaponClass": { "enum": ["heavy", "light", "focus"] },
+            "ilvl": { "type": "integer", "minimum": 1, "maximum": 60 },
+            "icon": { "type": "string", "minLength": 1 },
+            "vendorValue": { "type": "integer", "minimum": 0 },
+            "requirements": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["level"],
+                "properties": {
+                    "level": { "type": "integer", "minimum": 1, "maximum": 60 },
+                    "attributes": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "STR": { "type": "integer", "minimum": 1 },
+                            "DEX": { "type": "integer", "minimum": 1 },
+                            "INT": { "type": "integer", "minimum": 1 },
+                            "CON": { "type": "integer", "minimum": 1 },
+                            "LUK": { "type": "integer", "minimum": 1 }
+                        }
+                    }
+                }
+            },
+            "allowedAffixPools": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+            },
+            "tags": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+            }
+        },
+        "allOf": [
+            {
+                "comment": "Only a main-hand item can be two-handed.",
+                "if": {
+                    "properties": { "twoHanded": { "const": true } },
+                    "required": ["twoHanded"]
+                },
+                "then": {
+                    "properties": { "slot": { "const": "MainHand" } },
+                    "required": ["weaponClass"]
+                }
+            },
+            {
+                "comment": "A weapon class only means something in a hand slot.",
+                "if": { "required": ["weaponClass"] },
+                "then": {
+                    "properties": { "slot": { "enum": ["MainHand", "OffHand"] } }
+                }
+            }
+        ]
+    }
+}

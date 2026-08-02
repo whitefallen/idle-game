@@ -1,0 +1,4 @@
+# The same id as a-first.yaml. Ids are referenced by live item instances and
+# stored combat logs, so a collision across files must be caught.
+- id: widget.alpha
+  size: 5

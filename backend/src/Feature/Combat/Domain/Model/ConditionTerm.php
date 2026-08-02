@@ -75,6 +75,37 @@ final readonly class ConditionTerm
     }
 
     /**
+     * The inverse of {@see toArray()}.
+     *
+     * Battle plans arrive from three directions — content files, the database
+     * and untrusted client input — and all three use this one parser, so there
+     * is a single place where a malformed plan is rejected.
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $subject = ConditionSubject::tryFrom((string) ($data['subject'] ?? ''))
+            ?? throw new InvalidArgumentException(
+                sprintf('Unknown condition subject "%s".', (string) ($data['subject'] ?? '')),
+            );
+
+        $operator = isset($data['operator'])
+            ? (ComparisonOperator::tryFrom((string) $data['operator'])
+                ?? throw new InvalidArgumentException(
+                    sprintf('Unknown comparison operator "%s".', (string) $data['operator']),
+                ))
+            : null;
+
+        return new self(
+            subject: $subject,
+            operator: $operator,
+            value: isset($data['value']) ? (int) $data['value'] : null,
+            effectId: isset($data['effectId']) ? (string) $data['effectId'] : null,
+        );
+    }
+
+    /**
      * @return array<string, string|int>
      */
     public function toArray(): array

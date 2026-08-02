@@ -1,0 +1,37 @@
+# Effect primitives. Abilities and item properties are composed from these.
+#
+# Stacking rule: reapplying an effect refreshes its duration and never
+# accumulates magnitude. See docs/items.md and the EffectDefinition value object.
+
+- id: effect.burning
+  localisationKey: effect.burning
+  kind: damage_over_time
+  magnitude: 9
+  durationRounds: 3
+  school: arcane
+
+- id: effect.bleeding
+  localisationKey: effect.bleeding
+  kind: damage_over_time
+  magnitude: 6
+  durationRounds: 4
+  school: physical
+
+- id: effect.resolve
+  localisationKey: effect.resolve
+  kind: damage_modifier
+  magnitude: 2500
+  durationRounds: 4
+
+- id: effect.sundered
+  localisationKey: effect.sundered
+  kind: damage_modifier
+  magnitude: -2000
+  durationRounds: 3
+
+- id: effect.mending
+  localisationKey: effect.mending
+  kind: heal_over_time
+  magnitude: 14
+  durationRounds: 3
+  school: nature

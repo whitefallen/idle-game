@@ -68,6 +68,21 @@ final readonly class BattlePlan
     }
 
     /**
+     * @param list<array<string, mixed>> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        if ($data === []) {
+            throw new InvalidArgumentException('A battle plan requires at least one rule.');
+        }
+
+        return new self(array_map(
+            static fn (array $rule): PlanRule => PlanRule::fromArray($rule),
+            array_values($data),
+        ));
+    }
+
+    /**
      * @return list<array{condition: list<array<string, string|int>>, abilityId: string}>
      */
     public function toArray(): array

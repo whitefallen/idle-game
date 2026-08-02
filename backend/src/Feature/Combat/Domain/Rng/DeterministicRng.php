@@ -73,7 +73,7 @@ final class DeterministicRng
      * embarrassing to have to correct in a live economy. Rejection remains
      * fully deterministic because the retry is itself a coordinate.
      *
-     * @param int<1, 2147483648> $bound
+     * @param positive-int $bound
      *
      * @return int<0, max>
      */
@@ -99,8 +99,10 @@ final class DeterministicRng
             $raw = self::value($seed, $round, $actorOrdinal, $purpose, $rollIndex, $attempt);
 
             // Take the top 31 bits: the high bits of a splitmix64 output are
-            // the best mixed, and 31 bits keeps the value non-negative.
-            $sample = Int64::unsignedShiftRight($raw, 33);
+            // the best mixed, and 31 bits keeps the value non-negative. The
+            // mask is a no-op after a 33-bit shift, but it states the range
+            // for the reader and for static analysis.
+            $sample = Int64::unsignedShiftRight($raw, 33) & 0x7FFFFFFF;
 
             if ($sample < $limit) {
                 return $sample % $bound;
@@ -118,7 +120,9 @@ final class DeterministicRng
      * 0 bp never succeeds and 10000 bp always succeeds, both without consuming
      * a draw, so certain outcomes stay certain regardless of the mixing.
      *
-     * @param int<0, 10000> $chanceBp
+     * Values outside [0, 10000] are clamped rather than rejected: callers pass
+     * derived stats such as dodge minus accuracy, which are legitimately
+     * allowed to fall outside the range before clamping.
      */
     public static function chance(
         int $seed,

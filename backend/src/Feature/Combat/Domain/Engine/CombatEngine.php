@@ -127,7 +127,7 @@ final class CombatEngine
                 ?: $a->ordinal <=> $b->ordinal;
         });
 
-        return array_values($states);
+        return $states;
     }
 
     /**

@@ -110,7 +110,11 @@ final class Int64Test extends TestCase
         return (mt_rand() << 33) ^ (mt_rand() << 2) ^ mt_rand();
     }
 
-    /** Reinterpret a signed PHP integer as its unsigned 64-bit decimal value. */
+    /**
+     * Reinterpret a signed PHP integer as its unsigned 64-bit decimal value.
+     *
+     * @return numeric-string
+     */
     private static function toUnsignedString(int $value): string
     {
         return $value >= 0
@@ -118,11 +122,19 @@ final class Int64Test extends TestCase
             : bcadd((string) $value, self::TWO_POW_64);
     }
 
+    /**
+     * @param numeric-string $value
+     *
+     * @return numeric-string
+     */
     private static function bcWrap(string $value): string
     {
         return bcmod($value, self::TWO_POW_64);
     }
 
+    /**
+     * @param int<0, 63> $bits
+     */
     #[DataProvider('shiftCases')]
     public function testUnsignedShiftRightZeroFills(int $value, int $bits, string $expectedHex): void
     {
@@ -155,11 +167,16 @@ final class Int64Test extends TestCase
     /**
      * Guards the reason these helpers exist: the native operators leave the
      * integer domain on overflow, and a float would break reproducibility.
+     *
+     * That Int64 stays in the integer domain is guaranteed by its return type,
+     * so it is asserted here through the resulting bit pattern rather than
+     * through a type check the analyser would call redundant.
      */
     public function testNativeOperatorsWouldOverflowToFloat(): void
     {
         self::assertIsFloat(PHP_INT_MAX + 1, 'Native addition is expected to overflow to float.');
-        self::assertIsInt(Int64::add(PHP_INT_MAX, 1), 'Int64::add must stay in the integer domain.');
-        self::assertIsInt(Int64::mul(PHP_INT_MAX, PHP_INT_MAX));
+
+        self::assertSame('8000000000000000', self::hex(Int64::add(PHP_INT_MAX, 1)));
+        self::assertSame('0000000000000001', self::hex(Int64::mul(PHP_INT_MAX, PHP_INT_MAX)));
     }
 }

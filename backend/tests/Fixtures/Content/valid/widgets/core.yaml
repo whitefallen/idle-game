@@ -1,0 +1,5 @@
+- id: widget.alpha
+  size: 3
+
+- id: widget.beta
+  size: 7

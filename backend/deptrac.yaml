@@ -49,10 +49,26 @@ deptrac:
         - type: classNameRegex
           value: '#^Doctrine\\#'
 
+    # Third-party libraries are enumerated rather than blanket-allowed, so that
+    # a new vendor dependency surfaces as an uncovered violation and has to be
+    # granted to a layer deliberately.
+    - name: JsonSchema
+      collectors:
+        - type: classNameRegex
+          value: '#^Opis\\JsonSchema\\#'
+
   ruleset:
-    # The Domain depends on nothing. This is the rule that matters most: it is
-    # what keeps the combat engine unit-testable without a kernel.
-    Domain: ~
+    # The Domain depends on no outward layer, and on neither the framework nor
+    # persistence. This is the rule that matters most: it is what keeps the
+    # combat engine unit-testable without a kernel.
+    #
+    # Domain -> Domain is permitted so that one feature can use another's shared
+    # value objects (Encounter builds Combat's Participant, for instance).
+    # Feature isolation across the *application* layer is still enforced, and
+    # architecture.md section 3.1 remains the rule for behaviour: features
+    # communicate through events, never by calling each other's services.
+    Domain:
+      - Domain
 
     Application:
       - Domain
@@ -75,3 +91,4 @@ deptrac:
     Platform:
       - Symfony
       - Doctrine
+      - JsonSchema

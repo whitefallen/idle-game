@@ -69,6 +69,17 @@ final readonly class Condition
     }
 
     /**
+     * @param list<array<string, mixed>> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(array_map(
+            static fn (array $term): ConditionTerm => ConditionTerm::fromArray($term),
+            array_values($data),
+        ));
+    }
+
+    /**
      * @return list<array<string, string|int>>
      */
     public function toArray(): array

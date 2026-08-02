@@ -1,0 +1,63 @@
+# Beacon-line stretch 1 bestiary.
+#
+# Monster stats are authored directly rather than derived from attributes:
+# a monster has no equipment, no allocation and no respec, so an attribute
+# layer would be indirection with no payoff. Player-side derived stats are
+# computed from attributes and gear by the Character feature.
+
+- id: monster.blightling
+  localisationKey: monster.blightling
+  level: 3
+  maxHealth: 90
+  initiative: 95
+  maxFocus: 20
+  focusPerTurn: 4
+  weaponBaseDamage: 11
+  flatDamageBonus: 0
+  scalingBp: 10000
+  critChanceBp: 300
+  critPowerBp: 15000
+  dodgeChanceBp: 400
+  accuracyBp: 0
+  armourRating: 60
+  resistanceRatings:
+    nature: 120
+  abilities:
+    - ability.blight_lash
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.blight_lash
+
+- id: monster.blight_stalker
+  localisationKey: monster.blight_stalker
+  level: 5
+  maxHealth: 170
+  initiative: 140
+  maxFocus: 30
+  focusPerTurn: 5
+  weaponBaseDamage: 17
+  flatDamageBonus: 2
+  scalingBp: 10000
+  critChanceBp: 800
+  critPowerBp: 16000
+  dodgeChanceBp: 900
+  accuracyBp: 200
+  armourRating: 140
+  resistanceRatings:
+    nature: 200
+    physical: 40
+  abilities:
+    - ability.blight_lash
+    - ability.corrosive_spray
+  battlePlan:
+    # Opens with the area attack while it still has multiple targets, then
+    # falls back to its basic attack.
+    - condition:
+        - subject: enemy.count
+          operator: gte
+          value: 2
+      ability: ability.corrosive_spray
+    - condition:
+        - subject: always
+      ability: ability.blight_lash

@@ -1,0 +1,77 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://emberwatch.local/schema/ability.schema.json",
+    "title": "Ability definitions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "localisationKey",
+            "focusCost",
+            "cooldownRounds",
+            "damageCoefficientBp",
+            "healCoefficientBp",
+            "school",
+            "selector"
+        ],
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^ability\\.[a-z][a-z0-9_]*$"
+            },
+            "localisationKey": {
+                "type": "string",
+                "minLength": 1
+            },
+            "focusCost": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 200
+            },
+            "cooldownRounds": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 20
+            },
+            "damageCoefficientBp": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+            },
+            "healCoefficientBp": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+            },
+            "school": {
+                "enum": ["physical", "arcane", "nature"]
+            },
+            "selector": {
+                "enum": [
+                    "lowest_health_enemy",
+                    "highest_health_enemy",
+                    "random_enemy",
+                    "all_enemies",
+                    "lowest_health_ally",
+                    "self"
+                ]
+            },
+            "effectId": {
+                "type": "string",
+                "pattern": "^effect\\.[a-z][a-z0-9_]*$"
+            },
+            "effectChanceBp": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+            }
+        },
+        "dependentRequired": {
+            "effectId": ["effectChanceBp"],
+            "effectChanceBp": ["effectId"]
+        }
+    }
+}

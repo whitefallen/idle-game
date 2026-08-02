@@ -14,7 +14,14 @@
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
-        <server name="APP_ENV" value="test" force="true" />
+        <!--
+            Must be <env>, not <server>: KernelTestCase resolves the environment
+            from $_ENV before $_SERVER, and the container exports APP_ENV=dev.
+            A <server> entry would leave the kernel booting in dev, silently
+            losing the test-only services.
+        -->
+        <env name="APP_ENV" value="test" force="true" />
+        <env name="KERNEL_CLASS" value="App\Kernel" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 

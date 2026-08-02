@@ -91,18 +91,18 @@ final class CombatScenario
     }
 
     /**
-     * @param array<string, int|string|BattlePlan|Team|list<string>|array<string, int>> $overrides
+     * @param array<string, mixed> $overrides
      */
     public static function participant(string $id, Team $team, array $overrides = []): Participant
     {
+        /** @var list<string> $abilityIds */
         $abilityIds = $overrides['abilityIds'] ?? ['ability.strike'];
-        \assert(\is_array($abilityIds));
 
-        $plan = $overrides['battlePlan'] ?? BattlePlan::singleAbility((string) $abilityIds[0]);
+        $plan = $overrides['battlePlan'] ?? BattlePlan::singleAbility($abilityIds[0]);
         \assert($plan instanceof BattlePlan);
 
+        /** @var array<string, int> $resistances */
         $resistances = $overrides['resistanceRatings'] ?? [];
-        \assert(\is_array($resistances));
 
         return new Participant(
             id: $id,

@@ -1,23 +1,53 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-# See also https://symfony.com/doc/current/service_container/import.html
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # The content library lives outside backend/ because it is authored by
+    # designers and validated by its own CI job. See docs/architecture.md.
+    app.content_dir: '%env(resolve:CONTENT_DIR)%'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    _instanceof:
+        # Lets content:validate discover every feature's content without
+        # Platform depending on any feature. See ADR notes in ContentProvider.
+        App\Platform\Content\ContentProvider:
+            tags: ['app.content_provider']
+
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/**/Domain/Model/'
+            - '../src/**/Domain/Rng/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # ------------------------------------------------------------------
+    # Content pipeline
+    # ------------------------------------------------------------------
+
+    App\Platform\Content\JsonSchemaValidator:
+        arguments:
+            $schemaDirectory: '%app.content_dir%/schema'
+
+    App\Platform\Content\ContentSource:
+        arguments:
+            $contentDirectory: '%app.content_dir%'
+
+    # ------------------------------------------------------------------
+    # Repository bindings. Domain declares the interface; Infrastructure
+    # supplies the implementation.
+    # ------------------------------------------------------------------
+
+    App\Feature\Combat\Domain\Repository\AbilityRepository:
+        alias: App\Feature\Combat\Infrastructure\Content\YamlAbilityRepository
+
+    App\Feature\Combat\Domain\Repository\EffectRepository:
+        alias: App\Feature\Combat\Infrastructure\Content\YamlEffectRepository
+
+    App\Feature\Encounter\Domain\Repository\MonsterRepository:
+        alias: App\Feature\Encounter\Infrastructure\Content\YamlMonsterRepository
+
+    App\Feature\Encounter\Domain\Repository\EncounterRepository:
+        alias: App\Feature\Encounter\Infrastructure\Content\YamlEncounterRepository

@@ -1,0 +1,36 @@
+# Encounter definitions for beacon-line stretch 1.
+#
+# tier selects the XP multiplier applied in the progression rules
+# (patrol 10000, elite 25000, boss 60000 basis points).
+
+- id: encounter.stretch1.patrol
+  localisationKey: encounter.stretch1.patrol
+  level: 3
+  tier: patrol
+  vigorCost: 10
+  requiredLevel: 1
+  monsters:
+    - monster.blightling
+  dropTable: droptable.stretch1.patrol
+
+- id: encounter.stretch1.swarm
+  localisationKey: encounter.stretch1.swarm
+  level: 4
+  tier: patrol
+  vigorCost: 10
+  requiredLevel: 3
+  monsters:
+    - monster.blightling
+    - monster.blightling
+    - monster.blightling
+  dropTable: droptable.stretch1.patrol
+
+- id: encounter.stretch1.stalker
+  localisationKey: encounter.stretch1.stalker
+  level: 5
+  tier: elite
+  vigorCost: 25
+  requiredLevel: 4
+  monsters:
+    - monster.blight_stalker
+  dropTable: droptable.stretch1.elite

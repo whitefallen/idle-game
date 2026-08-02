@@ -1,0 +1,5 @@
+# size exceeds the schema maximum, and the second entry omits it entirely.
+- id: widget.alpha
+  size: 99
+
+- id: widget.beta

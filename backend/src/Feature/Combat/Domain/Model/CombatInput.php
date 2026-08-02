@@ -98,7 +98,7 @@ final readonly class CombatInput
             }
         }
 
-        $this->participants = array_values($participants);
+        $this->participants = $participants;
         $this->ordinals = $ordinals;
         $this->abilities = $abilities;
         $this->effects = $effects;
