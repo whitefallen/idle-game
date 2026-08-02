@@ -106,7 +106,7 @@ definition_id     text        NOT NULL
 seed              bigint      NOT NULL
 ruleset_version   text        NOT NULL
 input_snapshot    jsonb       NOT NULL
-log               bytea       NOT NULL      -- zstd-compressed JSON
+log               bytea       NOT NULL      -- gzip-compressed JSON (ext-zlib)
 outcome           text        NOT NULL      -- victory | defeat | draw
 rounds            int         NOT NULL
 rewards           jsonb       NOT NULL

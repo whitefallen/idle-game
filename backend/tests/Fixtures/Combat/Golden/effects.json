@@ -1,0 +1,610 @@
+{
+    "seed": "1056899075",
+    "log": {
+        "logVersion": 1,
+        "rulesetVersion": "1.0.0",
+        "seed": "1056899075",
+        "outcome": "defeat",
+        "rounds": 15,
+        "participants": [
+            {
+                "id": "a-emberwarden",
+                "definitionId": "test.dummy",
+                "name": "a-emberwarden",
+                "team": "players",
+                "level": 10,
+                "maxHealth": 420,
+                "maxFocus": 45
+            },
+            {
+                "id": "b-blightbeast",
+                "definitionId": "test.dummy",
+                "name": "b-blightbeast",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 600,
+                "maxFocus": 50
+            }
+        ],
+        "events": [
+            {
+                "t": "round.start",
+                "round": 1
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 3,
+                "ability": "ability.ignite"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 10,
+                "crit": false,
+                "school": "arcane",
+                "targetHealth": 590
+            },
+            {
+                "t": "effect.applied",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "rounds": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 387
+            },
+            {
+                "t": "round.start",
+                "round": 2
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 581
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 563
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 354
+            },
+            {
+                "t": "round.start",
+                "round": 3
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 554
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 536
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 321
+            },
+            {
+                "t": "round.start",
+                "round": 4
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 527
+            },
+            {
+                "t": "effect.expired",
+                "target": "b-blightbeast",
+                "effect": "effect.burning"
+            },
+            {
+                "t": "plan.exhausted",
+                "actor": "a-emberwarden"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 288
+            },
+            {
+                "t": "round.start",
+                "round": 5
+            },
+            {
+                "t": "plan.exhausted",
+                "actor": "a-emberwarden"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 255
+            },
+            {
+                "t": "round.start",
+                "round": 6
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 3,
+                "ability": "ability.ignite"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 10,
+                "crit": false,
+                "school": "arcane",
+                "targetHealth": 517
+            },
+            {
+                "t": "effect.applied",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "rounds": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 222
+            },
+            {
+                "t": "round.start",
+                "round": 7
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 508
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 490
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 189
+            },
+            {
+                "t": "round.start",
+                "round": 8
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 481
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 463
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 156
+            },
+            {
+                "t": "round.start",
+                "round": 9
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 454
+            },
+            {
+                "t": "effect.expired",
+                "target": "b-blightbeast",
+                "effect": "effect.burning"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 1,
+                "ability": "ability.emberdraught"
+            },
+            {
+                "t": "heal",
+                "source": "a-emberwarden",
+                "target": "a-emberwarden",
+                "amount": 23,
+                "targetHealth": 179
+            },
+            {
+                "t": "effect.applied",
+                "source": "a-emberwarden",
+                "target": "a-emberwarden",
+                "effect": "effect.resolve",
+                "rounds": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 146
+            },
+            {
+                "t": "round.start",
+                "round": 10
+            },
+            {
+                "t": "plan.exhausted",
+                "actor": "a-emberwarden"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 113
+            },
+            {
+                "t": "round.start",
+                "round": 11
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 3,
+                "ability": "ability.ignite"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 13,
+                "crit": false,
+                "school": "arcane",
+                "targetHealth": 441
+            },
+            {
+                "t": "effect.applied",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "rounds": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 80
+            },
+            {
+                "t": "round.start",
+                "round": 12
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 432
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-emberwarden",
+                "target": "b-blightbeast",
+                "amount": 22,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 410
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 47
+            },
+            {
+                "t": "round.start",
+                "round": 13
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 401
+            },
+            {
+                "t": "effect.expired",
+                "target": "a-emberwarden",
+                "effect": "effect.resolve"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-emberwarden",
+                "rule": 1,
+                "ability": "ability.emberdraught"
+            },
+            {
+                "t": "heal",
+                "source": "a-emberwarden",
+                "target": "a-emberwarden",
+                "amount": 23,
+                "targetHealth": 70
+            },
+            {
+                "t": "effect.applied",
+                "source": "a-emberwarden",
+                "target": "a-emberwarden",
+                "effect": "effect.resolve",
+                "rounds": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 37
+            },
+            {
+                "t": "round.start",
+                "round": 14
+            },
+            {
+                "t": "effect.ticked",
+                "target": "b-blightbeast",
+                "effect": "effect.burning",
+                "amount": 9,
+                "targetHealth": 392
+            },
+            {
+                "t": "effect.expired",
+                "target": "b-blightbeast",
+                "effect": "effect.burning"
+            },
+            {
+                "t": "plan.exhausted",
+                "actor": "a-emberwarden"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 4
+            },
+            {
+                "t": "round.start",
+                "round": 15
+            },
+            {
+                "t": "plan.exhausted",
+                "actor": "a-emberwarden"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightbeast",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightbeast",
+                "target": "a-emberwarden",
+                "amount": 33,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "a-emberwarden"
+            },
+            {
+                "t": "encounter.end",
+                "outcome": "defeat",
+                "rounds": 15
+            }
+        ]
+    }
+}

@@ -1,0 +1,366 @@
+{
+    "seed": "195936478",
+    "log": {
+        "logVersion": 1,
+        "rulesetVersion": "1.0.0",
+        "seed": "195936478",
+        "outcome": "victory",
+        "rounds": 10,
+        "participants": [
+            {
+                "id": "a-warden",
+                "definitionId": "test.dummy",
+                "name": "Warden",
+                "team": "players",
+                "level": 10,
+                "maxHealth": 320,
+                "maxFocus": 50
+            },
+            {
+                "id": "b-blightling",
+                "definitionId": "test.dummy",
+                "name": "Blightling",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 260,
+                "maxFocus": 50
+            }
+        ],
+        "events": [
+            {
+                "t": "round.start",
+                "round": 1
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 233
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 302
+            },
+            {
+                "t": "round.start",
+                "round": 2
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 206
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 284
+            },
+            {
+                "t": "round.start",
+                "round": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 179
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 266
+            },
+            {
+                "t": "round.start",
+                "round": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 152
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 248
+            },
+            {
+                "t": "round.start",
+                "round": 5
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 125
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 230
+            },
+            {
+                "t": "round.start",
+                "round": 6
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 98
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 212
+            },
+            {
+                "t": "round.start",
+                "round": 7
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 71
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 194
+            },
+            {
+                "t": "round.start",
+                "round": 8
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 44
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 176
+            },
+            {
+                "t": "round.start",
+                "round": 9
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 17
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-blightling",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-blightling",
+                "target": "a-warden",
+                "amount": 18,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 158
+            },
+            {
+                "t": "round.start",
+                "round": 10
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-blightling",
+                "amount": 27,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "b-blightling"
+            },
+            {
+                "t": "encounter.end",
+                "outcome": "victory",
+                "rounds": 10
+            }
+        ]
+    }
+}

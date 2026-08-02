@@ -1,0 +1,489 @@
+{
+    "seed": "1373503489",
+    "log": {
+        "logVersion": 1,
+        "rulesetVersion": "1.0.0",
+        "seed": "1373503489",
+        "outcome": "defeat",
+        "rounds": 14,
+        "participants": [
+            {
+                "id": "a-duellist",
+                "definitionId": "test.dummy",
+                "name": "a-duellist",
+                "team": "players",
+                "level": 10,
+                "maxHealth": 400,
+                "maxFocus": 50
+            },
+            {
+                "id": "b-shade",
+                "definitionId": "test.dummy",
+                "name": "b-shade",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 380,
+                "maxFocus": 50
+            }
+        ],
+        "events": [
+            {
+                "t": "round.start",
+                "round": 1
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "a-duellist",
+                "target": "b-shade"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 368
+            },
+            {
+                "t": "round.start",
+                "round": 2
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 350
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 336
+            },
+            {
+                "t": "round.start",
+                "round": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 320
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 304
+            },
+            {
+                "t": "round.start",
+                "round": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 290
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 48,
+                "crit": true,
+                "school": "physical",
+                "targetHealth": 256
+            },
+            {
+                "t": "round.start",
+                "round": 5
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "a-duellist",
+                "target": "b-shade"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "b-shade",
+                "target": "a-duellist"
+            },
+            {
+                "t": "round.start",
+                "round": 6
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "a-duellist",
+                "target": "b-shade"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "b-shade",
+                "target": "a-duellist"
+            },
+            {
+                "t": "round.start",
+                "round": 7
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "a-duellist",
+                "target": "b-shade"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 224
+            },
+            {
+                "t": "round.start",
+                "round": 8
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 260
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 48,
+                "crit": true,
+                "school": "physical",
+                "targetHealth": 176
+            },
+            {
+                "t": "round.start",
+                "round": 9
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 230
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 48,
+                "crit": true,
+                "school": "physical",
+                "targetHealth": 128
+            },
+            {
+                "t": "round.start",
+                "round": 10
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 200
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "miss",
+                "source": "b-shade",
+                "target": "a-duellist"
+            },
+            {
+                "t": "round.start",
+                "round": 11
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 170
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 48,
+                "crit": true,
+                "school": "physical",
+                "targetHealth": 80
+            },
+            {
+                "t": "round.start",
+                "round": 12
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 140
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 48
+            },
+            {
+                "t": "round.start",
+                "round": 13
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 110
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 32,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 16
+            },
+            {
+                "t": "round.start",
+                "round": 14
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-duellist",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-duellist",
+                "target": "b-shade",
+                "amount": 30,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 80
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-shade",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-shade",
+                "target": "a-duellist",
+                "amount": 48,
+                "crit": true,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "a-duellist"
+            },
+            {
+                "t": "encounter.end",
+                "outcome": "defeat",
+                "rounds": 14
+            }
+        ]
+    }
+}

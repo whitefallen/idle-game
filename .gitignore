@@ -1,0 +1,23 @@
+# Backend
+/backend/vendor/
+/backend/var/
+/backend/.env.local
+/backend/.env.*.local
+/backend/public/bundles/
+/backend/.phpunit.result.cache
+
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+/frontend/src/lib/api/generated/
+
+# Docker
+/.docker-data/
+
+# Tooling
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db

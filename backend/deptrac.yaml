@@ -1,0 +1,77 @@
+# Layering enforcement.
+#
+# Dependencies point inward only: Http -> Application -> Domain. The Domain
+# layer imports nothing from Symfony, Doctrine or Platform.
+#
+# This is enforced by a failing build rather than by convention because layering
+# decays under deadline pressure. See docs/architecture.md section 2.
+
+deptrac:
+  paths:
+    - ./src
+
+  layers:
+    - name: Domain
+      collectors:
+        - type: directory
+          value: src/Feature/[^/]+/Domain/.*
+
+    - name: Application
+      collectors:
+        - type: directory
+          value: src/Feature/[^/]+/Application/.*
+
+    - name: Infrastructure
+      collectors:
+        - type: directory
+          value: src/Feature/[^/]+/Infrastructure/.*
+
+    - name: Http
+      collectors:
+        - type: directory
+          value: src/Feature/[^/]+/Http/.*
+
+    # Cross-cutting technical capability. If it encodes a game rule it belongs
+    # in a Feature; if it would be recognisable in a non-game application it
+    # belongs here.
+    - name: Platform
+      collectors:
+        - type: directory
+          value: src/Platform/.*
+
+    - name: Symfony
+      collectors:
+        - type: classNameRegex
+          value: '#^Symfony\\#'
+
+    - name: Doctrine
+      collectors:
+        - type: classNameRegex
+          value: '#^Doctrine\\#'
+
+  ruleset:
+    # The Domain depends on nothing. This is the rule that matters most: it is
+    # what keeps the combat engine unit-testable without a kernel.
+    Domain: ~
+
+    Application:
+      - Domain
+      - Platform
+      - Symfony
+
+    Infrastructure:
+      - Domain
+      - Application
+      - Platform
+      - Symfony
+      - Doctrine
+
+    Http:
+      - Domain
+      - Application
+      - Platform
+      - Symfony
+
+    Platform:
+      - Symfony
+      - Doctrine

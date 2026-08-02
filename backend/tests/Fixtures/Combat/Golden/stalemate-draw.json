@@ -1,0 +1,1737 @@
+{
+    "seed": "233439236",
+    "log": {
+        "logVersion": 1,
+        "rulesetVersion": "1.0.0",
+        "seed": "233439236",
+        "outcome": "draw",
+        "rounds": 50,
+        "participants": [
+            {
+                "id": "a-bulwark",
+                "definitionId": "test.dummy",
+                "name": "a-bulwark",
+                "team": "players",
+                "level": 10,
+                "maxHealth": 900000,
+                "maxFocus": 50
+            },
+            {
+                "id": "b-monolith",
+                "definitionId": "test.dummy",
+                "name": "b-monolith",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 900000,
+                "maxFocus": 50
+            }
+        ],
+        "events": [
+            {
+                "t": "round.start",
+                "round": 1
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899999
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899999
+            },
+            {
+                "t": "round.start",
+                "round": 2
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899998
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899998
+            },
+            {
+                "t": "round.start",
+                "round": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899997
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899997
+            },
+            {
+                "t": "round.start",
+                "round": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899996
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899996
+            },
+            {
+                "t": "round.start",
+                "round": 5
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899995
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899995
+            },
+            {
+                "t": "round.start",
+                "round": 6
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899994
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899994
+            },
+            {
+                "t": "round.start",
+                "round": 7
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899993
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899993
+            },
+            {
+                "t": "round.start",
+                "round": 8
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899992
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899992
+            },
+            {
+                "t": "round.start",
+                "round": 9
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899991
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899991
+            },
+            {
+                "t": "round.start",
+                "round": 10
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899990
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899990
+            },
+            {
+                "t": "round.start",
+                "round": 11
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899989
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899989
+            },
+            {
+                "t": "round.start",
+                "round": 12
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899988
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899988
+            },
+            {
+                "t": "round.start",
+                "round": 13
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899987
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899987
+            },
+            {
+                "t": "round.start",
+                "round": 14
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899986
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899986
+            },
+            {
+                "t": "round.start",
+                "round": 15
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899985
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899985
+            },
+            {
+                "t": "round.start",
+                "round": 16
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899984
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899984
+            },
+            {
+                "t": "round.start",
+                "round": 17
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899983
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899983
+            },
+            {
+                "t": "round.start",
+                "round": 18
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899982
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899982
+            },
+            {
+                "t": "round.start",
+                "round": 19
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899981
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899981
+            },
+            {
+                "t": "round.start",
+                "round": 20
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899980
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899980
+            },
+            {
+                "t": "round.start",
+                "round": 21
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899979
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899979
+            },
+            {
+                "t": "round.start",
+                "round": 22
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899978
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899978
+            },
+            {
+                "t": "round.start",
+                "round": 23
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899977
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899977
+            },
+            {
+                "t": "round.start",
+                "round": 24
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899976
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899976
+            },
+            {
+                "t": "round.start",
+                "round": 25
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899975
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899975
+            },
+            {
+                "t": "round.start",
+                "round": 26
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899974
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899974
+            },
+            {
+                "t": "round.start",
+                "round": 27
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899973
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899973
+            },
+            {
+                "t": "round.start",
+                "round": 28
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899972
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899972
+            },
+            {
+                "t": "round.start",
+                "round": 29
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899971
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899971
+            },
+            {
+                "t": "round.start",
+                "round": 30
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899970
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899970
+            },
+            {
+                "t": "round.start",
+                "round": 31
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899969
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899969
+            },
+            {
+                "t": "round.start",
+                "round": 32
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899968
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899968
+            },
+            {
+                "t": "round.start",
+                "round": 33
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899967
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899967
+            },
+            {
+                "t": "round.start",
+                "round": 34
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899966
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899966
+            },
+            {
+                "t": "round.start",
+                "round": 35
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899965
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899965
+            },
+            {
+                "t": "round.start",
+                "round": 36
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899964
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899964
+            },
+            {
+                "t": "round.start",
+                "round": 37
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899963
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899963
+            },
+            {
+                "t": "round.start",
+                "round": 38
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899962
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899962
+            },
+            {
+                "t": "round.start",
+                "round": 39
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899961
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899961
+            },
+            {
+                "t": "round.start",
+                "round": 40
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899960
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899960
+            },
+            {
+                "t": "round.start",
+                "round": 41
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899959
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899959
+            },
+            {
+                "t": "round.start",
+                "round": 42
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899958
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899958
+            },
+            {
+                "t": "round.start",
+                "round": 43
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899957
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899957
+            },
+            {
+                "t": "round.start",
+                "round": 44
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899956
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899956
+            },
+            {
+                "t": "round.start",
+                "round": 45
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899955
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899955
+            },
+            {
+                "t": "round.start",
+                "round": 46
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899954
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899954
+            },
+            {
+                "t": "round.start",
+                "round": 47
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899953
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899953
+            },
+            {
+                "t": "round.start",
+                "round": 48
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899952
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899952
+            },
+            {
+                "t": "round.start",
+                "round": 49
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899951
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899951
+            },
+            {
+                "t": "round.start",
+                "round": 50
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-bulwark",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-bulwark",
+                "target": "b-monolith",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899950
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-monolith",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-monolith",
+                "target": "a-bulwark",
+                "amount": 1,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 899950
+            },
+            {
+                "t": "encounter.end",
+                "outcome": "draw",
+                "rounds": 50
+            }
+        ]
+    }
+}

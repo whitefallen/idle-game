@@ -8,7 +8,7 @@ Monorepo ([ADR-0001](adr/0001-monorepo-layout.md)).
 
 ```
 idle-game/
-├── backend/            Symfony 7 / PHP 8.4 application
+├── backend/            Symfony 7.4 LTS / PHP 8.4 application
 │   ├── src/
 │   │   ├── Feature/            One directory per business domain
 │   │   ├── Platform/           Cross-cutting technical capability

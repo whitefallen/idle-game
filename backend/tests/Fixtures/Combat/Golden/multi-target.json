@@ -1,0 +1,480 @@
+{
+    "seed": "2057043970",
+    "log": {
+        "logVersion": 1,
+        "rulesetVersion": "1.0.0",
+        "seed": "2057043970",
+        "outcome": "victory",
+        "rounds": 8,
+        "participants": [
+            {
+                "id": "a-warden",
+                "definitionId": "test.dummy",
+                "name": "a-warden",
+                "team": "players",
+                "level": 10,
+                "maxHealth": 500,
+                "maxFocus": 40
+            },
+            {
+                "id": "b-swarm-one",
+                "definitionId": "test.dummy",
+                "name": "b-swarm-one",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 120,
+                "maxFocus": 50
+            },
+            {
+                "id": "c-swarm-two",
+                "definitionId": "test.dummy",
+                "name": "c-swarm-two",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 120,
+                "maxFocus": 50
+            },
+            {
+                "id": "d-swarm-three",
+                "definitionId": "test.dummy",
+                "name": "d-swarm-three",
+                "team": "enemies",
+                "level": 10,
+                "maxHealth": 120,
+                "maxFocus": 50
+            }
+        ],
+        "events": [
+            {
+                "t": "round.start",
+                "round": 1
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.sweeping_arc"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-swarm-one",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 92
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "c-swarm-two",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 92
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "d-swarm-three",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 92
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-swarm-one",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-swarm-one",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 486
+            },
+            {
+                "t": "plan.matched",
+                "actor": "c-swarm-two",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "c-swarm-two",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 472
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 458
+            },
+            {
+                "t": "round.start",
+                "round": 2
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-swarm-one",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 52
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-swarm-one",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-swarm-one",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 444
+            },
+            {
+                "t": "plan.matched",
+                "actor": "c-swarm-two",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "c-swarm-two",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 430
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 416
+            },
+            {
+                "t": "round.start",
+                "round": 3
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-swarm-one",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 12
+            },
+            {
+                "t": "plan.matched",
+                "actor": "b-swarm-one",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "b-swarm-one",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 402
+            },
+            {
+                "t": "plan.matched",
+                "actor": "c-swarm-two",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "c-swarm-two",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 388
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 374
+            },
+            {
+                "t": "round.start",
+                "round": 4
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 1,
+                "ability": "ability.sweeping_arc"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "b-swarm-one",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "b-swarm-one"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "c-swarm-two",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 64
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "d-swarm-three",
+                "amount": 28,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 64
+            },
+            {
+                "t": "plan.matched",
+                "actor": "c-swarm-two",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "c-swarm-two",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 360
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 346
+            },
+            {
+                "t": "round.start",
+                "round": 5
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "c-swarm-two",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 24
+            },
+            {
+                "t": "plan.matched",
+                "actor": "c-swarm-two",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "c-swarm-two",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 332
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 318
+            },
+            {
+                "t": "round.start",
+                "round": 6
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "c-swarm-two",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "c-swarm-two"
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 304
+            },
+            {
+                "t": "round.start",
+                "round": 7
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "d-swarm-three",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 24
+            },
+            {
+                "t": "plan.matched",
+                "actor": "d-swarm-three",
+                "rule": 1,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "d-swarm-three",
+                "target": "a-warden",
+                "amount": 14,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 290
+            },
+            {
+                "t": "round.start",
+                "round": 8
+            },
+            {
+                "t": "plan.matched",
+                "actor": "a-warden",
+                "rule": 2,
+                "ability": "ability.strike"
+            },
+            {
+                "t": "damage",
+                "source": "a-warden",
+                "target": "d-swarm-three",
+                "amount": 40,
+                "crit": false,
+                "school": "physical",
+                "targetHealth": 0
+            },
+            {
+                "t": "died",
+                "participant": "d-swarm-three"
+            },
+            {
+                "t": "encounter.end",
+                "outcome": "victory",
+                "rounds": 8
+            }
+        ]
+    }
+}
