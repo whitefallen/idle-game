@@ -25,21 +25,28 @@ final class ApiException extends RuntimeException implements HttpExceptionInterf
     /**
      * @param array<string, mixed> $details Structured context the UI can render.
      */
+    /**
+     * @param array<string, mixed>  $details
+     * @param array<string, string> $headers Response headers the error needs,
+     *                                       such as Retry-After on a 429.
+     */
     public function __construct(
         public readonly ErrorCode $errorCode,
         string $message,
         public readonly array $details = [],
+        private readonly array $headers = [],
         ?Throwable $previous = null,
     ) {
         parent::__construct($message, $errorCode->httpStatus(), $previous);
     }
 
     /**
-     * @param array<string, mixed> $details
+     * @param array<string, mixed>  $details
+     * @param array<string, string> $headers
      */
-    public static function of(ErrorCode $code, string $message, array $details = []): self
+    public static function of(ErrorCode $code, string $message, array $details = [], array $headers = []): self
     {
-        return new self($code, $message, $details);
+        return new self($code, $message, $details, $headers);
     }
 
     public function getStatusCode(): int
@@ -52,7 +59,7 @@ final class ApiException extends RuntimeException implements HttpExceptionInterf
      */
     public function getHeaders(): array
     {
-        return [];
+        return $this->headers;
     }
 
     public static function notFound(string $what): self

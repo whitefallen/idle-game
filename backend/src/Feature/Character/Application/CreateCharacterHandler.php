@@ -7,6 +7,8 @@ namespace App\Feature\Character\Application;
 use App\Feature\Character\Domain\Entity\Character;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
 use App\Feature\Character\Domain\Service\StartingLoadout;
+use App\Platform\Audit\AuditAction;
+use App\Platform\Audit\AuditLogger;
 use App\Platform\Clock\Clock;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ErrorCode;
@@ -30,6 +32,7 @@ final class CreateCharacterHandler
         private readonly IdentifierGenerator $identifiers,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -65,6 +68,13 @@ final class CreateCharacterHandler
         );
 
         $this->characters->save($character);
+
+        $this->audit->record(
+            AuditAction::CharacterCreated,
+            ['name' => $name],
+            $accountId,
+            $character->id(),
+        );
 
         try {
             $this->transactions->commit();

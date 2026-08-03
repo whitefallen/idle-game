@@ -11,8 +11,10 @@ use App\Platform\Http\ApiResponder;
 use App\Platform\Http\ErrorCode;
 use App\Platform\Http\JsonBody;
 use App\Platform\Security\CurrentAccount;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -47,8 +49,29 @@ final class AuthController
     }
 
     #[Route('/register', name: 'auth_register', methods: ['POST'])]
-    public function register(Request $request, RegisterAccountHandler $handler): JsonResponse
-    {
+    public function register(
+        Request $request,
+        RegisterAccountHandler $handler,
+        #[Autowire(service: 'limiter.registration')]
+        RateLimiterFactoryInterface $registrationLimiter,
+    ): JsonResponse {
+        // Consumed before any work is done, so a flood costs a Redis-style
+        // counter increment rather than a password hash — which is deliberately
+        // expensive and would otherwise be the cheapest denial of service
+        // available against this endpoint.
+        $limit = $registrationLimiter->create($request->getClientIp())->consume();
+
+        if (!$limit->isAccepted()) {
+            $retryAfter = max(1, $limit->getRetryAfter()->getTimestamp() - time());
+
+            throw ApiException::of(
+                ErrorCode::RateLimited,
+                'Too many registrations from this address. Try again later.',
+                ['retry_after' => $retryAfter],
+                ['Retry-After' => (string) $retryAfter],
+            );
+        }
+
         $body = JsonBody::from($request);
 
         $account = $handler(

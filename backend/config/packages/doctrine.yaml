@@ -56,6 +56,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Platform/Idempotency'
                 prefix: 'App\Platform\Idempotency'
                 alias: Idempotency
+            Audit:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Platform/Audit'
+                prefix: 'App\Platform\Audit'
+                alias: Audit
 
         controller_resolver:
             auto_mapping: false

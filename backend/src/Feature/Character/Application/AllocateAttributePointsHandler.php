@@ -7,6 +7,8 @@ namespace App\Feature\Character\Application;
 use App\Feature\Character\Domain\Entity\Character;
 use App\Feature\Character\Domain\Model\Attribute;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
+use App\Platform\Audit\AuditAction;
+use App\Platform\Audit\AuditLogger;
 use App\Platform\Clock\Clock;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ErrorCode;
@@ -21,6 +23,7 @@ final class AllocateAttributePointsHandler
         private readonly CharacterRepository $characters,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -52,6 +55,17 @@ final class AllocateAttributePointsHandler
                 } catch (InvalidArgumentException $e) {
                     throw ApiException::of(ErrorCode::ValidationFailed, $e->getMessage());
                 }
+
+                $this->audit->record(
+                    AuditAction::AttributesAllocated,
+                    [
+                        'allocation' => $normalised,
+                        'attributes' => $character->attributes()->toArray(),
+                        'unspentPoints' => $character->unspentPoints(),
+                    ],
+                    $accountId,
+                    $character->id(),
+                );
 
                 return $character;
             },

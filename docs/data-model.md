@@ -116,10 +116,9 @@ created_at        timestamptz NOT NULL
 The four columns `seed`, `ruleset_version`, `input_snapshot` and `log` are what
 make combat auditable years later ([combat.md](combat.md) §1.2).
 
-This is the **highest-growth table in the schema** and is planned for
-**monthly range partitioning on `created_at`** from the first migration.
-Partitioning added later requires rewriting the table; adding it up front is
-nearly free. Retention in §6.
+This is the **highest-growth table in the schema**. It is an ordinary table;
+retention is handled by batched deletion rather than partitioning, for the
+reasons in §6.
 
 ### `holding`
 ```
@@ -149,17 +148,35 @@ table's history grows.
 
 ### `audit_log`
 ```
-id            uuid        PK
-account_id    uuid        NULL
-character_id  uuid        NULL
-action        text        NOT NULL
-context       jsonb       NOT NULL
-ip_hash       text        NULL
-occurred_at   timestamptz NOT NULL
+id            uuid          -- PK is (id, occurred_at); see partitioning below
+action        varchar(60)   NOT NULL
+account_id    uuid          NULL
+character_id  uuid          NULL
+context       jsonb         NOT NULL
+ip_hash       varchar(64)   NULL
+occurred_at   timestamptz   NOT NULL
 ```
-Append-only; no update or delete path exists in application code. Covers every
-currency mutation, item creation and destruction, claim, purchase, and every
-authorisation failure. Also range-partitioned monthly.
+Append-only; the entity exposes no mutator and no repository offers an update or
+delete path. An audit record that can be edited is not evidence.
+
+`ip_hash` is a salted SHA-256 digest, never the address. An address identifies a
+person and this table is long-lived; the hash still answers "how many failures
+from one source" without retaining the source.
+
+`action` is a stable enum (`App\Platform\Audit\AuditAction`), not free text — a
+typo in a string would create a second, silently separate category and quietly
+break the aggregate queries the table exists to serve.
+
+**Granularity.** An encounter writes one record carrying every mutation it
+caused, each with its amount and resulting balance, rather than one record per
+mutation. Both satisfy the requirement in [economy.md](economy.md) §5; one row
+per mutation would mean roughly a hundred rows per player per day at the Vigor
+cap for no extra investigative power, since the mutations of a single fight are
+only ever read together.
+
+Indexes lead with the column an investigation filters on and end with
+`occurred_at`, so a time-bounded query prunes partitions:
+`(account_id, occurred_at)`, `(character_id, occurred_at)`, `(action, occurred_at)`.
 
 ### `idempotency_record`
 ```
@@ -219,13 +236,58 @@ across separate releases.
 Unbounded growth is this schema's most predictable operational problem, so the
 policy exists before the data does:
 
-| Table | Retention | Mechanism |
-|---|---|---|
-| `encounter` | Full log 90 days; summary retained indefinitely | Drop partition, after writing the summary row |
-| `audit_log` | 400 days (covers a full year plus investigation lag) | Drop partition |
-| `outbox` | Published rows deleted after 7 days | Scheduled cleanup |
-| `idempotency_record` | 24 hours | Scheduled cleanup |
+The policy is declared in one place, `App\Platform\Retention\RetentionPolicy`,
+so it is reviewable as a policy rather than scattered across whichever command
+deletes each table. `RetentionPruneTest` asserts every declared column actually
+exists, because a prune that targets a missing column fails at runtime on a
+table nobody is watching.
 
-Dropping a partition is a metadata operation. Deleting rows from a
-hundred-million-row table is an incident. That difference is the entire reason
-these tables are partitioned from day one.
+| Table | Retention | Why |
+|---|---|---|
+| `encounter` | 90 days | Full combat logs are large and almost never read after the session that produced them |
+| `audit_log` | 400 days | A full year plus investigation lag, so a dispute raised late still has evidence |
+| `outbox` | 7 days after publication | Kept only long enough to debug a delivery problem |
+| `idempotency_record` | 24 hours | Matches the replay window in [api.md](api.md) §4 |
+
+### Why batched deletion rather than partitioning
+
+Range partitioning makes deletion nearly free — dropping a partition is a
+metadata operation, while deleting from a very large table is slow, generates
+WAL and leaves bloat. That argument is real, and it is why the first
+implementation here was partitioned.
+
+It was reverted, for three reasons:
+
+**It inverts the failure mode of the scheduled job.** Partitions must exist
+before rows land in their range, so a missed partition-creation run means
+inserts start failing — for `encounter`, players cannot fight. With batched
+deletion a missed run costs disk and nothing else. Trading an outage risk for a
+disk-usage risk is the right way round.
+
+**It made the most common read slower.** A partitioned table's primary key must
+contain the partition column, so a lookup by `id` alone probes every partition —
+twelve more each year. `GET /encounters/{id}` is the replay endpoint and is the
+hottest read on that table.
+
+**The maintenance is real.** Partitioned tables cannot be described by Doctrine,
+so they become hand-managed DDL excluded from `migrations:diff`, and both sides
+of the schema comparison must be filtered or `schema:validate` goes permanently
+red.
+
+At the Vigor cap of 24 encounters per player per day and roughly 5 KB a row,
+1,000 daily actives produce about 3.6 GB a month and 2 million rows to prune —
+comfortably an overnight batch job. Partitioning earns its keep an order of
+magnitude above that.
+
+**Revisit when** a monthly prune stops finishing inside its window, or
+`encounter` passes roughly 50 GB. At that point convert with measurements in
+hand, and consider `pg_partman` rather than hand-rolled DDL.
+
+### A note on `json` versus `jsonb`
+
+`audit_log.context` is `jsonb`; the other JSON columns are `json`, which is what
+Doctrine's `json` type maps to on PostgreSQL. `jsonb` is the better default — it
+is parsed once and can be indexed — and the audit context needs it because
+investigations query inside it. Doctrine can emit it via
+`options: ['jsonb' => true]`, so converting the rest is a small migration that
+has simply not been done yet.

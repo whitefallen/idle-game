@@ -20,8 +20,9 @@ use Symfony\Component\Uid\Uuid;
  * without it, re-equipping an item silently invalidates every past fight and
  * the reproducibility claim cannot actually be checked. See ADR-0002.
  *
- * This is the highest-growth table in the schema; retention and partitioning
- * are covered in docs/data-model.md section 6.
+ * This is the highest-growth table in the schema. Rows are removed by
+ * `db:retention:prune` once past the retention window; see
+ * docs/data-model.md section 6.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter')]

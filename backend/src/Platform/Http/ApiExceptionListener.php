@@ -53,11 +53,9 @@ final class ApiExceptionListener
         $exception = $event->getThrowable();
 
         $response = match (true) {
-            $exception instanceof ApiException => $this->responder->error(
-                $exception->errorCode,
-                $exception->getMessage(),
-                $exception->details,
-            ),
+            $exception instanceof ApiException => $this->responder
+                ->error($exception->errorCode, $exception->getMessage(), $exception->details)
+                ->withHeaders($exception->getHeaders()),
 
             $exception instanceof AuthenticationException => $this->responder->error(
                 ErrorCode::AuthenticationRequired,

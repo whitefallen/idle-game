@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Feature\Account\Infrastructure\Security;
 
+use App\Platform\Audit\AuditAction;
+use App\Platform\Audit\AuditLogger;
 use App\Platform\Http\ApiResponder;
 use App\Platform\Http\ErrorCode;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Renders login outcomes in the API envelope rather than the security
@@ -22,17 +25,24 @@ final class JsonLoginHandler implements AuthenticationSuccessHandlerInterface, A
 {
     public function __construct(
         private readonly ApiResponder $responder,
-        private readonly LoggerInterface $logger,
+        private readonly AuditLogger $audit,
     ) {
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): Response
     {
         $user = $token->getUser();
+        $accountId = $user instanceof AccountUser ? $user->accountId() : null;
+
+        $this->audit->recordNow(
+            AuditAction::AuthenticationSucceeded,
+            [],
+            $accountId === null ? null : Uuid::fromString($accountId),
+        );
 
         return $this->responder->ok([
             'account' => [
-                'id' => $user instanceof AccountUser ? $user->accountId() : null,
+                'id' => $accountId,
                 'email' => $user?->getUserIdentifier(),
             ],
         ]);
@@ -40,10 +50,26 @@ final class JsonLoginHandler implements AuthenticationSuccessHandlerInterface, A
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        // Every failure is audited: credential stuffing is visible in aggregate
-        // long before it is visible in any single request.
-        $this->logger->warning('Authentication failed', [
-            'ip_hash' => hash('sha256', (string) $request->getClientIp()),
+        // Throttling is reported distinctly from bad credentials. The client
+        // needs to know to back off rather than to re-prompt for a password,
+        // and repeated throttling is itself the signal worth alerting on.
+        if ($exception instanceof TooManyLoginAttemptsAuthenticationException) {
+            $this->audit->recordNow(AuditAction::RateLimitExceeded, ['endpoint' => 'auth.login']);
+
+            return $this->responder->error(
+                ErrorCode::RateLimited,
+                'Too many attempts. Try again shortly.',
+            );
+        }
+
+        // Written immediately rather than staged: there is no transaction to
+        // join, and this record must survive the request failing. Credential
+        // stuffing is visible in aggregate long before it is visible in any
+        // single request, so the aggregate has to exist.
+        //
+        // The account is deliberately not resolved — doing so would mean
+        // confirming which addresses are registered in order to write a log line.
+        $this->audit->recordNow(AuditAction::AuthenticationFailed, [
             'reason' => $exception::class,
         ]);
 

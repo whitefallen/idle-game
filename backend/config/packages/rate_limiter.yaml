@@ -1,0 +1,14 @@
+framework:
+    rate_limiter:
+        # Registration is limited per client address. The window is long because
+        # legitimate use is rare — a person creates one account — while
+        # automated signup abuse is high-volume by nature.
+        registration:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+
+# The test environment uses the same limits as production on purpose: a limiter
+# configured differently under test is a limiter nobody has actually tested.
+# ApiTestCase clears the limiter storage between cases instead, so the suite
+# does not trip it and a dedicated test can still exhaust it deliberately.

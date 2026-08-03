@@ -34,6 +34,13 @@ final class CrossAggregateForeignKeyListener
     private const array REFERENCES = [
         ['game_character', 'account_id', 'account', 'id', 'CASCADE'],
         ['encounter', 'character_id', 'game_character', 'id', 'CASCADE'],
+
+        // audit_log deliberately has no foreign key, which is the one exception
+        // to the rule in docs/data-model.md section 1. An audit record must
+        // outlive what it describes: a cascade would erase the trail for a
+        // deleted account, and SET NULL would erase which account it concerned
+        // — in both cases destroying the evidence exactly when an
+        // investigation is most likely to need it.
     ];
 
     public function postGenerateSchema(GenerateSchemaEventArgs $args): void

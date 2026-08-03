@@ -56,7 +56,7 @@ final class ApiResponder
     /**
      * @param array<string, mixed> $details
      */
-    public function error(ErrorCode $code, string $message, array $details = []): JsonResponse
+    public function error(ErrorCode $code, string $message, array $details = []): ApiErrorResponse
     {
         $payload = [
             'code' => $code->value,
@@ -67,6 +67,6 @@ final class ApiResponder
             $payload['details'] = $details;
         }
 
-        return new JsonResponse(['error' => $payload], $code->httpStatus());
+        return new ApiErrorResponse(['error' => $payload], $code->httpStatus());
     }
 }

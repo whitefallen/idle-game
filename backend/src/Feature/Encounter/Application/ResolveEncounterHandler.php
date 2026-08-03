@@ -20,6 +20,8 @@ use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\EncounterRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use App\Feature\Encounter\Domain\Service\RewardRules;
+use App\Platform\Audit\AuditAction;
+use App\Platform\Audit\AuditLogger;
 use App\Platform\Clock\Clock;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ErrorCode;
@@ -56,6 +58,7 @@ final class ResolveEncounterHandler
         private readonly SeedGenerator $seeds,
         private readonly IdentifierGenerator $identifiers,
         private readonly OutboxRecorder $outbox,
+        private readonly AuditLogger $audit,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
     ) {
@@ -114,6 +117,39 @@ final class ResolveEncounterHandler
                 );
 
                 $this->outbox->record(EncounterResolved::NAME, $event->toArray());
+
+                // One record carrying every mutation the encounter caused,
+                // rather than one row per mutation.
+                //
+                // docs/economy.md section 5 requires source, amount and
+                // resulting balance for every currency change, and this
+                // satisfies that. A row per mutation would satisfy it too, at
+                // four rows per encounter — roughly a hundred per player per
+                // day at the Vigor cap — for no extra investigative power,
+                // since the mutations of one fight are only ever read together.
+                $this->audit->record(
+                    AuditAction::EncounterResolved,
+                    [
+                        'encounterId' => $encounter->id()->toRfc4122(),
+                        'definitionId' => $definition->id,
+                        'outcome' => $log->outcome->value,
+                        'seed' => (string) $seed,
+                        'gold' => ['granted' => $rewards['gold'], 'balance' => $character->gold()],
+                        'experience' => [
+                            'granted' => $rewards['experience'],
+                            'balance' => $character->experience(),
+                            'level' => $character->level(),
+                            'levelsGained' => $rewards['levelsGained'],
+                        ],
+                        'vigor' => [
+                            'spent' => $definition->vigorCost,
+                            'refunded' => $rewards['vigorRefunded'],
+                            'balance' => $character->vigor(),
+                        ],
+                    ],
+                    $accountId,
+                    $character->id(),
+                );
 
                 return new ResolvedEncounter($encounter, $log, $character, $rewards);
             },

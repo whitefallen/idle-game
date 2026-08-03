@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend audit
+.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend audit prune prune-dry
 
 DC := docker compose
 PHP := $(DC) exec -T php
@@ -72,6 +72,12 @@ ci-frontend: ## Run the frontend pipeline locally
 audit: ## Check dependencies for known vulnerabilities
 	$(PHP) composer audit --no-interaction
 	$(DC) run --rm --no-deps -T frontend npm audit --audit-level=high
+
+prune: ## Delete rows past their retention window
+	$(PHP) php bin/console db:retention:prune
+
+prune-dry: ## Report what retention would delete, without deleting it
+	$(PHP) php bin/console db:retention:prune --dry-run
 
 fresh: ## Drop, recreate and migrate the database
 	$(PHP) php bin/console doctrine:database:drop --force --if-exists

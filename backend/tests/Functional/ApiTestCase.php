@@ -28,6 +28,30 @@ abstract class ApiTestCase extends WebTestCase
         $this->client->catchExceptions(true);
 
         $this->truncateTables();
+        $this->resetRateLimiters();
+    }
+
+    /**
+     * Rate limits are configured identically in test and production, so the
+     * limits under test are the ones that actually ship. Clearing the storage
+     * between cases keeps an unrelated test from tripping them, while
+     * RateLimitTest still exhausts them deliberately.
+     */
+    private function resetRateLimiters(): void
+    {
+        $container = static::getContainer();
+
+        foreach (['cache.rate_limiter', 'limiter.storage.registration'] as $service) {
+            if (!$container->has($service)) {
+                continue;
+            }
+
+            $pool = $container->get($service);
+
+            if ($pool instanceof \Psr\Cache\CacheItemPoolInterface) {
+                $pool->clear();
+            }
+        }
     }
 
     private function truncateTables(): void
@@ -40,7 +64,7 @@ abstract class ApiTestCase extends WebTestCase
         // aggregate, so they must be named explicitly or rows leak between
         // tests and every outbox assertion sees the whole suite's history.
         $connection->executeStatement(
-            'TRUNCATE TABLE account, outbox, idempotency_record RESTART IDENTITY CASCADE',
+            'TRUNCATE TABLE account, outbox, idempotency_record, audit_log RESTART IDENTITY CASCADE',
         );
     }
 

@@ -7,6 +7,8 @@ namespace App\Feature\Account\Application;
 use App\Feature\Account\Domain\Entity\Account;
 use App\Feature\Account\Domain\Model\Email;
 use App\Feature\Account\Domain\Repository\AccountRepository;
+use App\Platform\Audit\AuditAction;
+use App\Platform\Audit\AuditLogger;
 use App\Platform\Clock\Clock;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ErrorCode;
@@ -26,6 +28,7 @@ final class RegisterAccountHandler
         private readonly IdentifierGenerator $identifiers,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -60,6 +63,14 @@ final class RegisterAccountHandler
         );
 
         $this->accounts->save($account);
+
+        // Staged, not written immediately: if the flush below fails on a
+        // concurrent registration, no record should claim an account was made.
+        $this->audit->record(
+            AuditAction::AccountRegistered,
+            ['email' => $email->value],
+            $account->id(),
+        );
 
         try {
             $this->transactions->commit();

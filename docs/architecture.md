@@ -56,6 +56,13 @@ What the repository already does about it: `var/` lives on a named volume,
 Xdebug is off unless `XDEBUG_MODE` says otherwise, and opcache revalidates at
 most every two seconds. These help but cannot remove the cost.
 
+One visible symptom: the **first** request after `cache:clear` pays the whole
+container compile over that filesystem and can exceed nginx's 30-second
+`fastcgi_read_timeout`, returning a 504 even though the request completed
+server-side. Run `bin/console cache:warmup` after clearing, or simply issue the
+first request and ignore it. The timeout is deliberately not raised — 30 seconds
+is the right ceiling in production, where a request that slow is a fault.
+
 **The durable fix is host-side**: keep the working copy on a filesystem the
 Linux VM owns. On Windows that means cloning inside WSL2 (`\\wsl$\...`) rather
 than under `C:\Users`. Production is unaffected — it runs on Linux with the
