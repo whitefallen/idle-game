@@ -45,6 +45,13 @@ security:
     access_control:
         # Registration and login must be reachable without a session.
         - { path: ^/api/v1/auth/(register|login)$, roles: PUBLIC_ACCESS }
+
+        # Static game metadata with no user data in it, and it is in the client
+        # bundle regardless. Public so it can genuinely be cached — marking an
+        # authenticated response publicly cacheable would be the wrong habit
+        # even where, as here, the payload happens to be identical for everyone.
+        - { path: ^/api/v1/battle-plan/grammar$, roles: PUBLIC_ACCESS }
+
         - { path: ^/api, roles: ROLE_USER }
 
 when@test:

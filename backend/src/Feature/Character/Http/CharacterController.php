@@ -7,7 +7,9 @@ namespace App\Feature\Character\Http;
 use App\Feature\Character\Application\AllocateAttributePointsHandler;
 use App\Feature\Character\Application\CharacterPresenter;
 use App\Feature\Character\Application\CreateCharacterHandler;
+use App\Feature\Character\Application\UpdateBattlePlanHandler;
 use App\Feature\Character\Application\ViewCharacterHandler;
+use App\Feature\Combat\Domain\Model\PlanIssue;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ApiResponder;
 use App\Platform\Http\JsonBody;
@@ -74,6 +76,34 @@ final class CharacterController
         );
 
         return $this->responder->ok(['character' => $this->presenter->detail($character)]);
+    }
+
+    /**
+     * Replaces the whole plan rather than patching rules individually.
+     *
+     * A plan is an ordered list evaluated top to bottom, so its meaning depends
+     * on the order as much as the contents. Patching one rule at a time would
+     * make two concurrent edits produce a plan neither player wrote.
+     */
+    #[Route('/{id}/battle-plan', name: 'character_update_battle_plan', methods: ['PUT'])]
+    public function updateBattlePlan(
+        string $id,
+        Request $request,
+        UpdateBattlePlanHandler $handler,
+    ): JsonResponse {
+        $body = JsonBody::from($request);
+
+        /** @var list<array<string, mixed>> $rules */
+        $rules = $body->requireList('rules');
+
+        $update = $handler($this->currentAccount->id(), $this->parseId($id), $rules);
+
+        return $this->responder->ok([
+            'character' => $this->presenter->detail($update->character),
+            // Non-blocking problems travel with the successful save so the
+            // editor can flag them without having refused the plan.
+            'warnings' => array_map(static fn (PlanIssue $i): array => $i->toArray(), $update->warnings),
+        ]);
     }
 
     /**

@@ -50,9 +50,56 @@ export interface DerivedStats {
   resistanceRatings: Record<string, number>;
 }
 
+export interface ConditionTerm {
+  subject: string;
+  operator?: string;
+  value?: number;
+  effectId?: string;
+}
+
 export interface PlanRule {
-  condition: Array<{ subject: string; operator?: string; value?: number; effectId?: string }>;
+  condition: ConditionTerm[];
   abilityId: string;
+}
+
+export interface AbilityMeta {
+  id: string;
+  localisation_key: string;
+  focus_cost: number;
+  cooldown_rounds: number;
+  school: string;
+  selector: string;
+  effect_id: string | null;
+  /** Whether this ability is free and off cooldown, so it may end a plan. */
+  can_be_fallback: boolean;
+}
+
+export interface GrammarSubject {
+  value: string;
+  requires_operator: boolean;
+  requires_value: boolean;
+  requires_effect: boolean;
+  is_percentage: boolean;
+}
+
+/**
+ * Published by the server rather than duplicated here. The grammar is what the
+ * engine evaluates and the validator enforces, so a local copy would drift and
+ * the editor would start offering plans the server rejects.
+ */
+export interface BattlePlanGrammar {
+  limits: { max_rules: number; max_terms_per_condition: number };
+  subjects: GrammarSubject[];
+  operators: string[];
+  effects: string[];
+}
+
+export interface PlanIssue {
+  code: string;
+  message: string;
+  /** 0-based index of the rule at fault, when the fault is a specific rule. */
+  rule?: number;
+  term?: number;
 }
 
 export interface CharacterDetail extends CharacterSummary {
@@ -66,6 +113,7 @@ export interface CharacterDetail extends CharacterSummary {
   loadout_slots: number;
   respec_cost: number;
   ability_ids: string[];
+  abilities: AbilityMeta[];
   battle_plan: PlanRule[];
 }
 

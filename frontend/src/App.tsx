@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, ErrorNotice } from '@/components/ui';
 import { AuthScreen } from '@/features/auth/AuthScreen';
 import { useLogout, useSession } from '@/features/auth/api';
+import { BattlePlanEditor } from '@/features/character/BattlePlanEditor';
 import { CharacterList } from '@/features/character/CharacterList';
 import { CharacterSheet } from '@/features/character/CharacterSheet';
 import { useCharacter } from '@/features/character/api';
@@ -16,6 +17,7 @@ export function App() {
 
   const [characterId, setCharacterId] = useState<string | null>(null);
   const [replay, setReplay] = useState<EncounterDetail | null>(null);
+  const [editingPlan, setEditingPlan] = useState(false);
 
   const character = useCharacter(characterId);
 
@@ -50,6 +52,7 @@ export function App() {
               onClick={() => {
                 setCharacterId(null);
                 setReplay(null);
+                setEditingPlan(false);
               }}
             >
               {t('character.back')}
@@ -68,9 +71,17 @@ export function App() {
 
         {characterId && character.data && (
           <>
-            <CharacterSheet character={character.data} />
+            <CharacterSheet
+              character={character.data}
+              onEditPlan={() => {
+                setEditingPlan(true);
+                setReplay(null);
+              }}
+            />
 
-            {replay ? (
+            {editingPlan ? (
+              <BattlePlanEditor character={character.data} onClose={() => setEditingPlan(false)} />
+            ) : replay ? (
               <ReplayView encounter={replay} onClose={() => setReplay(null)} />
             ) : (
               <EncounterPanel characterId={characterId} onResolved={setReplay} />

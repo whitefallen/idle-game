@@ -108,7 +108,13 @@ function AttributeAllocator({ character }: { character: CharacterDetail }) {
   );
 }
 
-export function CharacterSheet({ character }: { character: CharacterDetail }) {
+export function CharacterSheet({
+  character,
+  onEditPlan,
+}: {
+  character: CharacterDetail;
+  onEditPlan: () => void;
+}) {
   const stats = character.derived_stats;
 
   return (
@@ -151,9 +157,14 @@ export function CharacterSheet({ character }: { character: CharacterDetail }) {
           <Stat label={t('stat.armourRating')} value={stats.armourRating} />
         </div>
 
-        <h3 className="mt-4 mb-2 text-xs font-semibold tracking-wide text-ash-400 uppercase">
-          {t('character.battlePlan')}
-        </h3>
+        <div className="mt-4 mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-xs font-semibold tracking-wide text-ash-400 uppercase">
+            {t('character.battlePlan')}
+          </h3>
+          <Button variant="ghost" className="px-2 py-1 text-xs" onClick={onEditPlan}>
+            {t('plan.edit')}
+          </Button>
+        </div>
         <ol className="space-y-1">
           {character.battle_plan.map((rule, index) => (
             <li key={index} className="flex items-baseline gap-2 text-sm">

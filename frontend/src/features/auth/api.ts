@@ -32,17 +32,19 @@ export function useLogin() {
       request<{ account: Account }>('/auth/login', { method: 'POST', body: credentials }),
 
     onSuccess: (data) => {
-      // Order matters. Everything cached belongs to the previous session, so it
-      // is removed first — otherwise the previous account's characters could
-      // flash on screen. The new session is then seeded directly from the login
-      // response, which both transitions the UI immediately and avoids a
-      // redundant /auth/me round trip.
+      // Order matters, and the session query must be updated in place.
       //
-      // Invalidating after removing would be a no-op: there is nothing left to
-      // invalidate, so no refetch is scheduled and the app stays on the login
-      // screen despite a successful sign-in.
-      client.removeQueries();
+      // Seeding it first transitions the UI immediately and avoids a redundant
+      // /auth/me round trip. Removing it instead — as an earlier version did —
+      // strands the mounted useSession observer on a deleted query: a later
+      // setQueryData creates a *new* cache entry the observer never re-binds
+      // to, so login succeeds and the app sits on the sign-in screen.
       client.setQueryData(queryKeys.session, data.account);
+
+      // Everything else belongs to the previous account and is dropped rather
+      // than invalidated, so their characters cannot flash on screen while a
+      // refetch is in flight.
+      client.removeQueries({ predicate: (query) => query.queryKey[0] !== 'session' });
     },
   });
 }

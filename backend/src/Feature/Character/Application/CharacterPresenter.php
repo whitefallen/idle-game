@@ -7,6 +7,7 @@ namespace App\Feature\Character\Application;
 use App\Feature\Character\Domain\Entity\Character;
 use App\Feature\Character\Domain\Service\ProgressionRules;
 use App\Feature\Character\Domain\Service\VigorRules;
+use App\Feature\Combat\Application\BattlePlanGrammar;
 
 /**
  * Renders a character for the API.
@@ -18,6 +19,10 @@ use App\Feature\Character\Domain\Service\VigorRules;
  */
 final class CharacterPresenter
 {
+    public function __construct(private readonly BattlePlanGrammar $grammar)
+    {
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -55,6 +60,10 @@ final class CharacterPresenter
             'loadout_slots' => ProgressionRules::loadoutSlotsAt($character->level()),
             'respec_cost' => ProgressionRules::respecCost($character->level()),
             'ability_ids' => $character->abilityIds(),
+            // Full metadata, not just ids: the editor needs Focus cost and
+            // cooldown to show which abilities can serve as the fallback, and
+            // the combat log needs them to explain why a rule fell through.
+            'abilities' => $this->grammar->describeAbilities($character->abilityIds()),
             'battle_plan' => $character->battlePlan()->toArray(),
             'vigor' => $this->vigor($character),
         ];
