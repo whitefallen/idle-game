@@ -34,6 +34,28 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Feature/Character/Domain/Entity'
                 prefix: 'App\Feature\Character\Domain\Entity'
                 alias: Character
+            Encounter:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Feature/Encounter/Domain/Entity'
+                prefix: 'App\Feature\Encounter\Domain\Entity'
+                alias: Encounter
+
+            # Platform owns two tables of its own: the transactional outbox and
+            # idempotency records. Both are technical capabilities rather than
+            # game domain, which is why they live here.
+            Outbox:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Platform/Outbox'
+                prefix: 'App\Platform\Outbox'
+                alias: Outbox
+            Idempotency:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Platform/Idempotency'
+                prefix: 'App\Platform\Idempotency'
+                alias: Idempotency
 
         controller_resolver:
             auto_mapping: false

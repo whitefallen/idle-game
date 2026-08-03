@@ -5,21 +5,25 @@
 # layer would be indirection with no payoff. Player-side derived stats are
 # computed from attributes and gear by the Character feature.
 
+# The first monster a new player meets. Deliberately weak: a level 1 character
+# with no allocated points must win this fight nearly every time, because
+# losing your first encounter teaches nothing and reads as the game being
+# broken. Difficulty arrives with the swarm and the elite.
 - id: monster.blightling
   localisationKey: monster.blightling
-  level: 3
-  maxHealth: 90
-  initiative: 95
+  level: 2
+  maxHealth: 70
+  initiative: 80
   maxFocus: 20
   focusPerTurn: 4
-  weaponBaseDamage: 11
+  weaponBaseDamage: 8
   flatDamageBonus: 0
   scalingBp: 10000
   critChanceBp: 300
   critPowerBp: 15000
-  dodgeChanceBp: 400
+  dodgeChanceBp: 300
   accuracyBp: 0
-  armourRating: 60
+  armourRating: 40
   resistanceRatings:
     nature: 120
   abilities:
@@ -32,18 +36,18 @@
 - id: monster.blight_stalker
   localisationKey: monster.blight_stalker
   level: 5
-  maxHealth: 170
+  maxHealth: 150
   initiative: 140
   maxFocus: 30
   focusPerTurn: 5
-  weaponBaseDamage: 17
+  weaponBaseDamage: 15
   flatDamageBonus: 2
   scalingBp: 10000
   critChanceBp: 800
   critPowerBp: 16000
   dodgeChanceBp: 900
   accuracyBp: 200
-  armourRating: 140
+  armourRating: 120
   resistanceRatings:
     nature: 200
     physical: 40

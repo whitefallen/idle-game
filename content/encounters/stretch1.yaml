@@ -5,7 +5,7 @@
 
 - id: encounter.stretch1.patrol
   localisationKey: encounter.stretch1.patrol
-  level: 3
+  level: 2
   tier: patrol
   vigorCost: 10
   requiredLevel: 1
@@ -13,12 +13,15 @@
     - monster.blightling
   dropTable: droptable.stretch1.patrol
 
+# Three at once. The step up is mechanical rather than numerical: a single
+# strong opponent and three weak ones need different plans, which is what makes
+# the area ability worth slotting.
 - id: encounter.stretch1.swarm
   localisationKey: encounter.stretch1.swarm
   level: 4
   tier: patrol
   vigorCost: 10
-  requiredLevel: 3
+  requiredLevel: 4
   monsters:
     - monster.blightling
     - monster.blightling

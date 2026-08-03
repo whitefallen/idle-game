@@ -4,26 +4,21 @@ declare(strict_types=1);
 
 namespace App\Feature\Encounter\Domain\Repository;
 
-use App\Feature\Encounter\Domain\Model\EncounterDefinition;
+use App\Feature\Encounter\Domain\Entity\Encounter;
+use Symfony\Component\Uid\Uuid;
 
+/**
+ * Persisted encounter results. Distinct from
+ * {@see EncounterDefinitionRepository}, which serves authored content.
+ */
 interface EncounterRepository
 {
-    /**
-     * @return array<string, EncounterDefinition> Keyed by id, ordered by id.
-     */
-    public function all(): array;
-
-    public function has(string $id): bool;
+    public function findById(Uuid $id): ?Encounter;
 
     /**
-     * @throws \InvalidArgumentException when the encounter does not exist
+     * @return list<Encounter>
      */
-    public function get(string $id): EncounterDefinition;
+    public function findRecentForCharacter(Uuid $characterId, int $limit): array;
 
-    /**
-     * Encounters a character of the given level is permitted to attempt.
-     *
-     * @return array<string, EncounterDefinition>
-     */
-    public function availableAtLevel(int $level): array;
+    public function save(Encounter $encounter): void;
 }

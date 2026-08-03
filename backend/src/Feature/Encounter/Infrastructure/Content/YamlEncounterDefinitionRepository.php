@@ -6,14 +6,14 @@ namespace App\Feature\Encounter\Infrastructure\Content;
 
 use App\Feature\Encounter\Domain\Model\EncounterDefinition;
 use App\Feature\Encounter\Domain\Model\EncounterTier;
-use App\Feature\Encounter\Domain\Repository\EncounterRepository;
+use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use App\Platform\Content\ContentIssue;
 use App\Platform\Content\ContentProvider;
 use App\Platform\Content\ContentSource;
 use InvalidArgumentException;
 
-final class YamlEncounterRepository implements EncounterRepository, ContentProvider
+final class YamlEncounterDefinitionRepository implements EncounterDefinitionRepository, ContentProvider
 {
     private const string DIRECTORY = 'encounters';
     private const string SCHEMA = 'encounter';

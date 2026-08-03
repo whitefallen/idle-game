@@ -8,7 +8,7 @@ use App\Feature\Combat\Domain\Engine\CombatEngine;
 use App\Feature\Combat\Domain\Model\CombatInput;
 use App\Feature\Combat\Domain\Repository\AbilityRepository;
 use App\Feature\Combat\Domain\Repository\EffectRepository;
-use App\Feature\Encounter\Domain\Repository\EncounterRepository;
+use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -50,8 +50,8 @@ final class ContentLibraryTest extends KernelTestCase
         self::bootKernel();
         $container = static::getContainer();
 
-        /** @var EncounterRepository $encounters */
-        $encounters = $container->get(EncounterRepository::class);
+        /** @var EncounterDefinitionRepository $encounters */
+        $encounters = $container->get(EncounterDefinitionRepository::class);
         /** @var MonsterRepository $monsters */
         $monsters = $container->get(MonsterRepository::class);
         /** @var AbilityRepository $abilities */

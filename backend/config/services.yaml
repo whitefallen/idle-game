@@ -25,8 +25,13 @@ services:
             - '../src/Kernel.php'
             - '../src/**/Domain/Model/'
             - '../src/**/Domain/Entity/'
+            - '../src/**/Domain/Event/'
             - '../src/**/Domain/Rng/'
             - '../src/**/Domain/Service/'
+            - '../src/Feature/Encounter/Application/ResolvedEncounter.php'
+            - '../src/Platform/Outbox/OutboxMessage.php'
+            - '../src/Platform/Outbox/DomainEventNotification.php'
+            - '../src/Platform/Idempotency/IdempotencyRecord.php'
             - '../src/**/Domain/Engine/CombatantState.php'
             - '../src/**/Domain/Engine/SelectedAction.php'
             - '../src/Platform/Content/ContentIssue.php'
@@ -60,14 +65,17 @@ services:
     App\Feature\Encounter\Domain\Repository\MonsterRepository:
         alias: App\Feature\Encounter\Infrastructure\Content\YamlMonsterRepository
 
-    App\Feature\Encounter\Domain\Repository\EncounterRepository:
-        alias: App\Feature\Encounter\Infrastructure\Content\YamlEncounterRepository
+    App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository:
+        alias: App\Feature\Encounter\Infrastructure\Content\YamlEncounterDefinitionRepository
 
     App\Feature\Account\Domain\Repository\AccountRepository:
         alias: App\Feature\Account\Infrastructure\Doctrine\DoctrineAccountRepository
 
     App\Feature\Character\Domain\Repository\CharacterRepository:
         alias: App\Feature\Character\Infrastructure\Doctrine\DoctrineCharacterRepository
+
+    App\Feature\Encounter\Domain\Repository\EncounterRepository:
+        alias: App\Feature\Encounter\Infrastructure\Doctrine\DoctrineEncounterRepository
 
     # ------------------------------------------------------------------
     # Platform services
@@ -81,6 +89,12 @@ services:
 
     App\Platform\Persistence\TransactionManager:
         alias: App\Platform\Persistence\DoctrineTransactionManager
+
+    App\Platform\Random\SeedGenerator:
+        alias: App\Platform\Random\CryptoSeedGenerator
+
+    App\Platform\Outbox\OutboxRecorder:
+        alias: App\Platform\Outbox\DoctrineOutboxRecorder
 
     App\Platform\Security\PasswordHasher:
         alias: App\Platform\Security\SymfonyPasswordHasher

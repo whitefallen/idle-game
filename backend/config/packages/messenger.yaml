@@ -1,22 +1,33 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        failure_transport: failed
+
+        buses:
+            messenger.bus.default:
+                # A domain event with no subscriber is a normal state, not an
+                # error: the outbox relay publishes every event regardless of
+                # who is listening, and features subscribe as they are built.
+                default_middleware:
+                    allow_no_handlers: true
 
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            sync: 'sync://'
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 3
+                    delay: 2000
+                    multiplier: 3
+            failed: 'doctrine://default?queue_name=failed'
 
         routing:
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            # Relayed domain events are handled out of band. Delivery is
+            # at-least-once, so every subscriber must be idempotent.
+            # See ADR-0004.
+            App\Platform\Outbox\DomainEventNotification: async
 
-# when@test:
-#    framework:
-#        messenger:
-#            transports:
-#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
-#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
-#                async: 'in-memory://'
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'in-memory://'
+                failed: 'in-memory://'

@@ -33,6 +33,7 @@ final class CrossAggregateForeignKeyListener
      */
     private const array REFERENCES = [
         ['game_character', 'account_id', 'account', 'id', 'CASCADE'],
+        ['encounter', 'character_id', 'game_character', 'id', 'CASCADE'],
     ];
 
     public function postGenerateSchema(GenerateSchemaEventArgs $args): void

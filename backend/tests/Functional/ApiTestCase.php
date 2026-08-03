@@ -35,9 +35,13 @@ abstract class ApiTestCase extends WebTestCase
         /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
 
-        // RESTART IDENTITY CASCADE clears dependants in one statement, so the
-        // order of the table list does not matter as the schema grows.
-        $connection->executeStatement('TRUNCATE TABLE account RESTART IDENTITY CASCADE');
+        // CASCADE reaches everything joined to an account by a foreign key —
+        // characters, encounters — but the Platform tables reference no
+        // aggregate, so they must be named explicitly or rows leak between
+        // tests and every outbox assertion sees the whole suite's history.
+        $connection->executeStatement(
+            'TRUNCATE TABLE account, outbox, idempotency_record RESTART IDENTITY CASCADE',
+        );
     }
 
     /**

@@ -161,13 +161,14 @@ Append-only; no update or delete path exists in application code. Covers every
 currency mutation, item creation and destruction, claim, purchase, and every
 authorisation failure. Also range-partitioned monthly.
 
-### `idempotency_key`
+### `idempotency_record`
 ```
-key           text        PK
-account_id    uuid        NOT NULL
-request_hash  text        NOT NULL
-response      jsonb       NOT NULL
-created_at    timestamptz NOT NULL
+idempotency_key text        PK   -- the client-supplied key is the key
+account_id      uuid        NOT NULL
+request_hash    text        NOT NULL
+response        jsonb       NOT NULL
+status          int         NOT NULL   -- replayed verbatim, headers included
+created_at      timestamptz NOT NULL
 ```
 Rows expire after 24 hours. `request_hash` is compared on replay: the same key
 with a different body is a client bug and returns a 409 rather than silently
@@ -223,7 +224,7 @@ policy exists before the data does:
 | `encounter` | Full log 90 days; summary retained indefinitely | Drop partition, after writing the summary row |
 | `audit_log` | 400 days (covers a full year plus investigation lag) | Drop partition |
 | `outbox` | Published rows deleted after 7 days | Scheduled cleanup |
-| `idempotency_key` | 24 hours | Scheduled cleanup |
+| `idempotency_record` | 24 hours | Scheduled cleanup |
 
 Dropping a partition is a metadata operation. Deleting rows from a
 hundred-million-row table is an incident. That difference is the entire reason
