@@ -36,6 +36,12 @@ services:
       PHP_IDE_CONFIG: serverName=emberwatch
     volumes:
       - ./backend:/app
+      # Cache and logs live on a container-local volume, not the bind mount.
+      # Symfony rebuilds its container by writing a new directory and removing
+      # the old one, and rmdir fails intermittently on a Windows bind mount
+      # because of the host filesystem's temporary entries. Keeping var/ inside
+      # the container removes the failure and is substantially faster.
+      - backend-var:/app/var
       - ./content:/content:ro
       - composer-cache:/root/.composer/cache
     healthcheck:
@@ -73,4 +79,5 @@ services:
 volumes:
   postgres-data:
   composer-cache:
+  backend-var:
   frontend-node-modules:

@@ -19,15 +19,21 @@ the curve below is designed to extend without a discontinuity).
 xpToNext(L) = 60 * L^2 + 140 * L          (tunable coefficients)
 ```
 
-| L | XP to next | Cumulative |
+| L | XP to reach L+1 | Cumulative XP to reach L |
 |---|-----------|-----------|
 | 1 | 200 | 0 |
-| 5 | 2,200 | 3,900 |
-| 10 | 7,400 | 20,900 |
-| 20 | 26,800 | 130,900 |
-| 30 | 58,200 | 406,900 |
-| 45 | 127,800 | 1,368,900 |
-| 60 | 224,400 | 4,684,800 |
+| 5 | 2,200 | 3,200 |
+| 10 | 7,400 | 23,400 |
+| 20 | 26,800 | 174,800 |
+| 30 | 58,200 | 574,200 |
+| 45 | 127,800 | 1,900,800 |
+| 60 | — (cap) | 4,460,400 |
+
+These figures are pinned by `ProgressionRulesTest`, so the table and the
+implementation cannot drift apart. At the level cap there is no next level and
+surplus experience is discarded rather than banked: a hidden buffer that
+silently drains into the next level on a cap raise is impossible for a player
+to reason about.
 
 The curve is quadratic rather than exponential on purpose. Exponential XP curves
 force exponential reward curves, which force exponential stat curves, and within

@@ -39,15 +39,40 @@ deptrac:
         - type: directory
           value: src/Platform/.*
 
+    # Everything Symfony except the Uid component, which is separated below.
     - name: Symfony
       collectors:
         - type: classNameRegex
-          value: '#^Symfony\\#'
+          value: '#^Symfony\\(?!Component\\Uid\\)#'
 
+    # Value types with no framework coupling: no container, no I/O, no
+    # configuration. Treating them as a separate layer lets the Domain hold a
+    # proper identifier type without opening the door to the framework.
+    - name: Uid
+      collectors:
+        - type: classNameRegex
+          value: '#^Symfony\\Component\\Uid\\#'
+
+    # Everything Doctrine except the declarative mapping attributes.
     - name: Doctrine
       collectors:
         - type: classNameRegex
-          value: '#^Doctrine\\#'
+          value: '#^Doctrine\\(?!ORM\\Mapping\\)#'
+
+    # Mapping attributes are metadata, not behaviour: they describe how an
+    # entity is stored but cannot perform persistence. Allowing them in the
+    # Domain keeps entities readable in one file, while the rule that matters —
+    # no EntityManager, no repository, no query in the Domain — is still
+    # enforced by the Doctrine layer above.
+    - name: DoctrineMapping
+      collectors:
+        - type: classNameRegex
+          value: '#^Doctrine\\ORM\\Mapping\\#'
+
+    - name: Psr
+      collectors:
+        - type: classNameRegex
+          value: '#^Psr\\#'
 
     # Third-party libraries are enumerated rather than blanket-allowed, so that
     # a new vendor dependency surfaces as an uncovered violation and has to be
@@ -69,26 +94,36 @@ deptrac:
     # communicate through events, never by calling each other's services.
     Domain:
       - Domain
+      - Uid
+      - DoctrineMapping
 
     Application:
       - Domain
       - Platform
       - Symfony
+      - Uid
 
     Infrastructure:
       - Domain
       - Application
       - Platform
       - Symfony
+      - Uid
       - Doctrine
+      - DoctrineMapping
+      - Psr
 
     Http:
       - Domain
       - Application
       - Platform
       - Symfony
+      - Uid
 
     Platform:
       - Symfony
+      - Uid
       - Doctrine
+      - DoctrineMapping
       - JsonSchema
+      - Psr

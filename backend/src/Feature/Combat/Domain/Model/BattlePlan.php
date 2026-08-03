@@ -44,17 +44,11 @@ final readonly class BattlePlan
             );
         }
 
-        foreach ($rules as $index => $rule) {
-            if ($rule->condition->isUnconditional() && $index !== count($rules) - 1) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Rule %d is unconditional, so no rule after it could ever fire.',
-                        $index + 1,
-                    ),
-                );
-            }
-        }
-
+        // Unconditional rules are permitted before the last one, and are in fact
+        // the most natural way to write "use this whenever it is available":
+        // a rule is skipped when its ability is on cooldown or unaffordable, so
+        // an unconditional rule still falls through. Forbidding them would make
+        // the commonest plan inexpressible.
         $this->rules = $rules;
     }
 

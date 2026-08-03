@@ -1,13 +1,12 @@
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
-
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        types:
+            # Time-ordered UUIDv7 primary keys throughout. See ADR-0005.
+            uuid: Symfony\Bridge\Doctrine\Types\UuidType
+
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -16,21 +15,32 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
-        auto_mapping: true
+        auto_mapping: false
+
+        # One mapping per feature, mirroring the feature-first layout. Entities
+        # live in each feature's Domain layer; only declarative mapping
+        # attributes are permitted there, never persistence behaviour.
+        # See deptrac.yaml.
         mappings:
-            App:
+            Account:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+                dir: '%kernel.project_dir%/src/Feature/Account/Domain/Entity'
+                prefix: 'App\Feature\Account\Domain\Entity'
+                alias: Account
+            Character:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Feature/Character/Domain/Entity'
+                prefix: 'App\Feature\Character\Domain\Entity'
+                alias: Character
+
         controller_resolver:
             auto_mapping: false
 
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:

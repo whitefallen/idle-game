@@ -19,9 +19,20 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            # Value objects, entities and pure static rule classes are not
+            # services; registering them would create definitions the container
+            # can never autowire.
             - '../src/Kernel.php'
             - '../src/**/Domain/Model/'
+            - '../src/**/Domain/Entity/'
             - '../src/**/Domain/Rng/'
+            - '../src/**/Domain/Service/'
+            - '../src/**/Domain/Engine/CombatantState.php'
+            - '../src/**/Domain/Engine/SelectedAction.php'
+            - '../src/Platform/Content/ContentIssue.php'
+            - '../src/Platform/Http/ApiException.php'
+            - '../src/Platform/Http/JsonBody.php'
+            - '../src/Platform/Persistence/DuplicateKeyException.php'
 
     # ------------------------------------------------------------------
     # Content pipeline
@@ -51,3 +62,32 @@ services:
 
     App\Feature\Encounter\Domain\Repository\EncounterRepository:
         alias: App\Feature\Encounter\Infrastructure\Content\YamlEncounterRepository
+
+    App\Feature\Account\Domain\Repository\AccountRepository:
+        alias: App\Feature\Account\Infrastructure\Doctrine\DoctrineAccountRepository
+
+    App\Feature\Character\Domain\Repository\CharacterRepository:
+        alias: App\Feature\Character\Infrastructure\Doctrine\DoctrineCharacterRepository
+
+    # ------------------------------------------------------------------
+    # Platform services
+    # ------------------------------------------------------------------
+
+    App\Platform\Clock\Clock:
+        alias: App\Platform\Clock\SystemClock
+
+    App\Platform\Uid\IdentifierGenerator:
+        alias: App\Platform\Uid\UuidV7Generator
+
+    App\Platform\Persistence\TransactionManager:
+        alias: App\Platform\Persistence\DoctrineTransactionManager
+
+    App\Platform\Security\PasswordHasher:
+        alias: App\Platform\Security\SymfonyPasswordHasher
+
+    App\Platform\Security\SymfonyPasswordHasher:
+        arguments:
+            # Must match the key under security.password_hashers, which is the
+            # user class because that is how the security component resolves a
+            # hasher when verifying credentials.
+            $hasherName: 'App\Feature\Account\Infrastructure\Security\AccountUser'
