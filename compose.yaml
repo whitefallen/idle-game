@@ -34,6 +34,10 @@ services:
       DATABASE_URL: "postgresql://emberwatch:emberwatch@postgres:5432/emberwatch?serverVersion=17&charset=utf8"
       CONTENT_DIR: /content
       PHP_IDE_CONFIG: serverName=emberwatch
+      # Xdebug reads this in preference to php.ini. Set to `debug` for step
+      # debugging or `coverage` for line coverage; leaving it off keeps
+      # requests roughly thirty times faster.
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
     volumes:
       - ./backend:/app
       # Cache and logs live on a container-local volume, not the bind mount.

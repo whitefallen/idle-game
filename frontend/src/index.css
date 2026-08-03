@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ash-950: #0b0c10;
+  --color-ash-900: #12141a;
+  --color-ash-800: #191c24;
+  --color-ash-700: #232734;
+  --color-ash-600: #333949;
+  --color-ash-400: #6b7385;
+  --color-ash-200: #b6bcc9;
+  --color-ash-50: #eef0f5;
+
+  --color-ember-500: #e0763a;
+  --color-ember-400: #f0954f;
+  --color-ember-300: #f7b277;
+
+  --color-blight-500: #6f9b52;
+  --color-danger-500: #c2503f;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ash-950 text-ash-50 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/*
+ * Every interactive element must show focus. Keyboard operability is a
+ * requirement of the interface, not a nicety: see docs/frontend-architecture.md
+ * section 8.
+ */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-ember-400;
+}
+
+/*
+ * Respect a reduced-motion preference. The replay is the only animation-heavy
+ * surface, and it stays fully usable without transitions.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

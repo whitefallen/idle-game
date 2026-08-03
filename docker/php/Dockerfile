@@ -36,7 +36,10 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
     && docker-php-ext-enable xdebug \
     && apk del .build-deps
 
+# conf.d-dev is copied after conf.d so its settings win. It exists to keep
+# Xdebug switched off unless explicitly requested.
 COPY docker/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY docker/php/conf.d-dev/ /usr/local/etc/php/conf.d/
 
 # ---------------------------------------------------------------------------
 # Production target: dependencies baked in, opcache tuned, no dev tooling.

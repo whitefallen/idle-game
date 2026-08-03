@@ -41,6 +41,26 @@ designers, validated in its own CI job, and will eventually be consumed by
 tooling other than the game server. It is data, not backend code that happens to
 be in YAML.
 
+### 1.1 A note on development I/O
+
+The stack bind-mounts source into the containers so edits are live. On Linux
+this is free; on Windows and macOS it is not, because every filesystem call
+crosses the boundary into the Linux VM.
+
+Measured in this project: **2.4 ms per `stat` across the bind mount against
+0.002 ms on a native volume** — roughly 1200× slower. A Symfony dev request
+touches on the order of a thousand files, which is why a request that takes
+10 ms in-process can take seconds through php-fpm.
+
+What the repository already does about it: `var/` lives on a named volume,
+Xdebug is off unless `XDEBUG_MODE` says otherwise, and opcache revalidates at
+most every two seconds. These help but cannot remove the cost.
+
+**The durable fix is host-side**: keep the working copy on a filesystem the
+Linux VM owns. On Windows that means cloning inside WSL2 (`\\wsl$\...`) rather
+than under `C:\Users`. Production is unaffected — it runs on Linux with the
+source baked into the image and `opcache.validate_timestamps=0`.
+
 ---
 
 ## 2. Layers
