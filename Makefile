@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh
+.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend audit
 
 DC := docker compose
 PHP := $(DC) exec -T php
@@ -52,6 +52,26 @@ lint: ## Static analysis and layering checks
 
 content-validate: ## Validate the content library
 	$(PHP) php bin/console content:validate
+
+ci: ci-backend ci-frontend ## Run everything CI runs, in the same order
+
+# Mirrors .github/workflows/backend.yml step for step. If the two drift, the
+# point of running checks locally is lost — a green local run must mean a green
+# pipeline.
+ci-backend: ## Run the backend pipeline locally
+	$(PHP) composer audit --no-interaction
+	$(PHP) php bin/console doctrine:schema:validate
+	$(PHP) php bin/console content:validate
+	$(PHP) php vendor/bin/phpstan analyse --no-progress
+	$(PHP) php vendor/bin/deptrac analyse --no-progress --fail-on-uncovered
+	$(PHP) php vendor/bin/phpunit
+
+ci-frontend: ## Run the frontend pipeline locally
+	$(DC) run --rm --no-deps -T frontend sh -lc "npm ci && npm audit --audit-level=high && npm run typecheck && npx vitest run && npm run build"
+
+audit: ## Check dependencies for known vulnerabilities
+	$(PHP) composer audit --no-interaction
+	$(DC) run --rm --no-deps -T frontend npm audit --audit-level=high
 
 fresh: ## Drop, recreate and migrate the database
 	$(PHP) php bin/console doctrine:database:drop --force --if-exists

@@ -1,0 +1,114 @@
+name: Backend
+
+# Path-filtered so a frontend-only change does not run PHPUnit. See ADR-0001.
+#
+# Content is included deliberately: the content library is validated by the
+# backend job, and a mistuned monster is caught by the balance simulator that
+# runs there. A content change is a backend change.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'content/**'
+      - 'docker/**'
+      - 'compose.yaml'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'content/**'
+      - 'docker/**'
+      - 'compose.yaml'
+      - '.github/workflows/backend.yml'
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Static analysis and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Built once and reused by compose. Running the suite inside the image we
+      # actually ship is the point: it catches "passes on the runner, breaks in
+      # the container" — a wrong PHP version, a missing extension, a php.ini
+      # difference — which a runner-native PHP would not.
+      - name: Build the PHP image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/php/Dockerfile
+          target: dev
+          tags: emberwatch-php:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start Postgres and PHP
+        run: docker compose up -d --no-build postgres php
+
+      - name: Wait for Postgres
+        run: |
+          for _ in $(seq 1 30); do
+            if docker compose exec -T postgres pg_isready -U emberwatch -d emberwatch; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Postgres did not become ready in time." >&2
+          docker compose logs postgres
+          exit 1
+
+      - name: Install dependencies
+        run: docker compose exec -T php composer install --no-interaction --no-progress --prefer-dist
+
+      # Fails when a dependency has a known vulnerability. The advisory database
+      # is the reason this project is on 7.4 LTS rather than an EOL branch, so
+      # the check that surfaced it belongs in CI.
+      - name: Audit dependencies
+        run: docker compose exec -T php composer audit --no-interaction
+
+      - name: Prepare databases
+        run: |
+          docker compose exec -T php php bin/console doctrine:database:create --if-not-exists
+          docker compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+          docker compose exec -T php php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose exec -T php php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+      # Catches the commonest schema mistake: an entity changed without a
+      # migration. The generated schema and the migrated database must agree.
+      - name: Verify schema matches the entities
+        run: docker compose exec -T php php bin/console doctrine:schema:validate
+
+      - name: Validate the content library
+        run: docker compose exec -T php php bin/console content:validate
+
+      - name: Static analysis
+        run: docker compose exec -T php php vendor/bin/phpstan analyse --no-progress
+
+      # --fail-on-uncovered means a new third-party dependency must be granted
+      # to a layer deliberately rather than slipping in unnoticed.
+      - name: Layering rules
+        run: docker compose exec -T php php vendor/bin/deptrac analyse --no-progress --fail-on-uncovered
+
+      # Includes the golden combat replays, the engine purity guard and the
+      # balance simulator, so an unintended change to resolution or to the
+      # difficulty curve fails here rather than reaching a player.
+      - name: Tests
+        run: docker compose exec -T php php vendor/bin/phpunit
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker compose logs --tail 200
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

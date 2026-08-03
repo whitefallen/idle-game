@@ -233,6 +233,37 @@ Two guard tests that protect the architecture itself:
 Both exist because these properties are the ones that erode invisibly, one
 reasonable-looking commit at a time.
 
+### 8.1 Continuous integration
+
+Two workflows in `.github/workflows/`, path-filtered per ADR-0001 so a
+frontend-only change does not run PHPUnit.
+
+**Backend** (`backend/**`, `content/**`, `docker/**`, `compose.yaml`) runs
+inside the project's own PHP image rather than a runner-native PHP, so CI
+exercises the same version, extensions and `php.ini` that development and
+production use. In order: dependency audit, schema-matches-entities, content
+validation, PHPStan, deptrac, then the full test suite — which carries the
+golden combat replays, the engine purity guard and the balance simulator.
+
+**Frontend** (`frontend/**`) runs Node directly, since there is no runtime image
+to match. `npm ci` rather than `npm install`, so a lockfile that disagrees with
+`package.json` fails rather than being silently reconciled. The production build
+runs too: it catches what the dev server does not.
+
+Content is treated as a backend change on purpose. A mistuned monster is caught
+by the balance simulator, and a malformed drop table by the content validator —
+both of which live in the backend job.
+
+`make ci` runs the same commands locally in the same order. If the Makefile and
+the workflows drift, running checks locally stops meaning anything, so they are
+changed together.
+
+**Known consequence of path filtering:** a pull request touching only `docs/`
+runs no workflow. If a branch protection rule ever requires these checks, such a
+pull request can never satisfy it. The fix at that point is an always-running
+gate job that reports success when the filtered jobs are skipped — not to remove
+the filtering, which is what keeps the pipeline fast.
+
 ---
 
 ## 9. First implementation milestone
