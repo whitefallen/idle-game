@@ -7,6 +7,7 @@ namespace App\Feature\Encounter\Application;
 use App\Feature\Character\Domain\Entity\Character;
 use App\Feature\Combat\Domain\Model\Participant;
 use App\Feature\Combat\Domain\Model\Team;
+use App\Feature\Character\Application\CharacterStats;
 
 /**
  * Materialises a character as a combat participant.
@@ -18,9 +19,13 @@ use App\Feature\Combat\Domain\Model\Team;
  */
 final class CharacterParticipantFactory
 {
+    public function __construct(private readonly CharacterStats $stats)
+    {
+    }
+
     public function create(Character $character): Participant
     {
-        $stats = $character->derivedStats();
+        $stats = $this->stats->forCharacter($character);
 
         return new Participant(
             id: $character->id()->toRfc4122(),

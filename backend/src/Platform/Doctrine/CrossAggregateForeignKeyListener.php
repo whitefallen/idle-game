@@ -34,6 +34,7 @@ final class CrossAggregateForeignKeyListener
     private const array REFERENCES = [
         ['game_character', 'account_id', 'account', 'id', 'CASCADE'],
         ['encounter', 'character_id', 'game_character', 'id', 'CASCADE'],
+        ['item_instance', 'character_id', 'game_character', 'id', 'CASCADE'],
 
         // audit_log deliberately has no foreign key, which is the one exception
         // to the rule in docs/data-model.md section 1. An audit record must

@@ -18,7 +18,7 @@
   allowedAffixPools:
     - weapon_prefix
     - weapon_suffix
-  tags: [warden, halberd, stretch1]
+  tags: [warden, halberd, stretch1, pool.stretch1]
 
 - id: item.tempered_hauberk
   localisationKey: item.tempered_hauberk
@@ -34,7 +34,7 @@
   allowedAffixPools:
     - armour_prefix
     - armour_suffix
-  tags: [warden, mail, stretch1]
+  tags: [warden, mail, stretch1, pool.stretch1]
 
 - id: item.ember_band
   localisationKey: item.ember_band
@@ -48,4 +48,4 @@
   allowedAffixPools:
     - jewellery_prefix
     - jewellery_suffix
-  tags: [ember, ring, stretch1]
+  tags: [ember, ring, stretch1, pool.stretch1]

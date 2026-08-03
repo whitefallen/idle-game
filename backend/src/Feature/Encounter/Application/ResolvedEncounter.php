@@ -19,7 +19,7 @@ use App\Feature\Encounter\Domain\Entity\Encounter;
 final readonly class ResolvedEncounter
 {
     /**
-     * @param array{experience: int, gold: int, levelsGained: int, vigorRefunded: int} $rewards
+     * @param array{experience: int, gold: int, levelsGained: int, vigorRefunded: int, items?: int, materials?: array<string, int>} $rewards
      */
     public function __construct(
         public Encounter $encounter,

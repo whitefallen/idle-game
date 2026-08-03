@@ -1,0 +1,136 @@
+# Affix pools.
+#
+# Prefix and suffix are separate pools so that "more damage" and "more
+# survivability" cannot both be maximised on one item without cost. An item
+# rolls at most one of each kind per affix id, and higher tiers unlock with
+# item level. See docs/items.md section 4.
+#
+# `percent` modifiers apply to the item's own base value for that stat, so they
+# are only meaningful on the stats an item actually has a base for.
+
+# ---------------------------------------------------------------- weapons
+- id: prefix.honed
+  localisationKey: affix.prefix.honed
+  pool: weapon_prefix
+  kind: prefix
+  modifier: { stat: weaponBaseDamage, mode: percent }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [400, 900] }
+    - { tier: 2, minIlvl: 15, roll: [1000, 1600] }
+    - { tier: 3, minIlvl: 30, roll: [1700, 2400] }
+
+- id: prefix.weighted
+  localisationKey: affix.prefix.weighted
+  pool: weapon_prefix
+  kind: prefix
+  modifier: { stat: flatDamage, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 8] }
+    - { tier: 3, minIlvl: 30, roll: [9, 16] }
+
+- id: suffix.of_the_bear
+  localisationKey: affix.suffix.of_the_bear
+  pool: weapon_suffix
+  kind: suffix
+  modifier: { stat: STR, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 7] }
+    - { tier: 3, minIlvl: 30, roll: [8, 13] }
+
+- id: suffix.of_precision
+  localisationKey: affix.suffix.of_precision
+  pool: weapon_suffix
+  kind: suffix
+  modifier: { stat: critChanceBp, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [50, 150] }
+    - { tier: 2, minIlvl: 15, roll: [160, 300] }
+    - { tier: 3, minIlvl: 30, roll: [310, 500] }
+
+# ---------------------------------------------------------------- armour
+- id: prefix.tempered
+  localisationKey: affix.prefix.tempered
+  pool: armour_prefix
+  kind: prefix
+  modifier: { stat: armourValue, mode: percent }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [500, 1200] }
+    - { tier: 2, minIlvl: 15, roll: [1300, 2000] }
+    - { tier: 3, minIlvl: 30, roll: [2100, 3000] }
+
+- id: prefix.reinforced
+  localisationKey: affix.prefix.reinforced
+  pool: armour_prefix
+  kind: prefix
+  modifier: { stat: armourValue, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [2, 5] }
+    - { tier: 2, minIlvl: 15, roll: [6, 14] }
+    - { tier: 3, minIlvl: 30, roll: [15, 28] }
+
+- id: suffix.of_the_ox
+  localisationKey: affix.suffix.of_the_ox
+  pool: armour_suffix
+  kind: suffix
+  modifier: { stat: CON, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 7] }
+    - { tier: 3, minIlvl: 30, roll: [8, 13] }
+
+- id: suffix.of_warding
+  localisationKey: affix.suffix.of_warding
+  pool: armour_suffix
+  kind: suffix
+  modifier: { stat: resistNature, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [10, 40] }
+    - { tier: 2, minIlvl: 15, roll: [41, 90] }
+    - { tier: 3, minIlvl: 30, roll: [91, 160] }
+
+# ------------------------------------------------------------- jewellery
+#
+# Rings and amulets carry no base stats at all, so every point of their value
+# comes from affixes. That gives them a distinct role — build customisation
+# rather than raw power — and keeps the number of stat sources bounded.
+- id: prefix.lucky
+  localisationKey: affix.prefix.lucky
+  pool: jewellery_prefix
+  kind: prefix
+  modifier: { stat: LUK, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 7] }
+    - { tier: 3, minIlvl: 30, roll: [8, 13] }
+
+- id: prefix.nimble
+  localisationKey: affix.prefix.nimble
+  pool: jewellery_prefix
+  kind: prefix
+  modifier: { stat: DEX, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 7] }
+    - { tier: 3, minIlvl: 30, roll: [8, 13] }
+
+- id: suffix.of_evasion
+  localisationKey: affix.suffix.of_evasion
+  pool: jewellery_suffix
+  kind: suffix
+  modifier: { stat: dodgeChanceBp, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [30, 90] }
+    - { tier: 2, minIlvl: 15, roll: [100, 200] }
+    - { tier: 3, minIlvl: 30, roll: [210, 340] }
+
+- id: suffix.of_insight
+  localisationKey: affix.suffix.of_insight
+  pool: jewellery_suffix
+  kind: suffix
+  modifier: { stat: INT, mode: flat }
+  tiers:
+    - { tier: 1, minIlvl: 1, roll: [1, 3] }
+    - { tier: 2, minIlvl: 15, roll: [4, 7] }
+    - { tier: 3, minIlvl: 30, roll: [8, 13] }

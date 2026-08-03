@@ -232,3 +232,81 @@ game's stance against gambling mechanics.
 
 All drop rolls happen server-side and are logged for audit. The client is told
 what it received, never what it could have received.
+
+---
+
+## 9. Implementation status
+
+This section records what the first inventory slice actually built, where it
+departs from the design above, and what is deliberately still missing. It exists
+because a design document that silently drifts from the code is worse than none.
+
+### 9.1 Built
+
+`backend/src/Feature/Inventory/` — item instances (`item_instance`), affix
+rolling, equip/unequip, and equipment-driven derived stats.
+
+- `GET /api/v1/characters/{characterId}/inventory`
+- `POST /api/v1/items/{id}/equip`
+- `POST /api/v1/items/{id}/unequip`
+
+Equipping enforces ownership, slot compatibility, level and attribute
+requirements, and two-handed exclusivity. The invariant "one item per slot" is
+held by a **partial unique index** rather than by application code:
+
+```sql
+UNIQUE (character_id, equipped_slot) WHERE equipped_slot IS NOT NULL
+```
+
+The database is the authority because two concurrent equip requests would
+otherwise both pass an application-level check. The handler consequently flushes
+the displacement before the new equip, since Doctrine does not order UPDATEs
+within a flush and either order is valid to it — only one satisfies the index.
+
+Derived stats are computed in `DerivedStatsCalculator` from allocated attributes
+plus `EquipmentBonuses`, never stored. The single exception remains `power_score`
+(ADR-0006), refreshed after every equip and unequip so leaderboards cannot rank a
+player by gear they have taken off.
+
+### 9.2 Deviations from the design above
+
+**Affixes are gated by pool, not by slot.** §4.1 shows a `slots: [...]` list on
+the affix; the implementation gives each affix a `pool` and each item definition
+an `allowedAffixPools`. Pools compose: a designer adds "jewellery affixes" once
+instead of editing a slot list on every existing affix. The gameplay result is
+identical, the authoring cost is lower, and the content schema
+(`content/schema/affix.schema.json`) enforces it.
+
+**Affix selection alternates prefix and suffix** by slot index, falling back to
+the other kind only when a pool is exhausted. §4.1 states the intent — that
+offence and defence cannot both be maximised for free — but not the mechanism.
+Alternating implements it without a separate budget system.
+
+**Luck's floor is quantified.** 50 Luck raises the guaranteed rarity band by one,
+capped at Rare (`LUCK_PER_FLOOR_STEP = 50`, `MAX_LUCK_FLOOR = 2`). Epic and
+Legendary stay chance-only, so Luck can never be the shortest path to the best
+item in the game.
+
+### 9.3 Loot randomness is separate from combat randomness
+
+`ItemRoll` is a distinct counter-based RNG from the combat engine's
+`DeterministicRng`, with its own stream constants. They are not shared on
+purpose: combat roll purposes are pinned to the combat ruleset version, and
+coupling loot to that would mean a combat rebalance silently changes which items
+historically dropped. The two must be able to evolve independently while each
+stays reproducible.
+
+Both share the property that a roll is derived from its coordinates rather than
+drawn from a stream, so adding a new roll site cannot disturb existing ones.
+
+### 9.4 Not yet built
+
+- **Refinement** (§5) — no `+0..+10`, no refinement stones, no failure handling.
+- **Durability and repair** (§6) — items do not degrade, so the repair gold sink
+  named in [economy.md](economy.md) is not yet collecting.
+- **Unique properties** (§4.2) — Legendary items currently roll affixes only.
+  This needs the effect-primitive vocabulary to be addressable from item data.
+- **Vendors** — no buy, sell, or `vendorValue` redemption path.
+- **Inventory UI** — the endpoints exist and are tested; the React screens do not.
+
+None of these are blocked; they were cut to keep the slice reviewable.

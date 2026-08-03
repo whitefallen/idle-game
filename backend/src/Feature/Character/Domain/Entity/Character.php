@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Feature\Character\Domain\Entity;
 
 use App\Feature\Character\Domain\Model\Attributes;
-use App\Feature\Character\Domain\Model\DerivedStats;
 use App\Feature\Character\Domain\Service\DerivedStatsCalculator;
 use App\Feature\Character\Domain\Service\ProgressionRules;
 use App\Feature\Character\Domain\Service\VigorRules;
 use App\Feature\Combat\Domain\Model\BattlePlan;
+use App\Feature\Inventory\Domain\Model\EquipmentBonuses;
 use DateTimeImmutable;
 use DomainException;
 use Doctrine\ORM\Mapping as ORM;
@@ -129,7 +129,8 @@ class Character
         $this->vigorTickedAt = $now;
         $this->createdAt = $now;
         $this->updatedAt = $now;
-        $this->powerScore = DerivedStatsCalculator::powerScore($this->level, $this->attributes());
+        // A new character wears nothing, so the starting score is allocation only.
+        $this->powerScore = DerivedStatsCalculator::powerScore($this->level, $this->attributes(), EquipmentBonuses::none());
     }
 
     public static function assertValidName(string $name): void
@@ -222,10 +223,14 @@ class Character
         );
     }
 
-    public function derivedStats(): DerivedStats
-    {
-        return DerivedStatsCalculator::calculate($this->level, $this->attributes());
-    }
+    /**
+     * Derived stats are deliberately not available here.
+     *
+     * They depend on equipped items, which belong to a different aggregate that
+     * this entity cannot and should not load. Use
+     * {@see \App\Feature\Character\Application\CharacterStats} instead, which
+     * combines allocation with equipment.
+     */
 
     public function battlePlan(): BattlePlan
     {
@@ -316,7 +321,7 @@ class Character
      * @return int The number of levels gained, so the caller can emit one
      *             PlayerLeveledUp event per level.
      */
-    public function awardExperience(int $amount, DateTimeImmutable $now): int
+    public function awardExperience(int $amount, EquipmentBonuses $equipment, DateTimeImmutable $now): int
     {
         $result = ProgressionRules::applyExperience($this->level, $this->experience, $amount);
 
@@ -326,7 +331,7 @@ class Character
         $this->updatedAt = $now;
 
         if ($result['levelsGained'] > 0) {
-            $this->recalculatePowerScore();
+            $this->updatePowerScore($equipment);
         }
 
         return $result['levelsGained'];
@@ -359,7 +364,7 @@ class Character
     /**
      * @param array<string, int> $allocation Keyed by Attribute value.
      */
-    public function allocatePoints(array $allocation, DateTimeImmutable $now): void
+    public function allocatePoints(array $allocation, EquipmentBonuses $equipment, DateTimeImmutable $now): void
     {
         $total = array_sum($allocation);
 
@@ -385,10 +390,10 @@ class Character
         $this->unspentPoints -= $total;
         $this->updatedAt = $now;
 
-        $this->recalculatePowerScore();
+        $this->updatePowerScore($equipment);
     }
 
-    public function respec(DateTimeImmutable $now): void
+    public function respec(EquipmentBonuses $equipment, DateTimeImmutable $now): void
     {
         $this->strength = Attributes::BASE_VALUE;
         $this->dexterity = Attributes::BASE_VALUE;
@@ -398,7 +403,7 @@ class Character
         $this->unspentPoints = ProgressionRules::totalAttributePointsAt($this->level);
         $this->updatedAt = $now;
 
-        $this->recalculatePowerScore();
+        $this->updatePowerScore($equipment);
     }
 
     public function replaceBattlePlan(BattlePlan $plan, DateTimeImmutable $now): void
@@ -419,9 +424,14 @@ class Character
 
     /**
      * Recomputed on every event that can change it, per ADR-0006.
+     *
+     * Equipment is passed in rather than looked up, because it lives in another
+     * aggregate. Making it a required argument of every mutator that affects
+     * power is what stops a caller silently leaving the score stale — the
+     * failure mode ADR-0006 names as this column's main risk.
      */
-    private function recalculatePowerScore(): void
+    public function updatePowerScore(EquipmentBonuses $equipment): void
     {
-        $this->powerScore = DerivedStatsCalculator::powerScore($this->level, $this->attributes());
+        $this->powerScore = DerivedStatsCalculator::powerScore($this->level, $this->attributes(), $equipment);
     }
 }

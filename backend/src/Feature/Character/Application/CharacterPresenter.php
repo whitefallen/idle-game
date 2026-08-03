@@ -19,8 +19,10 @@ use App\Feature\Combat\Application\BattlePlanGrammar;
  */
 final class CharacterPresenter
 {
-    public function __construct(private readonly BattlePlanGrammar $grammar)
-    {
+    public function __construct(
+        private readonly BattlePlanGrammar $grammar,
+        private readonly CharacterStats $stats,
+    ) {
     }
 
     /**
@@ -42,7 +44,7 @@ final class CharacterPresenter
      */
     public function detail(Character $character): array
     {
-        $stats = $character->derivedStats();
+        $stats = $this->stats->forCharacter($character);
 
         return [
             'id' => $character->id()->toRfc4122(),

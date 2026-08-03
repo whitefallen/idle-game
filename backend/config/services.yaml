@@ -34,6 +34,7 @@ services:
             - '../src/Platform/Idempotency/IdempotencyRecord.php'
             - '../src/Platform/Audit/AuditEntry.php'
             - '../src/Platform/Retention/RetentionPolicy.php'
+            - '../src/Feature/Inventory/Domain/Entity/'
             - '../src/**/Domain/Engine/CombatantState.php'
             - '../src/**/Domain/Engine/SelectedAction.php'
             - '../src/Platform/Content/ContentIssue.php'
@@ -78,6 +79,18 @@ services:
 
     App\Feature\Encounter\Domain\Repository\EncounterRepository:
         alias: App\Feature\Encounter\Infrastructure\Doctrine\DoctrineEncounterRepository
+
+    App\Feature\Inventory\Domain\Repository\AffixRepository:
+        alias: App\Feature\Inventory\Infrastructure\Content\YamlAffixRepository
+
+    App\Feature\Inventory\Domain\Repository\ItemDefinitionRepository:
+        alias: App\Feature\Inventory\Infrastructure\Content\YamlItemDefinitionRepository
+
+    App\Feature\Inventory\Domain\Repository\DropTableRepository:
+        alias: App\Feature\Inventory\Infrastructure\Content\YamlDropTableRepository
+
+    App\Feature\Inventory\Domain\Repository\ItemInstanceRepository:
+        alias: App\Feature\Inventory\Infrastructure\Doctrine\DoctrineItemInstanceRepository
 
     # ------------------------------------------------------------------
     # Platform services

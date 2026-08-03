@@ -20,6 +20,8 @@ use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\EncounterRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use App\Feature\Encounter\Domain\Service\RewardRules;
+use App\Feature\Character\Application\CharacterStats;
+use App\Feature\Inventory\Application\ResolveDropsHandler;
 use App\Platform\Audit\AuditAction;
 use App\Platform\Audit\AuditLogger;
 use App\Platform\Clock\Clock;
@@ -58,6 +60,8 @@ final class ResolveEncounterHandler
         private readonly SeedGenerator $seeds,
         private readonly IdentifierGenerator $identifiers,
         private readonly OutboxRecorder $outbox,
+        private readonly ResolveDropsHandler $drops,
+        private readonly CharacterStats $stats,
         private readonly AuditLogger $audit,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
@@ -91,6 +95,20 @@ final class ResolveEncounterHandler
                 $log = $this->engine->resolve($input, $seed);
 
                 $rewards = $this->applyRewards($character, $definition, $log, $seed, $now);
+
+                // Loot only on a win, and inside the same transaction: a
+                // rolled-back encounter must grant nothing.
+                $loot = $log->outcome === Outcome::Victory
+                    ? ($this->drops)(
+                        $character->id(),
+                        $definition->dropTableId,
+                        $character->attributes()->luck,
+                        $seed,
+                    )
+                    : ['items' => [], 'materials' => []];
+
+                $rewards['items'] = count($loot['items']);
+                $rewards['materials'] = $loot['materials'];
 
                 $encounter = new Encounter(
                     $this->identifiers->generate(),
@@ -207,7 +225,7 @@ final class ResolveEncounterHandler
     }
 
     /**
-     * @return array{experience: int, gold: int, levelsGained: int, vigorRefunded: int}
+     * @return array{experience: int, gold: int, levelsGained: int, vigorRefunded: int, items?: int, materials?: array<string, int>}
      */
     private function applyRewards(
         Character $character,
@@ -235,7 +253,11 @@ final class ResolveEncounterHandler
         $experience = RewardRules::experience($definition, $character->level());
         $gold = RewardRules::gold($definition, $seed);
 
-        $rewards['levelsGained'] = $character->awardExperience($experience, $now);
+        $rewards['levelsGained'] = $character->awardExperience(
+            $experience,
+            $this->stats->equipmentOf($character->id()),
+            $now,
+        );
         $character->awardGold($gold, $now);
 
         $rewards['experience'] = $experience;

@@ -1,0 +1,114 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://emberwatch.local/schema/affix.schema.json",
+    "title": "Affix definitions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "localisationKey", "pool", "kind", "modifier", "tiers"],
+        "properties": {
+            "id": { "type": "string", "pattern": "^(prefix|suffix)\\.[a-z][a-z0-9_]*$" },
+            "localisationKey": { "type": "string", "minLength": 1 },
+            "pool": {
+                "enum": [
+                    "weapon_prefix",
+                    "weapon_suffix",
+                    "armour_prefix",
+                    "armour_suffix",
+                    "jewellery_prefix",
+                    "jewellery_suffix"
+                ]
+            },
+            "kind": { "enum": ["prefix", "suffix"] },
+            "modifier": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["stat", "mode"],
+                "properties": {
+                    "stat": {
+                        "comment": "A closed set. An affix that could modify anything would make the stat budget unenforceable.",
+                        "enum": [
+                            "armourValue",
+                            "weaponBaseDamage",
+                            "flatDamage",
+                            "STR",
+                            "DEX",
+                            "INT",
+                            "CON",
+                            "LUK",
+                            "critChanceBp",
+                            "critPowerBp",
+                            "dodgeChanceBp",
+                            "accuracyBp",
+                            "resistPhysical",
+                            "resistArcane",
+                            "resistNature"
+                        ]
+                    },
+                    "mode": { "enum": ["flat", "percent"] }
+                },
+                "allOf": [
+                    {
+                        "comment": "percent applies to the item's own base value, so it only means something for stats an item has a base for.",
+                        "if": {
+                            "properties": { "mode": { "const": "percent" } },
+                            "required": ["mode"]
+                        },
+                        "then": {
+                            "properties": {
+                                "stat": { "enum": ["armourValue", "weaponBaseDamage"] }
+                            }
+                        }
+                    }
+                ]
+            },
+            "tiers": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["tier", "minIlvl", "roll"],
+                    "properties": {
+                        "tier": { "type": "integer", "minimum": 1, "maximum": 6 },
+                        "minIlvl": { "type": "integer", "minimum": 1, "maximum": 60 },
+                        "roll": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "integer", "minimum": 0 }
+                        }
+                    }
+                }
+            }
+        },
+        "allOf": [
+            {
+                "comment": "The pool name must agree with the kind, or an item could roll two prefixes.",
+                "if": {
+                    "properties": { "kind": { "const": "prefix" } },
+                    "required": ["kind"]
+                },
+                "then": {
+                    "properties": {
+                        "pool": { "enum": ["weapon_prefix", "armour_prefix", "jewellery_prefix"] }
+                    }
+                }
+            },
+            {
+                "if": {
+                    "properties": { "kind": { "const": "suffix" } },
+                    "required": ["kind"]
+                },
+                "then": {
+                    "properties": {
+                        "pool": { "enum": ["weapon_suffix", "armour_suffix", "jewellery_suffix"] }
+                    }
+                }
+            }
+        ]
+    }
+}

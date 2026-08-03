@@ -24,6 +24,7 @@ final class AllocateAttributePointsHandler
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
         private readonly AuditLogger $audit,
+        private readonly CharacterStats $stats,
     ) {
     }
 
@@ -45,7 +46,13 @@ final class AllocateAttributePointsHandler
                 }
 
                 try {
-                    $character->allocatePoints($normalised, $this->clock->now());
+                    // Equipment is supplied so the recomputed power score
+                    // reflects what the character is actually wearing.
+                    $character->allocatePoints(
+                        $normalised,
+                        $this->stats->equipmentOf($character->id()),
+                        $this->clock->now(),
+                    );
                 } catch (DomainException $e) {
                     throw ApiException::of(
                         ErrorCode::InsufficientPoints,
