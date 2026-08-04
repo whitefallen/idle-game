@@ -1,0 +1,43 @@
+# Drop tables for beacon-line stretch 2.
+#
+# Rarity is rolled separately from the item pool, so rarity distribution is
+# tuned in one place rather than duplicated across every table.
+# See docs/items.md section 8.
+#
+# These tables draw from pool.stretch1 because that is still the only authored
+# item pool. Item level, not the pool, is what scales an item's power
+# (docs/items.md section 3), so the same bases roll meaningfully stronger here.
+# The pool reference is the seam a stretch 2 item corpus lands on: adding items
+# tagged pool.stretch2 and changing these three lines is the whole change.
+
+- id: droptable.stretch2.patrol
+  rolls: 1
+  entries:
+    - weight: 5500
+      type: nothing
+    - weight: 3200
+      type: material
+      materialId: material.emberash
+      quantity: [2, 4]
+    - weight: 1300
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [6, 12]
+
+- id: droptable.stretch2.elite
+  rolls: 2
+  entries:
+    - weight: 2800
+      type: nothing
+    - weight: 3400
+      type: material
+      materialId: material.emberash
+      quantity: [3, 7]
+    - weight: 400
+      type: material
+      materialId: material.blightcore
+      quantity: [1, 2]
+    - weight: 3400
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [9, 15]

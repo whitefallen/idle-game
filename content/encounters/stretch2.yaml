@@ -1,0 +1,70 @@
+# Encounter definitions for beacon-line stretch 2: the Sundered Causeway.
+#
+# Levels 7-12, picking up where stretch 1's elite leaves off. tier selects the
+# XP multiplier applied in the progression rules (patrol 10000, elite 25000,
+# boss 60000 basis points).
+#
+# requiredLevel sits one or two levels below the encounter's own level
+# throughout: a gate the player reaches slightly under-levelled is a challenge,
+# and the level-difference falloff already makes over-levelled farming
+# unrewarding without needing a second gate to forbid it.
+
+- id: encounter.stretch2.causeway
+  localisationKey: encounter.stretch2.causeway
+  level: 7
+  tier: patrol
+  vigorCost: 10
+  requiredLevel: 7
+  monsters:
+    - monster.causeway_husk
+  dropTable: droptable.stretch2.patrol
+
+# The sustain lesson, at its smallest: one thing to kill and one thing undoing
+# the killing. A player who does nothing still wins this one; a player who reads
+# the log learns why it took twice as long as the patrol.
+- id: encounter.stretch2.chanters
+  localisationKey: encounter.stretch2.chanters
+  level: 9
+  tier: patrol
+  vigorCost: 12
+  requiredLevel: 8
+  monsters:
+    - monster.rot_chanter
+    - monster.causeway_husk
+  dropTable: droptable.stretch2.patrol
+
+- id: encounter.stretch2.lurkers
+  localisationKey: encounter.stretch2.lurkers
+  level: 10
+  tier: patrol
+  vigorCost: 12
+  requiredLevel: 9
+  monsters:
+    - monster.marsh_lurker
+    - monster.marsh_lurker
+  dropTable: droptable.stretch2.patrol
+
+# The same lesson with the safety off: two chanters keeping a husk standing.
+# This is the fight the default plan is expected to lose, and the one the
+# finisher and the area ability are the answer to.
+- id: encounter.stretch2.warren
+  localisationKey: encounter.stretch2.warren
+  level: 11
+  tier: elite
+  vigorCost: 22
+  requiredLevel: 10
+  monsters:
+    - monster.rot_chanter
+    - monster.marsh_lurker
+    - monster.marsh_lurker
+  dropTable: droptable.stretch2.elite
+
+- id: encounter.stretch2.ravager
+  localisationKey: encounter.stretch2.ravager
+  level: 12
+  tier: elite
+  vigorCost: 25
+  requiredLevel: 11
+  monsters:
+    - monster.causeway_ravager
+  dropTable: droptable.stretch2.elite

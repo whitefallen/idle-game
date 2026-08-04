@@ -17,12 +17,13 @@ For someone new to the project, read in this order:
 | 2 | [progression.md](progression.md) | Levels, attributes, derived stats, disciplines, content gating |
 | 3 | [combat.md](combat.md) | The deterministic combat specification — formulas, randomness, replay |
 | 4 | [items.md](items.md) | Item taxonomy, rarity, affixes, refinement, data schema |
-| 5 | [idle.md](idle.md) | The passive accrual layer and its anti-exploit rules |
-| 6 | [economy.md](economy.md) | Currencies, faucets, sinks, long-term stability, monetization |
-| 7 | [architecture.md](architecture.md) | Layers, feature map, domain events, repository layout |
-| 8 | [data-model.md](data-model.md) | Database schema and indexing strategy |
-| 9 | [api.md](api.md) | REST conventions, error contract, versioning |
-| 10 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
+| 5 | [content.md](content.md) | What is authored today: the beacon-line stretches, balance targets, authoring rules |
+| 6 | [idle.md](idle.md) | The passive accrual layer and its anti-exploit rules |
+| 7 | [economy.md](economy.md) | Currencies, faucets, sinks, long-term stability, monetization |
+| 8 | [architecture.md](architecture.md) | Layers, feature map, domain events, repository layout |
+| 9 | [data-model.md](data-model.md) | Database schema and indexing strategy |
+| 10 | [api.md](api.md) | REST conventions, error contract, versioning |
+| 11 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
 
 ## Architecture Decision Records
 

@@ -1,0 +1,58 @@
+# Encounter definitions for beacon-line stretch 3: the Ashen Vault.
+#
+# Levels 16-22, ending in the game's first boss. tier selects the XP multiplier
+# applied in the progression rules (patrol 10000, elite 25000, boss 60000 basis
+# points), so the boss is worth six patrols of its own level before the
+# level-difference falloff.
+
+- id: encounter.stretch3.vault_watch
+  localisationKey: encounter.stretch3.vault_watch
+  level: 16
+  tier: patrol
+  vigorCost: 14
+  requiredLevel: 15
+  monsters:
+    - monster.vault_sentinel
+  dropTable: droptable.stretch3.patrol
+
+- id: encounter.stretch3.revenants
+  localisationKey: encounter.stretch3.revenants
+  level: 18
+  tier: patrol
+  vigorCost: 16
+  requiredLevel: 17
+  monsters:
+    - monster.ash_revenant
+    - monster.emberbound_thrall
+  dropTable: droptable.stretch3.patrol
+
+- id: encounter.stretch3.sentinels
+  localisationKey: encounter.stretch3.sentinels
+  level: 19
+  tier: elite
+  vigorCost: 28
+  requiredLevel: 18
+  monsters:
+    - monster.vault_sentinel
+    - monster.vault_sentinel
+    - monster.emberbound_thrall
+  dropTable: droptable.stretch3.elite
+
+# The first boss encounter.
+#
+# Gated two levels below its own level, and costing a third of a full Vigor
+# pool, so it is a deliberate spend rather than something a player wanders into.
+# The two thralls make the boss's phases matter: a player who ignores them
+# reaches the enrage phase with the adds still alive, which is the loss
+# condition the fight is built around.
+- id: encounter.stretch3.warden_of_ash
+  localisationKey: encounter.stretch3.warden_of_ash
+  level: 22
+  tier: boss
+  vigorCost: 40
+  requiredLevel: 20
+  monsters:
+    - monster.warden_of_ash
+    - monster.emberbound_thrall
+    - monster.emberbound_thrall
+  dropTable: droptable.stretch3.boss

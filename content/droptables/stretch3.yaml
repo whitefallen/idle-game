@@ -1,0 +1,63 @@
+# Drop tables for beacon-line stretch 3, including the first boss table.
+#
+# The boss table has no `nothing` entry at all. That is deliberate and is the
+# only table in the library with the property: a boss costs 40 Vigor, roughly a
+# third of a full pool, and an empty result on a spend that large reads as the
+# game having taken something from the player. Every other table is allowed to
+# roll nothing because the Vigor cost is small enough to be shrugged off.
+#
+# As with stretch 2, the item entries draw from pool.stretch1 until a deeper
+# item corpus is authored; item level is what scales power. See
+# content/droptables/stretch2.yaml.
+
+- id: droptable.stretch3.patrol
+  rolls: 1
+  entries:
+    - weight: 5000
+      type: nothing
+    - weight: 3400
+      type: material
+      materialId: material.emberash
+      quantity: [3, 6]
+    - weight: 400
+      type: material
+      materialId: material.blightcore
+      quantity: [1, 2]
+    - weight: 1200
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [14, 20]
+
+- id: droptable.stretch3.elite
+  rolls: 2
+  entries:
+    - weight: 2500
+      type: nothing
+    - weight: 3300
+      type: material
+      materialId: material.emberash
+      quantity: [4, 9]
+    - weight: 900
+      type: material
+      materialId: material.blightcore
+      quantity: [2, 4]
+    - weight: 3300
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [16, 22]
+
+- id: droptable.stretch3.boss
+  rolls: 3
+  entries:
+    - weight: 3000
+      type: material
+      materialId: material.emberash
+      quantity: [6, 14]
+    - weight: 2500
+      type: material
+      materialId: material.blightcore
+      quantity: [3, 6]
+    - weight: 4500
+      type: item
+      pool: pool.stretch1
+      ilvlRange: [20, 26]

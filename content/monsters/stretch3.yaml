@@ -1,0 +1,169 @@
+# Beacon-line stretch 3 bestiary: the Ashen Vault, levels 16-22.
+#
+# The stretch that introduces a boss. Its mechanical step is the phased
+# opponent: the Warden of Ash fights by the same battle plan grammar the player
+# does, and its plan is readable top-down as three phases — open, enrage,
+# finish. Nothing in the engine knows what a phase is.
+#
+# Stats are authored directly rather than derived from attributes; see the note
+# at the top of content/monsters/stretch1.yaml.
+
+# Armour, arcane resistance, and a debuff instead of a big hit. It is the check
+# on whether the player's damage is still coming from one source: a plan that
+# leans entirely on a single scaling attribute feels ash_choked far more than a
+# plan that also ticks.
+- id: monster.vault_sentinel
+  localisationKey: monster.vault_sentinel
+  level: 16
+  maxHealth: 600
+  initiative: 110
+  maxFocus: 34
+  focusPerTurn: 5
+  weaponBaseDamage: 43
+  flatDamageBonus: 4
+  scalingBp: 10000
+  critChanceBp: 700
+  critPowerBp: 16000
+  dodgeChanceBp: 300
+  accuracyBp: 200
+  armourRating: 560
+  resistanceRatings:
+    physical: 260
+    arcane: 180
+  abilities:
+    - ability.crushing_blow
+    - ability.ash_shroud
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.ash_shroud
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+- id: monster.ash_revenant
+  localisationKey: monster.ash_revenant
+  level: 18
+  maxHealth: 480
+  initiative: 165
+  maxFocus: 44
+  focusPerTurn: 6
+  weaponBaseDamage: 44
+  flatDamageBonus: 4
+  scalingBp: 10000
+  critChanceBp: 900
+  critPowerBp: 16500
+  dodgeChanceBp: 600
+  accuracyBp: 300
+  armourRating: 300
+  resistanceRatings:
+    physical: 120
+    arcane: 420
+  abilities:
+    - ability.crushing_blow
+    - ability.cinder_volley
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.cinder_volley
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# Fast, fragile, and hits hard for its health. It exists to punish the player
+# for treating the boss as the only target: a thrall left alive contributes more
+# damage over a long fight than the boss does over a short one.
+- id: monster.emberbound_thrall
+  localisationKey: monster.emberbound_thrall
+  level: 20
+  maxHealth: 270
+  initiative: 210
+  maxFocus: 24
+  focusPerTurn: 4
+  weaponBaseDamage: 38
+  flatDamageBonus: 2
+  scalingBp: 10000
+  critChanceBp: 1200
+  critPowerBp: 17000
+  dodgeChanceBp: 900
+  accuracyBp: 400
+  armourRating: 240
+  resistanceRatings:
+    arcane: 200
+  abilities:
+    - ability.crushing_blow
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# The first boss.
+#
+# Read its plan top-down and the fight's three phases are visible before it is
+# ever fought — which is the intent. The player is shown this plan in the
+# journal, because the signature mechanic only teaches if the player can see an
+# expert example of it.
+- id: monster.warden_of_ash
+  localisationKey: monster.warden_of_ash
+  level: 22
+  maxHealth: 1080
+  initiative: 175
+  maxFocus: 70
+  focusPerTurn: 7
+  weaponBaseDamage: 51
+  flatDamageBonus: 4
+  scalingBp: 10000
+  critChanceBp: 1200
+  critPowerBp: 18000
+  dodgeChanceBp: 500
+  accuracyBp: 400
+  armourRating: 460
+  resistanceRatings:
+    physical: 220
+    arcane: 300
+    nature: 220
+  abilities:
+    - ability.crushing_blow
+    - ability.cinder_volley
+    - ability.ember_reave
+    - ability.vault_mend
+    - ability.wrath_of_ash
+  battlePlan:
+    # Phase 3, written first because rules are evaluated top-down and the most
+    # urgent state has to win. A six-round cooldown means this buys time twice
+    # in a fight of the intended length, never indefinitely.
+    - condition:
+        - subject: self.health_percent
+          operator: lt
+          value: 35
+      ability: ability.vault_mend
+
+    # Phase 2, the enrage. Gated on the round as well as on health so it can
+    # never fire in the opening exchange: the player always gets a clean look at
+    # the fight before it changes shape.
+    - condition:
+        - subject: self.health_percent
+          operator: lt
+          value: 60
+        - subject: round
+          operator: gte
+          value: 3
+      ability: ability.wrath_of_ash
+
+    # Its own finisher, mirroring the player's. A boss that uses the player's
+    # tools against them is the clearest possible demonstration that the plan
+    # grammar is the whole game and not a beginner's toy.
+    - condition:
+        - subject: target.health_percent
+          operator: lt
+          value: 40
+      ability: ability.ember_reave
+
+    # Phase 1. Unconditional, so it falls through on the rounds the volley is on
+    # cooldown or unaffordable.
+    - condition:
+        - subject: always
+      ability: ability.cinder_volley
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow

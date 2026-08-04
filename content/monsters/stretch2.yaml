@@ -1,0 +1,148 @@
+# Beacon-line stretch 2 bestiary: the Sundered Causeway, levels 7-12.
+#
+# Stretch 1 taught the player that a plan needs a fallback and that three weak
+# enemies are a different problem from one strong one. Stretch 2's step is
+# mechanical rather than numerical, per docs/game-bible.md section 4.2: enemies
+# now *undo* progress. The chanter heals what the player has already damaged and
+# the ravager grows stronger the longer the fight runs, so a plan that wins
+# slowly stops winning at all.
+#
+# Stats are authored directly rather than derived from attributes; see the note
+# at the top of content/monsters/stretch1.yaml.
+
+# The wall. Very high armour for its level and low damage, so it is never
+# dangerous on its own — it exists to make fights *long*, which is what turns
+# the chanter beside it into a real problem.
+- id: monster.causeway_husk
+  localisationKey: monster.causeway_husk
+  level: 7
+  maxHealth: 230
+  initiative: 70
+  maxFocus: 20
+  focusPerTurn: 4
+  weaponBaseDamage: 17
+  flatDamageBonus: 0
+  scalingBp: 10000
+  critChanceBp: 400
+  critPowerBp: 15000
+  dodgeChanceBp: 200
+  accuracyBp: 0
+  armourRating: 300
+  resistanceRatings:
+    physical: 100
+    nature: 60
+  abilities:
+    - ability.crushing_blow
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# The lesson. It has the lowest health in every group it appears in, which means
+# the default `lowest_health_enemy` targeting kills it first — the correct play,
+# arrived at without the player having to know why. A plan that has been
+# rewritten to open on the *highest*-health enemy discovers the reason.
+- id: monster.rot_chanter
+  localisationKey: monster.rot_chanter
+  level: 9
+  maxHealth: 185
+  initiative: 130
+  maxFocus: 34
+  focusPerTurn: 6
+  weaponBaseDamage: 16
+  flatDamageBonus: 0
+  scalingBp: 10000
+  critChanceBp: 500
+  critPowerBp: 15000
+  dodgeChanceBp: 400
+  accuracyBp: 0
+  armourRating: 100
+  resistanceRatings:
+    nature: 280
+  abilities:
+    - ability.blight_lash
+    - ability.rot_chant
+  battlePlan:
+    # `target.health_percent` reads the ability's own prospective target, which
+    # for a lowest-health-ally heal is whoever most needs it — including itself
+    # when it is alone. One rule covers both cases.
+    - condition:
+        - subject: target.health_percent
+          operator: lte
+          value: 70
+      ability: ability.rot_chant
+    - condition:
+        - subject: always
+      ability: ability.blight_lash
+
+# Fast and evasive, and the first enemy whose damage arrives partly as a tick
+# the player cannot dodge, armour away or out-heal without spending a turn.
+- id: monster.marsh_lurker
+  localisationKey: monster.marsh_lurker
+  level: 10
+  maxHealth: 215
+  initiative: 190
+  maxFocus: 30
+  focusPerTurn: 5
+  weaponBaseDamage: 20
+  flatDamageBonus: 2
+  scalingBp: 10000
+  critChanceBp: 1000
+  critPowerBp: 16500
+  dodgeChanceBp: 900
+  accuracyBp: 300
+  armourRating: 130
+  resistanceRatings:
+    physical: 60
+    nature: 140
+  abilities:
+    - ability.blight_lash
+    - ability.rending_claw
+  battlePlan:
+    # Unconditional but still meaningful: the rule falls through on the rounds
+    # rending_claw is on cooldown or unaffordable, which is the ordinary way to
+    # express "use this whenever it is available".
+    - condition:
+        - subject: always
+      ability: ability.rending_claw
+    - condition:
+        - subject: always
+      ability: ability.blight_lash
+
+# The stretch 2 elite. Its plan is the encounter: below sixty percent health it
+# spends a turn buffing instead of attacking, which is a gift to a player who is
+# about to win and a death sentence for one who is grinding the fight out.
+- id: monster.causeway_ravager
+  localisationKey: monster.causeway_ravager
+  level: 12
+  maxHealth: 720
+  initiative: 155
+  maxFocus: 40
+  focusPerTurn: 6
+  weaponBaseDamage: 38
+  flatDamageBonus: 4
+  scalingBp: 10000
+  critChanceBp: 1100
+  critPowerBp: 17000
+  dodgeChanceBp: 800
+  accuracyBp: 400
+  armourRating: 300
+  resistanceRatings:
+    physical: 90
+    nature: 220
+  abilities:
+    - ability.blight_lash
+    - ability.blood_frenzy
+    - ability.rending_claw
+  battlePlan:
+    - condition:
+        - subject: self.health_percent
+          operator: lte
+          value: 60
+      ability: ability.blood_frenzy
+    - condition:
+        - subject: always
+      ability: ability.rending_claw
+    - condition:
+        - subject: always
+      ability: ability.blight_lash

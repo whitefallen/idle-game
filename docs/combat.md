@@ -172,6 +172,24 @@ resolves fights synchronously inside a request. Reaching the cap is a **draw**:
 no rewards, and the Vigor cost is refunded, because a draw is a design failure
 rather than a player failure.
 
+### 4.1 The two kinds of draw
+
+A draw is emitted whenever no participant on either team is alive at a terminal
+check, which happens in two distinct situations that must not be conflated:
+
+| | **Round cap reached** | **Simultaneous death** |
+|---|---|---|
+| Cause | Neither side could finish the other in 50 rounds | Both sides' last participants die in the same round — most often two damage-over-time ticks landing fatally in the same round-start phase |
+| Meaning | A **design failure**: the encounter could not resolve | A legitimate fight result: both sides fell |
+| Guarded by | `EncounterBalanceTest::testNoAuthoredEncounterCanReachTheRoundCap` — no authored content may reach the cap at any level it can be fought at | Nothing; it is expected and reproducible |
+
+Both pay out identically — no rewards, Vigor refunded — because from the
+player's side the fight produced no victory either way, and refunding is the
+generous reading. The distinction matters for **balance testing**, not for
+rewards: a content change that makes the round cap reachable is a defect, while
+a content change that makes simultaneous death slightly more likely is simply
+what happens when both sides carry damage over time.
+
 Initiative order is computed **once at encounter start**. Effects that modify
 initiative apply from the following round and re-sort deterministically.
 
