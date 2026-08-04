@@ -111,6 +111,7 @@ const strings: Record<string, string> = {
   'encounter.cost': '{cost} Vigor',
   'encounter.locked': 'Requires level {level}',
   'encounter.notEnoughVigor': 'Not enough Vigor',
+  'encounter.activityResolving': 'Still resolving — ready in {seconds}s',
   'encounter.history': 'Recent encounters',
   'encounter.noHistory': 'No encounters yet.',
 
@@ -210,6 +211,7 @@ const strings: Record<string, string> = {
   'error.CHARACTER_NAME_TAKEN': 'That name is already taken.',
   'error.CHARACTER_LIMIT_REACHED': 'You have reached the character limit.',
   'error.INSUFFICIENT_VIGOR': 'Not enough Vigor.',
+  'error.ACTIVITY_IN_PROGRESS': 'Another activity is still resolving.',
   'error.INSUFFICIENT_GOLD': 'Not enough gold.',
   'error.INSUFFICIENT_POINTS': 'Not enough unspent points.',
   'error.REQUIREMENT_NOT_MET': 'You do not meet the requirements yet.',

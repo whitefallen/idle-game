@@ -129,6 +129,23 @@ export interface AvailableEncounter {
   affordable: boolean;
 }
 
+/**
+ * The Vigor activity gate. A character runs one Vigor-spending activity at a
+ * time, so this belongs to the character rather than to any one encounter and
+ * is reported once alongside the list.
+ */
+export interface ActivityGate {
+  ready: boolean;
+  seconds_remaining: number;
+  ready_at: string;
+  gate_seconds: number;
+}
+
+export interface AvailableEncounters {
+  encounters: AvailableEncounter[];
+  activity: ActivityGate;
+}
+
 export interface EncounterRewards {
   experience: number;
   gold: number;

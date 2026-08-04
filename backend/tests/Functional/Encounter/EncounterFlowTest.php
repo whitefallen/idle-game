@@ -117,17 +117,113 @@ final class EncounterFlowTest extends ApiTestCase
         $this->registerAndLogin('drained@example.com');
         $character = $this->createCharacter('Drained');
 
-        // The cap allows twelve patrols at ten Vigor each.
+        // The cap allows twelve patrols at ten Vigor each. The activity gate is
+        // cleared between them so this case measures the Vigor ceiling rather
+        // than the pacing gate, which has its own tests below.
         for ($i = 0; $i < 12; ++$i) {
+            $this->clearActivityGate($character['id']);
             self::assertSame(201, $this->fight($character['id'])['status'], 'fight ' . $i);
         }
 
+        $this->clearActivityGate($character['id']);
         $response = $this->fight($character['id']);
 
         self::assertSame(422, $response['status']);
         self::assertSame('INSUFFICIENT_VIGOR', $response['body']['error']['code']);
         self::assertSame(10, $response['body']['error']['details']['required']);
         self::assertSame(0, $response['body']['error']['details']['available']);
+    }
+
+    // -----------------------------------------------------------------
+    // The activity gate
+    // -----------------------------------------------------------------
+
+    /**
+     * A character runs one Vigor-spending activity at a time.
+     *
+     * This is the rule the endpoint exists to enforce, so it is asserted
+     * against the endpoint rather than the entity: the gate is only a guarantee
+     * if a client cannot get past it.
+     */
+    public function testASecondActivityIsRefusedWhileTheGateIsClosed(): void
+    {
+        $this->registerAndLogin('gated@example.com');
+        $character = $this->createCharacter('Gated');
+
+        self::assertSame(201, $this->fight($character['id'])['status']);
+
+        $second = $this->fight($character['id']);
+
+        self::assertSame(409, $second['status'], self::describe($second['body']));
+        self::assertSame('ACTIVITY_IN_PROGRESS', $second['body']['error']['code']);
+    }
+
+    /**
+     * A refusal must say how long to wait. "You cannot do this yet" without a
+     * reason is considered a bug — see docs/progression.md section 5.
+     */
+    public function testTheRefusalStatesWhenTheNextActivityMayBegin(): void
+    {
+        $this->registerAndLogin('gatedetail@example.com');
+        $character = $this->createCharacter('GateDetail');
+
+        $this->fight($character['id']);
+        $details = $this->fight($character['id'])['body']['error']['details'];
+
+        self::assertGreaterThan(0, $details['seconds_remaining']);
+        self::assertLessThanOrEqual(VigorRules::ACTIVITY_GATE_SECONDS, $details['seconds_remaining']);
+        self::assertNotSame('', $details['ready_at']);
+    }
+
+    /**
+     * The refused attempt must cost nothing. A gate that consumed the Vigor it
+     * just refused to spend would be worse than no gate at all.
+     */
+    public function testARefusedActivityCostsNoVigorAndRecordsNoEncounter(): void
+    {
+        $this->registerAndLogin('gatedfree@example.com');
+        $character = $this->createCharacter('GateFree');
+
+        $afterFirst = $this->fight($character['id'])['body']['data']['character'];
+
+        self::assertSame(409, $this->fight($character['id'])['status']);
+
+        $history = $this->getJson('/api/v1/characters/' . $character['id'] . '/encounters');
+        $current = $this->getJson('/api/v1/characters/' . $character['id']);
+
+        self::assertCount(1, $history['body']['data']['encounters'], 'The refused attempt must not be recorded.');
+        self::assertSame(
+            $afterFirst['vigor']['current'],
+            $current['body']['data']['character']['vigor']['current'],
+            'The refused attempt must not spend Vigor.',
+        );
+    }
+
+    /**
+     * The gate is state the client can read before acting, so a fight button
+     * can be disabled with a countdown rather than the player discovering the
+     * rule by being refused.
+     */
+    public function testAvailableEncountersReportTheActivityGate(): void
+    {
+        $this->registerAndLogin('gatestate@example.com');
+        $character = $this->createCharacter('GateState');
+
+        $before = $this->getJson('/api/v1/characters/' . $character['id'] . '/encounters/available');
+
+        self::assertTrue($before['body']['data']['activity']['ready'], 'A new character is never gated.');
+        self::assertSame(0, $before['body']['data']['activity']['seconds_remaining']);
+
+        $this->fight($character['id']);
+
+        $after = $this->getJson('/api/v1/characters/' . $character['id'] . '/encounters/available');
+
+        self::assertFalse($after['body']['data']['activity']['ready']);
+        self::assertGreaterThan(0, $after['body']['data']['activity']['seconds_remaining']);
+        self::assertSame(
+            VigorRules::ACTIVITY_GATE_SECONDS,
+            $after['body']['data']['activity']['gate_seconds'],
+        );
     }
 
     public function testLevelRequirementIsEnforcedWithStructuredDetail(): void
@@ -298,6 +394,13 @@ final class EncounterFlowTest extends ApiTestCase
         $character = $this->createCharacter('Historian');
 
         $this->fight($character['id']);
+
+        // Cleared so both encounters land inside one second, which is the
+        // condition the ordering has to survive. The activity gate makes this
+        // unreachable through the API today, but the gate is a tunable
+        // gameplay rule and the sort has to be correct on its own.
+        $this->clearActivityGate($character['id']);
+
         $second = $this->fight($character['id'])['body']['data']['encounter'];
 
         $response = $this->getJson('/api/v1/characters/' . $character['id'] . '/encounters');

@@ -86,7 +86,7 @@ final class ResolveEncounterHandler
                 $now = $this->clock->now();
                 $character->regenerateVigor($now);
 
-                $this->assertEligible($character, $definition);
+                $this->assertEligible($character, $definition, $now);
 
                 $character->spendVigor($definition->vigorCost, $now);
 
@@ -183,8 +183,11 @@ final class ResolveEncounterHandler
         }
     }
 
-    private function assertEligible(Character $character, EncounterDefinition $definition): void
-    {
+    private function assertEligible(
+        Character $character,
+        EncounterDefinition $definition,
+        \DateTimeImmutable $now,
+    ): void {
         if ($character->level() < $definition->requiredLevel) {
             // Requirements are returned structurally so the UI can say exactly
             // what is missing rather than "you cannot do this yet".
@@ -192,6 +195,27 @@ final class ResolveEncounterHandler
                 ErrorCode::RequirementNotMet,
                 sprintf('This encounter requires level %d.', $definition->requiredLevel),
                 ['required_level' => $definition->requiredLevel, 'character_level' => $character->level()],
+            );
+        }
+
+        // Checked before affordability: being busy is the more immediate
+        // reason, and telling a player they lack Vigor when the real answer is
+        // "in two seconds" would send them looking at the wrong number.
+        //
+        // Two overlapping requests cannot both pass this. The character row is
+        // held under a write lock for the whole transaction, so the second
+        // request reads the state the first committed, sees the gate it just
+        // opened, and is rejected here.
+        if (!$character->canStartVigorActivity($now)) {
+            $remaining = $character->secondsUntilVigorActivity($now);
+
+            throw ApiException::of(
+                ErrorCode::ActivityInProgress,
+                'Another activity is still resolving.',
+                [
+                    'seconds_remaining' => $remaining,
+                    'ready_at' => $character->vigorActivityReadyAt($now)->format(DATE_RFC3339),
+                ],
             );
         }
 

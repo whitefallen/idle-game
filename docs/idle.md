@@ -111,6 +111,50 @@ the most common way games in this genre become pay-to-win while claiming not to
 be. This is recorded as a monetisation constraint in
 [economy.md](economy.md) §6, not merely a current preference.
 
+### 4.1 One activity at a time
+
+A character runs **one Vigor-spending activity at a time**. A new one may begin
+only once the previous has resolved *and* a short gate interval has elapsed
+(`VigorRules::ACTIVITY_GATE_SECONDS`, 2 seconds, tunable). Two seconds is the
+headroom the client needs to present a result — replay open, rewards shown —
+before the next action becomes available, so the button re-enables just after
+the outcome rather than during it.
+
+Two separate guarantees, and they are not the same thing:
+
+| | Mechanism | Protects against |
+|---|---|---|
+| **Exclusivity** | `SELECT … FOR UPDATE` on the character row for the whole transaction | Two concurrent requests both reading the same Vigor balance and both spending it — the double-tap that turns one cost into two encounters |
+| **Pacing** | `vigor_spent_at` plus the gate interval | A full pool being emptied in a burst of clicks |
+
+Exclusivity alone is not pacing. An encounter resolves synchronously in tens of
+milliseconds, so "wait until the previous one is resolved" permits many
+encounters per second; only the interval spaces them out.
+
+The gate does **not** reduce daily throughput — the cap in §4 remains the only
+ceiling, and the parity contract in [game-bible.md](game-bible.md) §7 is
+unaffected. What it buys:
+
+- The read-and-adjust beat the design is built on. Reading a combat log and
+  changing the plan is impossible if twelve fights resolve before the first log
+  is open.
+- A bound on the server cost one account can impose. Every encounter is a full
+  combat simulation inside its request.
+- A real, inspectable "am I busy?" state, which the longer-running activities
+  the design anticipates — dungeons, expeditions, arena defence — need in order
+  to be exclusive against each other at all.
+
+Refused attempts cost nothing: no Vigor, no encounter record. The refusal
+carries `seconds_remaining` and `ready_at`, and the same state is readable
+ahead of time from `GET /characters/{id}/encounters/available`, so the client
+disables the action with a countdown instead of letting the player discover the
+rule by being refused.
+
+A **refund does not lift the gate**. A draw returns the Vigor because the cost
+was not the player's fault, but the activity still ran and still consumed the
+work; clearing the gate would also make a draw the cheapest route to fighting
+twice in quick succession.
+
 ---
 
 ## 5. Anti-exploit rules

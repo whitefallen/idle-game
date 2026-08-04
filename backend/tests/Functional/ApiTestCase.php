@@ -144,6 +144,30 @@ abstract class ApiTestCase extends WebTestCase
     }
 
     /**
+     * Opens the Vigor activity gate for a character.
+     *
+     * The gate is configured identically in test and production — a gate tuned
+     * differently under test is a gate nobody has actually tested — so a case
+     * that legitimately performs several activities clears it between them,
+     * exactly as {@see resetRateLimiters()} does for rate limits. Cases that
+     * exist to prove the gate works do not call this.
+     *
+     * Written as SQL rather than through the entity on purpose: there is no
+     * domain operation that lifts the gate, and adding one solely for tests
+     * would put a hole in the invariant that production code could reach.
+     */
+    protected function clearActivityGate(string $characterId): void
+    {
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            'UPDATE game_character SET vigor_spent_at = NULL WHERE id = :id',
+            ['id' => $characterId],
+        );
+    }
+
+    /**
      * @return array<string, mixed> The created character's detail payload.
      */
     protected function createCharacter(string $name): array

@@ -29,6 +29,7 @@ enum ErrorCode: string
     case CharacterNameTaken = 'CHARACTER_NAME_TAKEN';
     case CharacterLimitReached = 'CHARACTER_LIMIT_REACHED';
     case InsufficientVigor = 'INSUFFICIENT_VIGOR';
+    case ActivityInProgress = 'ACTIVITY_IN_PROGRESS';
     case InsufficientGold = 'INSUFFICIENT_GOLD';
     case InsufficientPoints = 'INSUFFICIENT_POINTS';
     case RequirementNotMet = 'REQUIREMENT_NOT_MET';
@@ -46,6 +47,12 @@ enum ErrorCode: string
             self::Conflict,
             self::EmailAlreadyRegistered,
             self::CharacterNameTaken,
+            // A state conflict rather than throttling: the character is busy,
+            // and the response says for how long. 429 would invite the generic
+            // backoff-and-retry behaviour built into most HTTP clients, which
+            // is wrong here — the caller should wait the stated interval and
+            // the UI should show a countdown, not retry blindly.
+            self::ActivityInProgress,
             self::IdempotencyConflict => Response::HTTP_CONFLICT,
             self::ValidationFailed,
             self::CharacterLimitReached,
