@@ -131,6 +131,7 @@ POST   /api/v1/items/{id}/repair
 
 GET    /api/v1/characters/{id}/battle-plans
 PUT    /api/v1/characters/{id}/battle-plans/{planId}
+PUT    /api/v1/characters/{id}/loadout             replace the slotted disciplines
 
 POST   /api/v1/encounters                      resolve a fight
 GET    /api/v1/encounters/{id}                 full replay log

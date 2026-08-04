@@ -56,6 +56,17 @@ const strings: Record<string, string> = {
   'stat.dodgeChanceBp': 'Dodge',
   'stat.armourRating': 'Armour',
 
+  'discipline.title': 'Disciplines',
+  'discipline.slotsUsed': '{used} of {max} slots used',
+  'discipline.unlocksAt': 'unlocks at level {level}',
+  'discipline.slot': 'Slot',
+  'discipline.slotted': 'Slotted',
+  'discipline.save': 'Save loadout',
+  'discipline.saving': 'Saving…',
+  'discipline.revert': 'Revert',
+  'discipline.planNote':
+    'To unslot an ability your battle plan uses, change the plan first — the plan is never rewritten for you.',
+
   'plan.title': 'Battle plan',
   'plan.edit': 'Edit plan',
   'plan.done': 'Done',

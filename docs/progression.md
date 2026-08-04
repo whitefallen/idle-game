@@ -168,6 +168,32 @@ progression axis (after level and gear) and the primary source of build identity
 - Owning a discipline is permanent. Slotting is what is limited, and slotting is
   free to change outside combat.
 
+A discipline is the **unlock**; the ability is what it grants. Keeping the two
+separate is what will let a reputation vendor offer an alternative discipline
+granting a variant of an ability the player already has, without either needing
+a special case in code.
+
+It is also what distinguishes a player ability from a monster one: **an ability
+is player-usable exactly when some discipline grants it.** That test lives in
+data rather than in a naming convention or an `is_monster` flag, so adding a
+monster ability can never accidentally hand it to players.
+
+**Ownership is derived, not stored.** Every discipline today is granted by a
+level milestone, which is a pure function of the character's level — so there is
+no grant step, no column, no backfill, and no way for a stored set to drift from
+the rules. When quest, dungeon and reputation sources arrive, ownership becomes
+the union of the derived set and a stored one; only the non-derivable half needs
+persisting.
+
+**Unslotting an ability the battle plan still uses is refused**, not silently
+repaired. A plan is authored, sometimes carefully, and quietly deleting a rule
+from it is a worse outcome than being told which rule is in the way. The order
+of operations is therefore: change the plan, then change the loadout.
+
+The whole catalogue is exposed through the API, locked entries included, with
+the level that grants each one. A progression axis the player cannot see ahead
+of is one they cannot plan around — the same principle as §5.
+
 ### 4.2 Acquisition
 
 | Source | Character of the disciplines gained |

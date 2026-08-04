@@ -104,20 +104,25 @@ is narrower than "no draws".
 Enforced by JSON Schema (`content/schema/*.schema.json`), by each repository's
 `validateContent()`, and by `bin/console content:validate` in CI:
 
-1. **Every id matches its type's pattern** and is unique across the whole
+1. **A player ability needs a discipline.** An ability is player-usable exactly
+   when some discipline grants it, so a new player ability without an entry in
+   `content/disciplines/` is unreachable, and a new *monster* ability must not
+   have one. `DisciplineAvailabilityTest` pins unlock levels against the
+   canonical builds the balance tolerances are declared against.
+2. **Every id matches its type's pattern** and is unique across the whole
    library, not merely within a file.
-2. **Every cross-reference resolves.** An ability's effect, a monster's
+3. **Every cross-reference resolves.** An ability's effect, a monster's
    abilities, an encounter's monsters and drop table, a drop table's item pool.
    Schema can check that an id is well-formed; only the repositories can check
    that the thing exists.
-3. **A monster's battle plan may only name abilities that monster knows**, and
+4. **A monster's battle plan may only name abilities that monster knows**, and
    its **final rule must be unconditional and use a zero-cost, no-cooldown
    ability**. Otherwise a monster can reach a state where it cannot act, and it
    will do so mid-fight, in front of a player.
-4. **Every definition declares a localisation key.** A missing key renders as a
+5. **Every definition declares a localisation key.** A missing key renders as a
    raw id in the client, which players report as a bug.
-5. **An encounter's `requiredLevel` may not exceed its own `level`.**
-6. **No hardcoding.** If a change to a monster, ability, effect, encounter or
+6. **An encounter's `requiredLevel` may not exceed its own `level`.**
+7. **No hardcoding.** If a change to a monster, ability, effect, encounter or
    drop table needs a PHP change, the vocabulary is missing something — extend
    the vocabulary rather than special-casing the content.
 
@@ -128,10 +133,12 @@ Enforced by JSON Schema (`content/schema/*.schema.json`), by each repository's
    discipline in [progression.md](progression.md) §2.2 exists to prevent.
 2. Author effects, then abilities, then monsters, then encounters, then drop
    tables — each layer only references the one below it.
-3. Add a localisation entry for every new id in `frontend/src/lib/i18n.ts`.
-4. Add tolerances to `EncounterBalanceTest` for each new encounter at its gate,
+3. Add a discipline for every new *player* ability, with an unlock level at or
+   before the content that needs it. Monster abilities get none.
+4. Add a localisation entry for every new id in `frontend/src/lib/i18n.ts`.
+5. Add tolerances to `EncounterBalanceTest` for each new encounter at its gate,
    and for elites and bosses at the level they should become routine.
-5. Run `make content-validate` and the backend suite.
+6. Run `make content-validate` and the backend suite.
 
 ---
 
@@ -148,8 +155,4 @@ Recorded rather than quietly tolerated:
 - **`material.blightcore` has no consumer yet.** It drops from stretch 2 elites
   and stretch 3 content and is intended for refinement; until the refinement
   system exists it accumulates.
-- **Player abilities are authored ahead of the discipline system** that will
-  grant them, exactly as the core kit was. A character currently begins with —
-  and keeps — the starting loadout, so the abilities added for stretches 2 and 3
-  are reachable in tests and in the balance simulator but not yet in play.
 - **Levels 13–14 and 23+ have no content.**

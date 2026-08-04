@@ -470,6 +470,73 @@ class Character
         $this->updatePowerScore($equipment);
     }
 
+    /**
+     * How many disciplines this character may have slotted at once.
+     *
+     * Owning a discipline is permanent; slotting is what is limited. That split
+     * is the whole point of the axis — see docs/progression.md section 4.1.
+     */
+    public function loadoutSlots(): int
+    {
+        return ProgressionRules::loadoutSlotsAt($this->level);
+    }
+
+    /**
+     * Replaces the slotted loadout.
+     *
+     * Enforces only what the character itself can know: the slot budget, that a
+     * loadout is a set rather than a list, and that the battle plan it already
+     * has stays executable. Whether each ability is one this character has
+     * *unlocked* depends on the discipline catalogue, which is content and lives
+     * outside the aggregate — the application layer checks that and produces the
+     * player-facing error.
+     *
+     * Unslotting an ability the current plan uses is rejected rather than
+     * silently repairing the plan. A plan is authored, sometimes carefully, and
+     * quietly deleting a rule from it is a worse outcome than being told which
+     * rule is in the way.
+     *
+     * @param list<string> $abilityIds
+     */
+    public function changeLoadout(array $abilityIds, DateTimeImmutable $now): void
+    {
+        $abilityIds = array_values($abilityIds);
+
+        if ($abilityIds === []) {
+            throw new DomainException('A loadout must contain at least one ability.');
+        }
+
+        if (count($abilityIds) !== count(array_unique($abilityIds))) {
+            throw new DomainException('A loadout cannot slot the same ability twice.');
+        }
+
+        $slots = $this->loadoutSlots();
+
+        if (count($abilityIds) > $slots) {
+            throw new DomainException(sprintf(
+                'This character has %d loadout slot(s) and %d were used.',
+                $slots,
+                count($abilityIds),
+            ));
+        }
+
+        foreach ($this->battlePlan as $index => $rule) {
+            /** @var string $abilityId */
+            $abilityId = $rule['abilityId'] ?? '';
+
+            if (!in_array($abilityId, $abilityIds, true)) {
+                throw new DomainException(sprintf(
+                    'Rule %d of the battle plan uses ability "%s", which this loadout does not slot.',
+                    $index + 1,
+                    $abilityId,
+                ));
+            }
+        }
+
+        $this->abilityIds = $abilityIds;
+        $this->updatedAt = $now;
+    }
+
     public function replaceBattlePlan(BattlePlan $plan, DateTimeImmutable $now): void
     {
         foreach ($plan->rules as $index => $rule) {
