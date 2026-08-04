@@ -10,6 +10,8 @@ use App\Feature\Encounter\Application\ResolveEncounterHandler;
 use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\EncounterRepository;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
+use App\Feature\Character\Domain\Service\VigorRules;
+use App\Platform\Clock\Clock;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ApiResponder;
 use App\Platform\Http\JsonBody;
@@ -34,6 +36,7 @@ final class EncounterController
         private readonly CharacterPresenter $characterPresenter,
         private readonly IdempotencyStore $idempotency,
         private readonly TransactionManager $transactions,
+        private readonly Clock $clock,
     ) {
     }
 
@@ -48,6 +51,7 @@ final class EncounterController
     public function available(string $characterId): JsonResponse
     {
         $character = $this->ownedCharacter($characterId);
+        $now = $this->clock->now();
 
         $available = [];
 
@@ -65,7 +69,20 @@ final class EncounterController
             ];
         }
 
-        return $this->responder->ok(['encounters' => $available]);
+        // The activity gate belongs to the character, not to any one encounter,
+        // so it is reported once rather than repeated on every entry. The
+        // client disables every fight action while `ready` is false and renders
+        // the countdown from `seconds_remaining` — a disabled button with no
+        // stated reason is the thing docs/progression.md section 5 calls a bug.
+        return $this->responder->ok([
+            'encounters' => $available,
+            'activity' => [
+                'ready' => $character->canStartVigorActivity($now),
+                'seconds_remaining' => $character->secondsUntilVigorActivity($now),
+                'ready_at' => $character->vigorActivityReadyAt($now)->format(DATE_RFC3339),
+                'gate_seconds' => VigorRules::ACTIVITY_GATE_SECONDS,
+            ],
+        ]);
     }
 
     #[Route('/encounters', name: 'encounter_resolve', methods: ['POST'])]

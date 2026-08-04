@@ -1,14 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { newIdempotencyKey, request } from '@/lib/api';
 import { queryKeys } from '@/lib/queryClient';
-import type { AvailableEncounter, EncounterSummary, ResolvedEncounter } from '@/lib/types';
+import type { AvailableEncounters, EncounterSummary, ResolvedEncounter } from '@/lib/types';
 
 export function useAvailableEncounters(characterId: string) {
   return useQuery({
     queryKey: queryKeys.availableEncounters(characterId),
-    queryFn: async () =>
-      (await request<{ encounters: AvailableEncounter[] }>(`/characters/${characterId}/encounters/available`))
-        .encounters,
+    queryFn: () => request<AvailableEncounters>(`/characters/${characterId}/encounters/available`),
+    // The activity gate expires on a timer the server owns, so the list is
+    // refetched while it is closed rather than counted down purely client-side.
+    // The countdown itself is local; this only corrects drift and re-enables
+    // the actions at the moment the server agrees they are available.
+    refetchInterval: (query) => (query.state.data?.activity.ready === false ? 1000 : false),
   });
 }
 

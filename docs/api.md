@@ -68,11 +68,18 @@ names, in any environment reachable by a player. Unhandled errors return
 | 401 | Missing or invalid authentication |
 | 403 | Authenticated but not permitted — including ownership failures |
 | 404 | Not found, **or** not owned by the caller (see §5) |
-| 409 | State conflict — already claimed, slot occupied, idempotency mismatch |
+| 409 | State conflict — already claimed, slot occupied, idempotency mismatch, an activity already in progress |
 | 422 | Well-formed but semantically invalid — insufficient resources, unmet requirement |
 | 429 | Rate limited, with `Retry-After` |
 
 The 403/404 distinction is a security decision, covered in §5.
+
+`ACTIVITY_IN_PROGRESS` is deliberately a 409 rather than a 429. It is a state
+condition — this character is busy, and the response says for how long — not
+throttling. 429 would invite the generic backoff-and-retry that HTTP clients
+implement automatically, when the correct behaviour is to wait the stated
+interval and show a countdown. Its `details` carry `seconds_remaining` and
+`ready_at`; see [idle.md](idle.md) §4.1.
 
 ---
 

@@ -13,6 +13,7 @@ export function EncounterPanel({
   const available = useAvailableEncounters(characterId);
   const history = useEncounterHistory(characterId);
   const resolve = useResolveEncounter(characterId);
+  const gate = available.data?.activity;
 
   async function fight(encounterId: string) {
     const result = await resolve.mutateAsync(encounterId);
@@ -24,9 +25,20 @@ export function EncounterPanel({
       <Panel title={t('encounter.available')}>
         <ErrorNotice error={resolve.error} />
 
+        {/*
+          The activity gate belongs to the character, so it is stated once at
+          the top rather than repeated on every row — and stated at all, because
+          a disabled button with no reason is a bug. See docs/progression.md §5.
+        */}
+        {gate && !gate.ready && (
+          <p className="mb-2 text-xs text-ash-400">
+            {t('encounter.activityResolving', { seconds: gate.seconds_remaining })}
+          </p>
+        )}
+
         <ul className="space-y-2">
-          {available.data?.map((encounter) => {
-            const blocked = !encounter.unlocked || !encounter.affordable;
+          {available.data?.encounters.map((encounter) => {
+            const blocked = !encounter.unlocked || !encounter.affordable || !gate?.ready;
 
             return (
               <li

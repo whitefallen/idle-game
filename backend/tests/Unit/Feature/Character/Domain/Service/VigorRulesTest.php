@@ -117,4 +117,92 @@ final class VigorRulesTest extends TestCase
         self::assertSame(240, $dailyRegeneration);
         self::assertSame(24, intdiv($dailyRegeneration, 10), 'Twenty-four patrols per day at 10 Vigor each.');
     }
+
+    // -----------------------------------------------------------------
+    // The activity gate
+    // -----------------------------------------------------------------
+
+    /**
+     * A character who has never spent Vigor is never gated. Without this, the
+     * first action of every new account would be blocked.
+     */
+    public function testACharacterThatHasNeverSpentVigorIsNotGated(): void
+    {
+        self::assertTrue(VigorRules::canStartActivity(null, self::NOW));
+        self::assertSame(0, VigorRules::secondsUntilReady(null, self::NOW));
+    }
+
+    public function testTheGateIsClosedForItsFullInterval(): void
+    {
+        for ($elapsed = 0; $elapsed < VigorRules::ACTIVITY_GATE_SECONDS; ++$elapsed) {
+            self::assertFalse(
+                VigorRules::canStartActivity(self::NOW, self::NOW + $elapsed),
+                sprintf('Gate should still be closed %d second(s) after spending.', $elapsed),
+            );
+        }
+    }
+
+    /**
+     * The boundary is inclusive: at exactly the gate interval the next activity
+     * may begin. An exclusive boundary would make the effective gate one second
+     * longer than the constant says, which is the kind of off-by-one that only
+     * shows up as a balance discrepancy months later.
+     */
+    public function testTheGateOpensExactlyAtTheInterval(): void
+    {
+        $readyAt = self::NOW + VigorRules::ACTIVITY_GATE_SECONDS;
+
+        self::assertFalse(VigorRules::canStartActivity(self::NOW, $readyAt - 1));
+        self::assertTrue(VigorRules::canStartActivity(self::NOW, $readyAt));
+        self::assertSame($readyAt, VigorRules::activityReadyAt(self::NOW));
+    }
+
+    public function testCountdownReportsWholeSecondsRemainingAndFloorsAtZero(): void
+    {
+        self::assertSame(
+            VigorRules::ACTIVITY_GATE_SECONDS,
+            VigorRules::secondsUntilReady(self::NOW, self::NOW),
+        );
+
+        self::assertSame(1, VigorRules::secondsUntilReady(self::NOW, self::NOW + VigorRules::ACTIVITY_GATE_SECONDS - 1));
+        self::assertSame(0, VigorRules::secondsUntilReady(self::NOW, self::NOW + VigorRules::ACTIVITY_GATE_SECONDS));
+        self::assertSame(0, VigorRules::secondsUntilReady(self::NOW, self::NOW + 10_000));
+    }
+
+    /**
+     * A clock that moves backwards — an NTP correction, or a read served by a
+     * replica behind the writer — must leave the gate closed rather than
+     * wrapping into a negative interval that would open it. Same reasoning as
+     * the elapsed-time clamp in regeneration; see docs/idle.md rule T4.
+     */
+    public function testAClockMovingBackwardsDoesNotOpenTheGate(): void
+    {
+        self::assertFalse(VigorRules::canStartActivity(self::NOW, self::NOW - 3600));
+        self::assertGreaterThan(0, VigorRules::secondsUntilReady(self::NOW, self::NOW - 3600));
+    }
+
+    /**
+     * The gate paces play; it must never become a second throughput ceiling.
+     * The Vigor cap is the only ceiling the parity contract in
+     * docs/game-bible.md section 7 accounts for, so draining a full pool must
+     * stay comfortably inside a single sitting.
+     */
+    public function testTheGateDoesNotBecomeASecondThroughputCeiling(): void
+    {
+        $patrolsInAFullPool = intdiv(VigorRules::CAP, 10);
+        $secondsToSpendItAll = $patrolsInAFullPool * VigorRules::ACTIVITY_GATE_SECONDS;
+
+        self::assertLessThan(
+            120,
+            $secondsToSpendItAll,
+            'A full Vigor pool must be spendable in under two minutes of gating.',
+        );
+
+        self::assertLessThan(
+            VigorRules::SECONDS_PER_POINT,
+            VigorRules::ACTIVITY_GATE_SECONDS,
+            'The gate must be shorter than the time to regenerate a single point, '
+            . 'or it would throttle throughput below the regeneration rate.',
+        );
+    }
 }

@@ -87,6 +87,16 @@ class Character
     #[ORM\Column(type: 'datetimetz_immutable')]
     private DateTimeImmutable $vigorTickedAt;
 
+    /**
+     * When the last Vigor-spending activity resolved, or null if none ever has.
+     *
+     * Nullable rather than defaulted to the creation time so that "has never
+     * spent Vigor" is a distinct, readable state instead of being inferred from
+     * a timestamp that happens to be old. A brand new character is not gated.
+     */
+    #[ORM\Column(type: 'datetimetz_immutable', nullable: true)]
+    private ?DateTimeImmutable $vigorSpentAt = null;
+
     /** @var list<array<string, mixed>> */
     #[ORM\Column(type: 'json')]
     private array $battlePlan;
@@ -287,15 +297,60 @@ class Character
         return $this->vigorCurrent >= $cost;
     }
 
+    public function vigorSpentAt(): ?DateTimeImmutable
+    {
+        return $this->vigorSpentAt;
+    }
+
+    /**
+     * Whether a new Vigor-spending activity may begin.
+     *
+     * A character runs one at a time: the previous activity must have resolved
+     * and the gate interval must have elapsed. See {@see VigorRules::ACTIVITY_GATE_SECONDS}.
+     */
+    public function canStartVigorActivity(DateTimeImmutable $now): bool
+    {
+        return VigorRules::canStartActivity($this->vigorSpentAt?->getTimestamp(), $now->getTimestamp());
+    }
+
+    /** Zero when an activity may begin now. For the client's countdown. */
+    public function secondsUntilVigorActivity(DateTimeImmutable $now): int
+    {
+        return VigorRules::secondsUntilReady($this->vigorSpentAt?->getTimestamp(), $now->getTimestamp());
+    }
+
+    public function vigorActivityReadyAt(DateTimeImmutable $now): DateTimeImmutable
+    {
+        return $now->setTimestamp(
+            max($now->getTimestamp(), VigorRules::activityReadyAt($this->vigorSpentAt?->getTimestamp())),
+        );
+    }
+
+    /**
+     * Spends Vigor and starts the activity gate.
+     *
+     * The gate is enforced here as well as in the application layer. The caller
+     * checks it in order to return a useful error, but this is the invariant:
+     * an entity that can be driven into an illegal state by a caller that
+     * forgot a precondition is not an aggregate, it is a data bag. The lock the
+     * caller holds makes the check-then-spend sequence atomic; this makes it
+     * unskippable.
+     */
     public function spendVigor(int $cost, DateTimeImmutable $now): void
     {
         if ($cost < 0) {
             throw new InvalidArgumentException('Vigor cost cannot be negative.');
         }
 
+        if (!$this->canStartVigorActivity($now)) {
+            throw new DomainException('A Vigor-spending activity is already in progress.');
+        }
+
         if ($this->vigorCurrent < $cost) {
             throw new DomainException('Insufficient Vigor.');
         }
+
+        $this->vigorSpentAt = $now;
 
         // Leaving the pool below the cap starts the regeneration clock from
         // this moment, so time spent full is not retroactively credited.
@@ -307,6 +362,15 @@ class Character
         $this->updatedAt = $now;
     }
 
+    /**
+     * Returns Vigor without lifting the activity gate.
+     *
+     * Deliberate. A refund makes the player whole for a *cost*; the gate is not
+     * a cost, it is the record that an activity ran. The fight happened, it
+     * consumed the server work, and the next one should still be paced from it.
+     * Clearing the gate here would also make a draw the cheapest way to fight
+     * twice in a row, which is a strange thing to reward.
+     */
     public function refundVigor(int $amount, DateTimeImmutable $now): void
     {
         $this->vigorCurrent = min(VigorRules::CAP, $this->vigorCurrent + max(0, $amount));
