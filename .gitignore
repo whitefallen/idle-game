@@ -9,11 +9,23 @@
 # tracking it puts unrelated churn in every diff that happens to run `make lint`.
 /backend/.deptrac.cache
 
+# Symfony's config-builder reference, regenerated whenever the container is
+# built. Its contents depend on the environment that last built it — a dev boot
+# writes "when@dev" blocks a prod boot does not — so tracking it guarantees
+# spurious diffs and merge conflicts between developers who did nothing but run
+# the app. It exists to give IDEs array-shapes for PHP config files, and this
+# project configures in YAML, so nothing reads it here.
+/backend/config/reference.php
+
 # Frontend
 /frontend/node_modules/
 /frontend/dist/
 /frontend/.vite/
+/frontend/coverage/
 /frontend/src/lib/api/generated/
+# TypeScript's incremental build state. Matched as a pattern rather than a path
+# because tsc writes one next to whichever tsconfig produced it.
+*.tsbuildinfo
 
 # Docker
 /.docker-data/
