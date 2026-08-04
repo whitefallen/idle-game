@@ -5,6 +5,9 @@
 /backend/.env.*.local
 /backend/public/bundles/
 /backend/.phpunit.result.cache
+# Deptrac's analysis cache. Machine-local and rewritten on every run, so
+# tracking it puts unrelated churn in every diff that happens to run `make lint`.
+/backend/.deptrac.cache
 
 # Frontend
 /frontend/node_modules/
