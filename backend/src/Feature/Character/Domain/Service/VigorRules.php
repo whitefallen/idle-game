@@ -48,9 +48,16 @@ final class VigorRules
      *
      * Kept deliberately short. The gate is a pacing device, not a punishment,
      * and a player who wants to spend a full pool should still be able to do so
-     * inside a single sitting.
+     * inside a single sitting — twelve patrols cost 24 seconds of gating.
+     *
+     * Two seconds is chosen as the headroom the client needs to present a
+     * result before the next action becomes available: the replay opens, the
+     * rewards land, and the fight button re-enables slightly after rather than
+     * during. Below roughly a second the gate would stop being perceptible and
+     * would only be doing the anti-burst job; above a few seconds it would
+     * start reading as a cooldown, which it is not.
      */
-    public const int ACTIVITY_GATE_SECONDS = 3;
+    public const int ACTIVITY_GATE_SECONDS = 2;
 
     private function __construct()
     {

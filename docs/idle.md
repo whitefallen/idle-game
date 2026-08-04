@@ -115,7 +115,10 @@ be. This is recorded as a monetisation constraint in
 
 A character runs **one Vigor-spending activity at a time**. A new one may begin
 only once the previous has resolved *and* a short gate interval has elapsed
-(`VigorRules::ACTIVITY_GATE_SECONDS`, 3 seconds, tunable).
+(`VigorRules::ACTIVITY_GATE_SECONDS`, 2 seconds, tunable). Two seconds is the
+headroom the client needs to present a result — replay open, rewards shown —
+before the next action becomes available, so the button re-enables just after
+the outcome rather than during it.
 
 Two separate guarantees, and they are not the same thing:
 
