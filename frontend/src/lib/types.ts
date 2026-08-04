@@ -190,3 +190,76 @@ export interface ResolvedEncounter {
   encounter: EncounterDetail;
   character: CharacterDetail;
 }
+
+/**
+ * One production slot of the Holding.
+ *
+ * `pending` is what a claim would grant right now — and equally what
+ * reassigning this slot would discard, which is why it is shown per slot rather
+ * than only as a total.
+ */
+export interface ProductionSlot {
+  index: number;
+  material_id: string | null;
+  unlocked: boolean;
+  unlocks_at_level: number;
+  rate_per_hour: number;
+  pending: number;
+  accrued_at: string;
+  full_at: string;
+  seconds_until_next: number;
+  /** Production has stopped: every further hour away is lost, not banked. */
+  at_cap: boolean;
+}
+
+/**
+ * A production line the Holding can run. Locked lines are included, with the
+ * level that unlocks them — a progression axis a player cannot see ahead of is
+ * one they cannot plan around.
+ */
+export interface ProductionLine {
+  material_id: string;
+  localisation_key: string;
+  tier: number;
+  icon: string;
+  rate_per_hour: number;
+  unlock_level: number;
+  unlocked: boolean;
+}
+
+export interface MaterialStack {
+  material_id: string;
+  localisation_key: string;
+  tier: number;
+  icon: string;
+  quantity: number;
+}
+
+export interface HoldingYield {
+  gold: number;
+  materials: Record<string, number>;
+  elapsed_seconds: number;
+}
+
+export interface Holding {
+  cap_seconds: number;
+  slots_unlocked: number;
+  max_slots: number;
+  last_claimed_at: string;
+  slots: ProductionSlot[];
+  tithe: {
+    gold_per_hour: number;
+    pending: number;
+    full_at: string;
+    at_cap: boolean;
+  };
+  pending: HoldingYield;
+  lines: ProductionLine[];
+  stash: MaterialStack[];
+}
+
+export interface ClaimedHolding {
+  claimed: HoldingYield;
+  holding: Holding;
+  character: CharacterDetail;
+}

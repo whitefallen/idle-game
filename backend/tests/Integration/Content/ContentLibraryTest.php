@@ -10,6 +10,7 @@ use App\Feature\Combat\Domain\Repository\AbilityRepository;
 use App\Feature\Combat\Domain\Repository\EffectRepository;
 use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
+use App\Feature\Inventory\Domain\Repository\MaterialRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -125,6 +126,58 @@ final class ContentLibraryTest extends KernelTestCase
 
         foreach ($encounters->all() as $encounter) {
             self::assertNotSame('', $encounter->localisationKey, $encounter->id);
+        }
+
+        /** @var MaterialRepository $materials */
+        $materials = $container->get(MaterialRepository::class);
+
+        foreach ($materials->all() as $material) {
+            self::assertNotSame('', $material->localisationKey, $material->id);
+        }
+    }
+
+    /**
+     * Production lines must unlock in tier order, and produce more slowly as
+     * the tier rises.
+     *
+     * Both properties are what make the Holding a progression rather than a
+     * menu. A tier-3 line unlocking before tier 2, or producing faster than it,
+     * would make the earlier line pointless the moment the later one appeared —
+     * and the multi-week pacing of a high-tier refinement project rests
+     * entirely on the rate falling as the tier climbs. See docs/idle.md §2.
+     */
+    public function testProductionLinesUnlockInTierOrderAndSlowAsTheyRise(): void
+    {
+        self::bootKernel();
+
+        /** @var MaterialRepository $materials */
+        $materials = static::getContainer()->get(MaterialRepository::class);
+
+        $lines = [];
+
+        foreach ($materials->all() as $material) {
+            if ($material->isProducible()) {
+                $lines[] = $material;
+            }
+        }
+
+        usort($lines, static fn ($a, $b): int => $a->tier <=> $b->tier);
+
+        for ($index = 1; $index < count($lines); ++$index) {
+            $previous = $lines[$index - 1];
+            $current = $lines[$index];
+
+            self::assertGreaterThanOrEqual(
+                (int) $previous->productionUnlockLevel,
+                (int) $current->productionUnlockLevel,
+                sprintf('"%s" unlocks before the tier below it.', $current->id),
+            );
+
+            self::assertLessThanOrEqual(
+                (int) $previous->ratePerHour,
+                (int) $current->ratePerHour,
+                sprintf('"%s" produces faster than the tier below it.', $current->id),
+            );
         }
     }
 

@@ -120,18 +120,49 @@ This is the **highest-growth table in the schema**. It is an ordinary table;
 retention is handled by batched deletion rather than partitioning, for the
 reasons in §6.
 
+### `character_material`
+```
+id              uuid        PK
+character_id    uuid        FK → character(id) ON DELETE CASCADE
+material_id     text        NOT NULL          -- content id, e.g. material.emberash
+quantity        bigint      NOT NULL
+created_at, updated_at
+```
+
+Constraints: `UNIQUE (character_id, material_id)`, `CHECK (quantity >= 0)`. The
+unique index is the guarantee, not an application check: two concurrent
+first-time grants would otherwise each insert a row and half the balance would
+be invisible to every later read.
+
+Materials are fungible, so this is a **counted stack** rather than one row per
+unit — a single refinement consumes hundreds. A row per (character, material)
+rather than a JSON column on the character, because both writers — encounter
+drops and Holding claims — read-modify-write under a row lock, and a JSON column
+would serialise every material against every other one.
+
 ### `holding`
 ```
 id                uuid        PK
 character_id      uuid        UNIQUE FK → character(id) ON DELETE CASCADE
-slots             jsonb       NOT NULL   -- [{ index, materialId, unlockedAt }]
-last_claimed_at   timestamptz NOT NULL
-cap_seconds       int         NOT NULL
+slots             jsonb       NOT NULL   -- [{ index, materialId, accruedAt }]
+last_claimed_at   timestamptz NOT NULL   -- the gold tithe's anchor
 created_at, updated_at
 ```
 
 Claims lock this row with `SELECT … FOR UPDATE`
 ([idle.md](idle.md) §5, rule T2).
+
+Two departures from this table's original design, both recorded in
+[idle.md](idle.md) §7.2. **Each slot carries its own `accruedAt`**, because
+lines produce at different rates and because reassignment must reset one slot
+without touching the others; `last_claimed_at` remains as the non-slotted
+tithe's anchor. And **`cap_seconds` is gone** — the cap is derived from
+character level on read, since a stored copy is a derived value that every
+level-up would have to remember to rewrite.
+
+`slots` is JSONB because it is a small, fixed-width structure belonging to
+exactly one Holding and always read whole. It is never queried by slot, which is
+the property that makes the JSON column right rather than merely convenient.
 
 ### `outbox`
 ```

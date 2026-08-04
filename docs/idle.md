@@ -209,3 +209,87 @@ rather than bolted on:
 
 The design constraint on all three: none may raise the accrual cap, and none may
 be purchasable.
+
+---
+
+## 7. Implementation status
+
+What the first Holding slice actually built, where it departs from the design
+above, and what is deliberately still missing. A design document that silently
+drifts from the code is worse than none.
+
+### 7.1 Built
+
+`backend/src/Feature/Holding/` — production slots, closed-form accrual, the
+level-derived cap, the gold tithe, and the claim path with its lock, its
+idempotency key and its audit record.
+
+- `GET /api/v1/characters/{characterId}/holding`
+- `POST /api/v1/characters/{characterId}/holding/claim`
+- `PUT /api/v1/characters/{characterId}/holding/slots/{index}`
+
+`backend/src/Feature/Inventory/` gained the material catalogue
+(`content/materials/`) and the stash (`character_material`) the Holding produces
+into. Encounter drops write to the same stash: material entries had been rolled
+and reported since the inventory slice, but never stored, so a material the
+client was told it received did not exist. That is now one write path
+(`GrantMaterialsHandler`) shared by both producers.
+
+All six anti-exploit rules in §5 are implemented on the claim path, and
+`HoldingFlowTest` asserts each of them against the endpoint rather than the
+entity — a rule is only a guarantee if a client cannot get past it.
+
+### 7.2 Deviations from the design above
+
+**Each slot carries its own accrual anchor**, rather than the single
+`last_claimed_at` column in [data-model.md](data-model.md). Two reasons, both
+load-bearing. Lines produce at different rates and therefore complete whole
+units at different moments; one shared anchor would have to advance by some
+single line's progress and would silently over- or under-pay the others. And
+reassignment resets *that slot's* accrual (§2), which a shared anchor cannot
+express without resetting every slot. `last_claimed_at` survives as the tithe's
+anchor, which is exactly what it now means.
+
+**The cap is derived from level, not stored.** The `cap_seconds` column is gone.
+A stored cap is a derived value in the sense `CLAUDE.md` forbids: it would need
+rewriting on every level-up, and any handler that forgot would leave a character
+permanently capped at a stale value with nothing to detect it. Level is already
+loaded whenever a claim happens, so deriving costs nothing. The formula is
+12 hours + 1 hour per 5 levels, reaching the 24-hour maximum at level 60.
+
+**Slots unlock on an authored ladder**, `[10, 20, 30, 45, 60]`, rather than
+strictly every ten levels. Even ten-level spacing reaches the seventh slot at
+level 50 and then leaves the last ten levels with nothing to give; stretching
+the final two steps lands the maximum exactly where §2 says it lands.
+
+**Not every material is producible.** A material's `production` block is
+optional, and `material.blightcore` — which the stretch 2 and 3 drop tables
+already referenced before any material was defined — deliberately has none. This
+is §1's interdependence expressed in data rather than in prose: the idle layer
+supplies the bulk of refinement input, but not all of it.
+
+**Materials are a counted stack per character, not one row per unit.** They are
+still not a currency — no vendor buys or sells them, per
+[economy.md](economy.md) §1 — but a fungible resource consumed in the hundreds
+does not want the item-instance treatment that [economy.md](economy.md) §1's
+phrase "inventory items" might suggest.
+
+**The Holding row is created lazily**, on the first claim or assignment rather
+than at character creation. Character stays unaware that this feature exists,
+which is the rule in [architecture.md](architecture.md) §3.1, and every
+character that predates the feature gets one with no backfill migration. The
+race that lazy creation normally invites cannot happen here: every writer
+already holds the character row lock, which serialises them before they reach
+the provisioner. Reads never provision, so opening the page is not a write.
+
+### 7.3 Not built
+
+Holding upgrades, staff and supply runs (§6) remain deferred, as does
+refinement — the sink these materials exist to feed. Until refinement ships, a
+claimed stash accumulates with nothing to spend it on, which is the honest cost
+of building the supply line before the thing it supplies. The alternative order
+was worse: refinement would have landed on a supply line that did not exist.
+
+`SLOT_TIER_BASE_BP` is fixed at 10000 (×1.0). It is named rather than absent so
+that Holding upgrades change a value the formula already reads, instead of
+introducing a factor into a formula that never had one.

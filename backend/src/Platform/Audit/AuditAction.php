@@ -38,6 +38,25 @@ enum AuditAction: string
     case EncounterResolved = 'encounter.resolved';
 
     /**
+     * A Holding claim, with the amount, the elapsed time it covered and the
+     * resulting balances (docs/idle.md rule T6).
+     *
+     * Idle games are attacked through time, and time exploits are found in
+     * aggregate data — a claim rate that outruns the clock, an elapsed figure
+     * that exceeds the cap. That data has to exist before the exploit does,
+     * which is why this is audited from the first claim rather than added after
+     * the first incident.
+     */
+    case HoldingClaimed = 'holding.claimed';
+
+    /**
+     * Reassigning a production line. Not a resource movement, but it discards
+     * pending accrual, so it is the natural first suspect in any "my materials
+     * vanished" report.
+     */
+    case HoldingSlotAssigned = 'holding.slot_assigned';
+
+    /**
      * Whether this action is a security event rather than ordinary gameplay.
      * Security events are retained and alerted on differently.
      */
