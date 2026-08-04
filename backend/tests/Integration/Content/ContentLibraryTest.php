@@ -106,12 +106,47 @@ final class ContentLibraryTest extends KernelTestCase
         /** @var EffectRepository $effects */
         $effects = $container->get(EffectRepository::class);
 
+        /** @var MonsterRepository $monsters */
+        $monsters = $container->get(MonsterRepository::class);
+        /** @var EncounterDefinitionRepository $encounters */
+        $encounters = $container->get(EncounterDefinitionRepository::class);
+
         foreach ($abilities->all() as $ability) {
             self::assertNotSame('', $ability->localisationKey, $ability->id);
         }
 
         foreach ($effects->all() as $effect) {
             self::assertNotSame('', $effect->localisationKey, $effect->id);
+        }
+
+        foreach ($monsters->all() as $monster) {
+            self::assertNotSame('', $monster->localisationKey, $monster->id);
+        }
+
+        foreach ($encounters->all() as $encounter) {
+            self::assertNotSame('', $encounter->localisationKey, $encounter->id);
+        }
+    }
+
+    /**
+     * Content gating must be inspectable and consistent: an encounter a player
+     * can enter but whose monsters outclass its own level is a gate that lies.
+     * Checked here rather than in the schema because it is a relationship
+     * between two content types, which JSON Schema cannot see.
+     */
+    public function testEveryEncounterIsGatedBelowItsOwnLevel(): void
+    {
+        self::bootKernel();
+
+        /** @var EncounterDefinitionRepository $encounters */
+        $encounters = static::getContainer()->get(EncounterDefinitionRepository::class);
+
+        foreach ($encounters->all() as $encounterId => $encounter) {
+            self::assertLessThanOrEqual(
+                $encounter->level,
+                $encounter->requiredLevel,
+                sprintf('Encounter "%s" requires a level above its own.', (string) $encounterId),
+            );
         }
     }
 }

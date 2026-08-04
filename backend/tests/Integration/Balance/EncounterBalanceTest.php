@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Balance;
 
-use App\Feature\Character\Domain\Model\Attributes;
 use App\Feature\Character\Domain\Service\DerivedStatsCalculator;
-use App\Feature\Character\Domain\Service\StartingLoadout;
 use App\Feature\Combat\Domain\Engine\CombatEngine;
 use App\Feature\Combat\Domain\Model\CombatInput;
 use App\Feature\Combat\Domain\Model\Outcome;
@@ -14,6 +12,7 @@ use App\Feature\Combat\Domain\Model\Participant;
 use App\Feature\Combat\Domain\Model\Team;
 use App\Feature\Combat\Domain\Repository\AbilityRepository;
 use App\Feature\Combat\Domain\Repository\EffectRepository;
+use App\Feature\Encounter\Domain\Model\EncounterDefinition;
 use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,8 +24,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  * Every number in docs/progression.md is a guess until it is simulated, and
  * balance regressions must be caught by CI rather than by players. This is the
  * simulator described in docs/progression.md section 6, reduced to the
- * assertions that matter: a canonical build is run against each encounter and
- * the win rate must fall inside a declared tolerance.
+ * assertions that matter: {@see CanonicalBuild} is run against each encounter
+ * and the win rate must fall inside a declared tolerance.
  *
  * A failure here is not necessarily a bug. It means a content or formula change
  * moved the difficulty curve, and the change and the tolerance must be
@@ -37,24 +36,23 @@ final class EncounterBalanceTest extends KernelTestCase
     private const int SAMPLES = 300;
 
     /**
-     * Canonical builds: what a player actually has at each level, assuming they
-     * spend their points on survivability and their weapon attribute.
-     */
-    private static function buildFor(int $level): Attributes
-    {
-        return match ($level) {
-            1 => Attributes::starting(),
-            4 => Attributes::of(9, 5, 5, 11, 5),
-            6 => Attributes::of(12, 6, 5, 15, 5),
-            default => self::fail('No canonical build defined for level ' . $level),
-        };
-    }
-
-    /**
+     * The shape every tier is tuned to, and the reason the tolerances below
+     * look the way they do:
+     *
+     *  - a **patrol** at its gate is close to certain — it is the content a
+     *    player farms, and losing a farm run to variance teaches nothing;
+     *  - an **elite** at its gate is a genuine coin-flip-to-likely win, and
+     *    routine two levels later, so progression is felt as learning rather
+     *    than as a wall (docs/game-bible.md section 4.2);
+     *  - a **boss** at its gate sits with the elites but takes far longer, so
+     *    the loss is felt as a fight that went wrong rather than a fight that
+     *    was never winnable.
+     *
      * @return iterable<string, array{string, int, float, float}>
      */
     public static function tolerances(): iterable
     {
+        // ------------------------------------------------------ stretch 1
         // The first fight a new player ever has. Losing it teaches nothing and
         // reads as the game being broken, so the floor is deliberately severe.
         yield 'first patrol is a guaranteed win at level 1' => ['encounter.stretch1.patrol', 1, 0.99, 1.0];
@@ -66,6 +64,37 @@ final class EncounterBalanceTest extends KernelTestCase
 
         yield 'elite is a real challenge at its gate' => ['encounter.stretch1.stalker', 4, 0.45, 0.85];
         yield 'elite is routine by level 6' => ['encounter.stretch1.stalker', 6, 0.90, 1.0];
+
+        // ------------------------------------------------------ stretch 2
+        // Patrols. The causeway is the stretch's opening fight and is meant to
+        // read as safe; the chanter and lurker patrols are where the sustain
+        // mechanic is introduced without being able to punish it.
+        yield 'causeway patrol is safe at its gate' => ['encounter.stretch2.causeway', 7, 0.95, 1.0];
+        yield 'chanter patrol is safe at its gate' => ['encounter.stretch2.chanters', 8, 0.92, 1.0];
+        yield 'lurker patrol is safe at its gate' => ['encounter.stretch2.lurkers', 9, 0.90, 1.0];
+
+        // Elites. The warren is the softer of the two on purpose: it is the
+        // first elite of the stretch and the one that teaches the lesson, so
+        // the ravager is where the lesson is examined.
+        yield 'warren is demanding at its gate' => ['encounter.stretch2.warren', 10, 0.60, 0.92];
+        yield 'warren is routine by level 12' => ['encounter.stretch2.warren', 12, 0.92, 1.0];
+
+        yield 'ravager is a coin flip at its gate' => ['encounter.stretch2.ravager', 11, 0.35, 0.65];
+        yield 'ravager is routine by level 13' => ['encounter.stretch2.ravager', 13, 0.92, 1.0];
+
+        // ------------------------------------------------------ stretch 3
+        yield 'vault watch is safe at its gate' => ['encounter.stretch3.vault_watch', 15, 0.95, 1.0];
+        yield 'revenant patrol is safe at its gate' => ['encounter.stretch3.revenants', 17, 0.92, 1.0];
+
+        yield 'sentinels are a real challenge at their gate' => ['encounter.stretch3.sentinels', 18, 0.45, 0.80];
+        yield 'sentinels are routine by level 20' => ['encounter.stretch3.sentinels', 20, 0.92, 1.0];
+
+        // The first boss. Winnable at the gate by a player who brought the
+        // right plan, and comfortably beaten two levels later — a boss that
+        // stays unbeatable is a wall, and a boss beaten on the first attempt by
+        // everyone is not a boss.
+        yield 'the Warden of Ash is winnable at its gate' => ['encounter.stretch3.warden_of_ash', 20, 0.45, 0.78];
+        yield 'the Warden of Ash is beaten by level 22' => ['encounter.stretch3.warden_of_ash', 22, 0.90, 1.0];
     }
 
     #[DataProvider('tolerances')]
@@ -95,28 +124,57 @@ final class EncounterBalanceTest extends KernelTestCase
     }
 
     /**
-     * A draw means the round cap was reached, which the design treats as a
-     * failure of the encounter rather than of the player. No authored content
-     * should be able to produce one.
+     * Reaching the round cap is the one outcome the design calls a failure of
+     * the encounter rather than of the player: no rewards, Vigor refunded, and
+     * nothing the player could have planned differently. No authored content
+     * may be able to produce it.
+     *
+     * Note that this is deliberately narrower than "no draws". A draw is also
+     * emitted when both sides die in the same round — two damage-over-time
+     * ticks landing fatally at once, say — and that is a legitimate, fully
+     * reproducible fight result rather than a balance defect. See
+     * docs/combat.md section 4.
+     *
+     * Each encounter is checked from its own gate upward, because requiredLevel
+     * is server-enforced: a fight below the gate is not a state the game can
+     * reach, so tuning for it would constrain content for no player's benefit.
      */
-    public function testNoAuthoredEncounterCanEndInADraw(): void
+    public function testNoAuthoredEncounterCanReachTheRoundCap(): void
     {
         /** @var EncounterDefinitionRepository $definitions */
         $definitions = static::getContainer()->get(EncounterDefinitionRepository::class);
 
-        foreach (array_keys($definitions->all()) as $encounterId) {
-            foreach ([1, 4, 6] as $level) {
-                self::assertSame(
-                    0,
-                    $this->simulate((string) $encounterId, $level)['draws'],
-                    sprintf('%s reached the round cap at level %d.', (string) $encounterId, $level),
-                );
+        foreach ($definitions->all() as $encounterId => $definition) {
+            foreach (self::levelsToCheck($definition) as $level) {
+                self::assertSame(0, $this->simulate((string) $encounterId, $level)['capped'], sprintf(
+                    '%s reached the %d-round cap at level %d.',
+                    (string) $encounterId,
+                    CombatEngine::MAX_ROUNDS,
+                    $level,
+                ));
             }
         }
     }
 
     /**
-     * @return array{winRate: float, draws: int, averageRounds: float}
+     * The gate, the level content becomes routine at, and a level far above it
+     * where an over-levelled player's sustain could in principle out-heal a
+     * high-armour enemy's chip damage forever.
+     *
+     * @return list<int>
+     */
+    private static function levelsToCheck(EncounterDefinition $definition): array
+    {
+        $gate = $definition->requiredLevel;
+
+        return array_values(array_filter(
+            [$gate, $gate + 2, $gate + 4, 40],
+            static fn (int $level): bool => $level <= 60,
+        ));
+    }
+
+    /**
+     * @return array{winRate: float, capped: int, averageRounds: float}
      */
     private function simulate(string $encounterId, int $level): array
     {
@@ -135,7 +193,7 @@ final class EncounterBalanceTest extends KernelTestCase
         $engine = new CombatEngine();
 
         $wins = 0;
-        $draws = 0;
+        $capped = 0;
         $rounds = 0;
 
         for ($sample = 0; $sample < self::SAMPLES; ++$sample) {
@@ -155,21 +213,24 @@ final class EncounterBalanceTest extends KernelTestCase
             );
 
             $wins += $log->outcome === Outcome::Victory ? 1 : 0;
-            $draws += $log->outcome === Outcome::Draw ? 1 : 0;
+            $capped += $log->rounds >= CombatEngine::MAX_ROUNDS ? 1 : 0;
             $rounds += $log->rounds;
         }
 
         return [
             'winRate' => $wins / self::SAMPLES,
-            'draws' => $draws,
+            'capped' => $capped,
             'averageRounds' => $rounds / self::SAMPLES,
         ];
     }
 
     private function character(int $level): Participant
     {
-        $attributes = self::buildFor($level);
-        $stats = DerivedStatsCalculator::calculate($level, $attributes);
+        $stats = DerivedStatsCalculator::calculate(
+            $level,
+            CanonicalBuild::attributesAt($level),
+            CanonicalBuild::equipmentAt($level),
+        );
 
         return new Participant(
             id: 'aaaa-character',
@@ -190,8 +251,8 @@ final class EncounterBalanceTest extends KernelTestCase
             accuracyBp: $stats->accuracyBp,
             armourRating: $stats->armourRating,
             resistanceRatings: $stats->resistanceRatings,
-            battlePlan: StartingLoadout::battlePlan(),
-            abilityIds: StartingLoadout::abilityIds(),
+            battlePlan: CanonicalBuild::planAt($level),
+            abilityIds: CanonicalBuild::abilitiesAt($level),
         );
     }
 }

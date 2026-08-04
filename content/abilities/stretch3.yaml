@@ -1,0 +1,83 @@
+# Abilities introduced with beacon-line stretch 3: the Ashen Vault.
+#
+# The monster abilities here are the boss's phases. Each one is an ordinary
+# ability with an ordinary cost and cooldown; what makes the fight feel phased
+# is the order they are written in, not any engine support for phases. That is
+# the point — a designer can build a new boss without a line of PHP.
+
+# ------------------------------------------------------------------ player kit
+
+# The area answer to the vault's adds, and the first player ability that both
+# hits everything and leaves a debuff behind. Expensive and slow enough that it
+# is a decision rather than a default: a plan that opens with it every fight
+# will run out of Focus before a plan that reserves it for groups.
+- id: ability.shattering_arc
+  localisationKey: ability.shattering_arc
+  focusCost: 18
+  cooldownRounds: 3
+  damageCoefficientBp: 9000
+  healCoefficientBp: 0
+  school: physical
+  selector: all_enemies
+  effectId: effect.sundered
+  effectChanceBp: 7000
+
+# ----------------------------------------------------------------- monster kit
+
+- id: ability.cinder_volley
+  localisationKey: ability.cinder_volley
+  focusCost: 14
+  cooldownRounds: 2
+  damageCoefficientBp: 7000
+  healCoefficientBp: 0
+  school: arcane
+  selector: all_enemies
+  effectId: effect.emberbrand
+  effectChanceBp: 6000
+
+# Low damage, high application chance: it is a debuff wearing an attack's
+# clothes. The sentinel casting this is not trying to kill the player, it is
+# trying to make the player's next three turns worth less.
+- id: ability.ash_shroud
+  localisationKey: ability.ash_shroud
+  focusCost: 10
+  cooldownRounds: 3
+  damageCoefficientBp: 4000
+  healCoefficientBp: 0
+  school: arcane
+  selector: lowest_health_enemy
+  effectId: effect.ash_choked
+  effectChanceBp: 8500
+
+- id: ability.ember_reave
+  localisationKey: ability.ember_reave
+  focusCost: 16
+  cooldownRounds: 2
+  damageCoefficientBp: 15000
+  healCoefficientBp: 0
+  school: arcane
+  selector: lowest_health_enemy
+
+- id: ability.wrath_of_ash
+  localisationKey: ability.wrath_of_ash
+  focusCost: 12
+  cooldownRounds: 5
+  damageCoefficientBp: 0
+  healCoefficientBp: 0
+  school: arcane
+  selector: self
+  effectId: effect.warden_wrath
+  effectChanceBp: 10000
+
+# The boss's emergency heal. Priced so it can fire roughly twice in a fight of
+# the intended length, and coefficient-limited so it buys rounds rather than
+# undoing the fight: a heal a player cannot out-damage is a stalemate, and the
+# round cap treats a stalemate as a design failure, not a player failure.
+- id: ability.vault_mend
+  localisationKey: ability.vault_mend
+  focusCost: 20
+  cooldownRounds: 6
+  damageCoefficientBp: 0
+  healCoefficientBp: 9000
+  school: nature
+  selector: self

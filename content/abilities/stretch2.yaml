@@ -1,0 +1,92 @@
+# Abilities introduced with beacon-line stretch 2.
+#
+# Player-side and monster-side abilities live in the same pool because the
+# engine draws no distinction between them — one implementation, one set of
+# rules. See content/abilities/core.yaml.
+#
+# The player abilities here are the answers to stretch 2's mechanic (enemy
+# sustain): a heal that lasts beyond the turn it is cast on, and a finisher that
+# converts a nearly-dead enemy into a dead one before it can be healed back up.
+# They are authored ahead of the discipline system that will grant them, exactly
+# as the core kit was; content is data and lands before the unlock that uses it.
+
+# ------------------------------------------------------------------ player kit
+
+# Sustain that survives a round of pressure, as opposed to Emberdraught's single
+# large tick. Deliberately weaker per point of Focus than Emberdraught: it is
+# the ability a plan casts *early*, on the rule above the emergency heal, so it
+# has to be the worse panic button.
+- id: ability.mending_tide
+  localisationKey: ability.mending_tide
+  focusCost: 14
+  cooldownRounds: 4
+  damageCoefficientBp: 0
+  healCoefficientBp: 5000
+  school: nature
+  selector: self
+  effectId: effect.mending
+  effectChanceBp: 10000
+
+# The finisher. Written to be paired with `target.health_percent < 40`, which is
+# the first battle plan rule most players write that is genuinely conditional
+# rather than a priority ordering — and the first time the plan editor teaches
+# something the default plan cannot.
+- id: ability.reaping_blow
+  localisationKey: ability.reaping_blow
+  focusCost: 12
+  cooldownRounds: 2
+  damageCoefficientBp: 16000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+
+# ----------------------------------------------------------------- monster kit
+
+# The generic monster fallback for physical enemies, mirroring blight_lash for
+# nature ones: zero cost, no cooldown, so a plan ending in it can never stall.
+- id: ability.crushing_blow
+  localisationKey: ability.crushing_blow
+  focusCost: 0
+  cooldownRounds: 0
+  damageCoefficientBp: 10000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+
+# The chanter's reason to exist. Targets the lowest-health ally, which resolves
+# to the chanter itself when it is alone — so the same definition works in a
+# group and in a solo patrol without a second authored variant.
+- id: ability.rot_chant
+  localisationKey: ability.rot_chant
+  focusCost: 16
+  cooldownRounds: 2
+  damageCoefficientBp: 0
+  healCoefficientBp: 11000
+  school: nature
+  selector: lowest_health_ally
+
+- id: ability.rending_claw
+  localisationKey: ability.rending_claw
+  focusCost: 10
+  cooldownRounds: 2
+  damageCoefficientBp: 11000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+  effectId: effect.corroded
+  effectChanceBp: 7000
+
+# A whole turn spent dealing no damage, in exchange for hitting harder for the
+# next three rounds. It is a losing trade for the monster if the player is about
+# to win and a winning one if they are not, which is what makes the fight's pace
+# the thing the player is actually being tested on.
+- id: ability.blood_frenzy
+  localisationKey: ability.blood_frenzy
+  focusCost: 8
+  cooldownRounds: 4
+  damageCoefficientBp: 0
+  healCoefficientBp: 0
+  school: physical
+  selector: self
+  effectId: effect.frenzy
+  effectChanceBp: 10000

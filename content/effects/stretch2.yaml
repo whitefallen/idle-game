@@ -1,0 +1,31 @@
+# Effect primitives introduced with beacon-line stretch 2.
+#
+# Stretch 2's mechanical step is sustain: enemies that heal and enemies that
+# grow stronger as the fight goes on. Both are expressed with existing
+# primitives — a heal ability and a damage modifier — rather than with new
+# engine behaviour, which is the test of whether the effect vocabulary is
+# actually sufficient. It is.
+#
+# Stacking rule is unchanged: reapplying refreshes duration, never magnitude.
+# See content/effects/core.yaml and the EffectDefinition value object.
+
+# Nature damage over time, roughly half again as strong as bleeding and one
+# round shorter. Its job is to make the player's own sustain matter: a heal
+# that only just outpaces incoming hits stops being enough once a tick is
+# running alongside them.
+- id: effect.corroded
+  localisationKey: effect.corroded
+  kind: damage_over_time
+  magnitude: 16
+  durationRounds: 4
+  school: nature
+
+# The ravager's self-buff. Larger than resolve (+25%) because it is bought with
+# a turn spent dealing no damage at all, and because it is the signal the player
+# is meant to read: the fight gets harder the longer it runs, so a plan that
+# wins slowly stops winning.
+- id: effect.frenzy
+  localisationKey: effect.frenzy
+  kind: damage_modifier
+  magnitude: 3500
+  durationRounds: 3

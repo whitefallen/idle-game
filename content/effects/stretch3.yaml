@@ -1,0 +1,36 @@
+# Effect primitives introduced with beacon-line stretch 3.
+#
+# Stretch 3's mechanical step is a phased opponent: one enemy whose behaviour
+# changes as the fight progresses. The phases are expressed entirely by the
+# boss's battle plan — the same grammar the player writes — so the player can be
+# shown the boss's plan and learn to read their own from it.
+#
+# These three effects are what the phases are made of: a tick that punishes a
+# long fight, a debuff that punishes an unbuffered one, and a self-buff that
+# turns the last third of the fight into a race.
+
+- id: effect.emberbrand
+  localisationKey: effect.emberbrand
+  kind: damage_over_time
+  magnitude: 30
+  durationRounds: 3
+  school: arcane
+
+# Cuts the player's outgoing damage rather than raising incoming damage.
+# Deliberate: shortening the player's damage window is legible in the combat log
+# ("my hits got smaller") and is answered by planning, whereas a raw incoming
+# multiplier is answered only by more health.
+- id: effect.ash_choked
+  localisationKey: effect.ash_choked
+  kind: damage_modifier
+  magnitude: -4000
+  durationRounds: 2
+
+# The boss's enrage. Larger than frenzy and gated behind both a health threshold
+# and a round threshold, so it can never fire in the opening exchange — the
+# player always gets a clean look at the fight before it changes.
+- id: effect.warden_wrath
+  localisationKey: effect.warden_wrath
+  kind: damage_modifier
+  magnitude: 5000
+  durationRounds: 3
