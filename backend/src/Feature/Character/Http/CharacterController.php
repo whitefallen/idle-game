@@ -8,6 +8,7 @@ use App\Feature\Character\Application\AllocateAttributePointsHandler;
 use App\Feature\Character\Application\CharacterPresenter;
 use App\Feature\Character\Application\CreateCharacterHandler;
 use App\Feature\Character\Application\UpdateBattlePlanHandler;
+use App\Feature\Character\Application\UpdateLoadoutHandler;
 use App\Feature\Character\Application\ViewCharacterHandler;
 use App\Feature\Combat\Domain\Model\PlanIssue;
 use App\Platform\Http\ApiException;
@@ -104,6 +105,32 @@ final class CharacterController
             // editor can flag them without having refused the plan.
             'warnings' => array_map(static fn (PlanIssue $i): array => $i->toArray(), $update->warnings),
         ]);
+    }
+
+    /**
+     * Replaces the slotted loadout wholesale, for the same reason the battle
+     * plan is replaced wholesale: which abilities are slotted *together* is the
+     * decision, and patching one slot at a time would let two concurrent edits
+     * produce a loadout neither player chose.
+     *
+     * The client sends ability ids. It does not send discipline ids, its own
+     * level, or the set it believes it has unlocked — the server derives all of
+     * that.
+     */
+    #[Route('/{id}/loadout', name: 'character_update_loadout', methods: ['PUT'])]
+    public function updateLoadout(
+        string $id,
+        Request $request,
+        UpdateLoadoutHandler $handler,
+    ): JsonResponse {
+        $body = JsonBody::from($request);
+
+        /** @var list<string> $abilityIds */
+        $abilityIds = array_values(array_map(strval(...), $body->requireList('ability_ids')));
+
+        $character = $handler($this->currentAccount->id(), $this->parseId($id), $abilityIds);
+
+        return $this->responder->ok(['character' => $this->presenter->detail($character)]);
     }
 
     /**

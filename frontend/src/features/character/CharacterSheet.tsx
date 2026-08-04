@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Bar, Button, ErrorNotice, Panel, Stat } from '@/components/ui';
+import { DisciplinePanel } from './DisciplinePanel';
 import { bp, duration, t } from '@/lib/i18n';
 import type { AttributeCode, CharacterDetail } from '@/lib/types';
 import { useAllocatePoints } from './api';
@@ -144,6 +145,8 @@ export function CharacterSheet({
       <Panel title={t('character.attributes')}>
         <AttributeAllocator character={character} />
       </Panel>
+
+      <DisciplinePanel character={character} />
 
       <Panel title={t('character.derived')}>
         <div>

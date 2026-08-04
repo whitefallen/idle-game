@@ -77,6 +77,9 @@ services:
     App\Feature\Character\Domain\Repository\CharacterRepository:
         alias: App\Feature\Character\Infrastructure\Doctrine\DoctrineCharacterRepository
 
+    App\Feature\Character\Domain\Repository\DisciplineRepository:
+        alias: App\Feature\Character\Infrastructure\Content\YamlDisciplineRepository
+
     App\Feature\Encounter\Domain\Repository\EncounterRepository:
         alias: App\Feature\Encounter\Infrastructure\Doctrine\DoctrineEncounterRepository
 

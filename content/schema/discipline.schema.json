@@ -1,0 +1,49 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://emberwatch.local/schema/discipline.schema.json",
+    "title": "Discipline definitions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "localisationKey", "abilityId", "source"],
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^discipline\\.[a-z][a-z0-9_]*$"
+            },
+            "localisationKey": {
+                "type": "string",
+                "minLength": 1
+            },
+            "abilityId": {
+                "type": "string",
+                "pattern": "^ability\\.[a-z][a-z0-9_]*$"
+            },
+            "source": {
+                "comment": "How the discipline is acquired. Deliberately no 'drop': build-defining progression behind a drop roll converts strategy into lottery participation. See docs/progression.md section 4.2.",
+                "enum": ["level", "quest", "dungeon", "reputation"]
+            },
+            "unlockLevel": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 60
+            }
+        },
+        "allOf": [
+            {
+                "comment": "A level-milestone discipline needs the milestone.",
+                "if": {
+                    "properties": { "source": { "const": "level" } },
+                    "required": ["source"]
+                },
+                "then": { "required": ["unlockLevel"] },
+                "else": {
+                    "comment": "Every other source is granted by an event, not a level.",
+                    "not": { "required": ["unlockLevel"] }
+                }
+            }
+        ]
+    }
+}

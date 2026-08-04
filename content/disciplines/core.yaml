@@ -1,0 +1,102 @@
+# The baseline discipline kit — the third progression axis, after level and gear.
+#
+# A discipline is the *unlock*; the ability is what it grants. Keeping them
+# separate is what lets a later reputation vendor offer an alternative
+# discipline granting a variant of an ability a player already has, without
+# either one needing a special case in code.
+#
+# Only player abilities have disciplines. The monster kit (blight_lash,
+# crushing_blow, rot_chant, cinder_volley and the rest) deliberately has none —
+# "is there a discipline granting it" is precisely what makes an ability
+# player-usable, so the distinction lives in data rather than in a naming
+# convention or an is_monster flag.
+#
+# Every discipline here is `source: level`. The other sources in
+# docs/progression.md section 4.2 — quest, dungeon, reputation — are permitted
+# by the schema and are not yet authored, because the systems that would grant
+# them do not exist. There is no `drop` source and there never will be: gating
+# build-defining progression behind a roll converts strategy into lottery
+# participation.
+#
+# Unlock levels are not arbitrary. Each one lands at or before the point the
+# content curve starts asking for it, and DisciplineAvailabilityTest pins that
+# relationship against the canonical builds the balance tolerances are declared
+# against — so a discipline drifting later than the fight that needs it fails
+# the build rather than surprising a player.
+
+# ------------------------------------------------------------------ level 1
+# The guaranteed fallback. Every battle plan's final rule must name a zero-cost,
+# no-cooldown ability, so this is the one discipline a character cannot sensibly
+# unslot — and it occupies a slot like any other, which is why a level 1
+# character has two slots rather than one.
+- id: discipline.measured_strike
+  localisationKey: discipline.measured_strike
+  abilityId: ability.measured_strike
+  source: level
+  unlockLevel: 1
+
+- id: discipline.rupture
+  localisationKey: discipline.rupture
+  abilityId: ability.rupture
+  source: level
+  unlockLevel: 1
+
+# ------------------------------------------------------------------ level 4
+# Lands exactly at the swarm's gate (encounter.stretch1.swarm, requiredLevel 4).
+# That fight is the first that is mechanically rather than numerically harder,
+# and this is the answer to it.
+- id: discipline.sweeping_arc
+  localisationKey: discipline.sweeping_arc
+  abilityId: ability.sweeping_arc
+  source: level
+  unlockLevel: 4
+
+# ------------------------------------------------------------------ level 6
+# The first heal, and the first time the plan editor has something worth opening
+# for: a conditional rule on self.health_percent.
+- id: discipline.emberdraught
+  localisationKey: discipline.emberdraught
+  abilityId: ability.emberdraught
+  source: level
+  unlockLevel: 6
+
+# ------------------------------------------------------------------ level 8
+- id: discipline.sunder
+  localisationKey: discipline.sunder
+  abilityId: ability.sunder
+  source: level
+  unlockLevel: 8
+
+# ----------------------------------------------------------------- level 10
+- id: discipline.ignite
+  localisationKey: discipline.ignite
+  abilityId: ability.ignite
+  source: level
+  unlockLevel: 10
+
+# ----------------------------------------------------------------- level 12
+# Stretch 2's answer to enemy sustain: healing that outlasts the turn it is cast
+# on. Unlocks inside the stretch it was authored for (levels 7-12).
+- id: discipline.mending_tide
+  localisationKey: discipline.mending_tide
+  abilityId: ability.mending_tide
+  source: level
+  unlockLevel: 12
+
+# ----------------------------------------------------------------- level 14
+# The finisher. Pairs with target.health_percent, which is the first genuinely
+# conditional rule most players write rather than a priority ordering.
+- id: discipline.reaping_blow
+  localisationKey: discipline.reaping_blow
+  abilityId: ability.reaping_blow
+  source: level
+  unlockLevel: 14
+
+# ----------------------------------------------------------------- level 16
+# Lands at the Ashen Vault's opening gate (encounter.stretch3.vault_watch,
+# requiredLevel 15), where groups with adds start appearing again.
+- id: discipline.shattering_arc
+  localisationKey: discipline.shattering_arc
+  abilityId: ability.shattering_arc
+  source: level
+  unlockLevel: 16

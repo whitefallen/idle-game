@@ -114,7 +114,25 @@ export interface CharacterDetail extends CharacterSummary {
   respec_cost: number;
   ability_ids: string[];
   abilities: AbilityMeta[];
+  disciplines: DisciplineEntry[];
   battle_plan: PlanRule[];
+}
+
+/**
+ * One entry in the discipline catalogue.
+ *
+ * Locked entries are included deliberately: a progression axis the player
+ * cannot see ahead of is one they cannot plan around, so `unlock_level` is what
+ * makes the next few levels legible.
+ */
+export interface DisciplineEntry {
+  id: string;
+  localisation_key: string;
+  ability_id: string;
+  source: 'level' | 'quest' | 'dungeon' | 'reputation';
+  unlock_level: number | null;
+  unlocked: boolean;
+  slotted: boolean;
 }
 
 export interface AvailableEncounter {
