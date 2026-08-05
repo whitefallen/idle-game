@@ -164,6 +164,36 @@ level-up would have to remember to rewrite.
 exactly one Holding and always read whole. It is never queried by slot, which is
 the property that makes the JSON column right rather than merely convenient.
 
+### `vendor_stock`
+```
+id                    uuid        PK
+character_id          uuid        FK → character(id) ON DELETE CASCADE
+date_key              text        NOT NULL   -- the UTC day, as YYYY-MM-DD
+reference_item_level  int         NOT NULL
+luck                  int         NOT NULL
+created_at
+```
+
+Constraints: `UNIQUE (character_id, date_key)`. Indexed on `created_at` for the
+retention prune.
+
+**The offers are not here, and never will be.** They stay derived from
+`(character_id, date_key, reference_item_level, luck)` through
+`VendorStockGenerator`, per §4. What is stored is only the part of that tuple a
+player can change during the day: seeding the roll on the character and the date
+already made a page refresh harmless, but the roll also read the character's
+*live* level, Luck and average equipped item level — so unequipping a weapon or
+spending an attribute point re-rolled the day's eight offers, as often as a
+player cared to click ([vendor.md](vendor.md) §2). A row is written the first
+time a character resolves stock on a given day and never updated afterwards.
+
+The write is an `INSERT … ON CONFLICT (character_id, date_key) DO NOTHING`
+followed by a read, rather than a check-then-insert: every vendor request of the
+day races to freeze, and the losing side must adopt the winner's snapshot rather
+than fail. This is also why the unique index here is the mechanism rather than a
+backstop — unlike `holding`, there is no character row lock upstream to
+serialise the two.
+
 ### `outbox`
 ```
 id             uuid        PK
@@ -278,6 +308,7 @@ table nobody is watching.
 | `encounter` | 90 days | Full combat logs are large and almost never read after the session that produced them |
 | `audit_log` | 400 days | A full year plus investigation lag, so a dispute raised late still has evidence |
 | `outbox` | 7 days after publication | Kept only long enough to debug a delivery problem |
+| `vendor_stock` | 7 days | A frozen day of stock is unreadable once that day is over; a week is slack for investigating a purchase dispute |
 | `idempotency_record` | 24 hours | Matches the replay window in [api.md](api.md) §4 |
 
 ### Why batched deletion rather than partitioning

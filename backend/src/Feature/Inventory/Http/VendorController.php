@@ -40,9 +40,12 @@ final class VendorController
     }
 
     /**
-     * Today's stock, rolled deterministically from the character and the
-     * date — nothing here is stored, so this is a pure read. See
-     * docs/items.md section 5.
+     * Today's stock, rolled deterministically from the character and the date.
+     *
+     * The offers themselves are never stored, but the first request of the day
+     * does write: it freezes the inputs the roll consumes, so that changing
+     * gear or spending an attribute point cannot re-roll the day's stock. See
+     * docs/vendor.md section 2.
      */
     #[Route('/characters/{characterId}/vendor', name: 'vendor_stock', methods: ['GET'])]
     public function stock(string $characterId): JsonResponse

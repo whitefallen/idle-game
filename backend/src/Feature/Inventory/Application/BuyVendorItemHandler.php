@@ -42,6 +42,20 @@ final class BuyVendorItemHandler
 
     public function __invoke(Uuid $accountId, Uuid $characterId, int $offerIndex): ItemInstance
     {
+        // Deliberately before the transaction opens. Freezing inside it would
+        // roll the day's snapshot back with a rejected buy, and a client that
+        // never calls the read endpoint could then re-roll stock by failing a
+        // purchase, changing gear and trying again — the exact loop the
+        // snapshot exists to close. Idempotent, so the common path (a read
+        // already froze today) costs one indexed lookup. Ownership is checked
+        // here as well as under the lock, so a request for someone else's
+        // character writes nothing before it is rejected.
+        $unlocked = $this->characters->findById($characterId);
+
+        if ($unlocked !== null && $unlocked->isOwnedBy($accountId)) {
+            $this->stock->ensureFrozen($unlocked);
+        }
+
         return $this->transactions->transactional(
             function () use ($accountId, $characterId, $offerIndex): ItemInstance {
                 // Locked first, and always first — the same lock order every

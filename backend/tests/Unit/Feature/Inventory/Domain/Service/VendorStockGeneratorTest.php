@@ -47,8 +47,8 @@ final class VendorStockGeneratorTest extends TestCase
         $characterId = Uuid::v7();
         $definitions = self::definitionsSpanning(1, 60);
 
-        $first = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 20, 0, $definitions, []);
-        $second = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 20, 0, $definitions, []);
+        $first = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
+        $second = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
 
         self::assertCount(VendorRules::STOCK_SIZE, $first);
         self::assertEquals($first, $second);
@@ -58,8 +58,8 @@ final class VendorStockGeneratorTest extends TestCase
     {
         $definitions = self::definitionsSpanning(1, 60);
 
-        $a = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 20, 0, $definitions, []);
-        $b = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 20, 0, $definitions, []);
+        $a = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 0, $definitions, []);
+        $b = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 0, $definitions, []);
 
         self::assertNotEquals($a, $b);
     }
@@ -69,10 +69,26 @@ final class VendorStockGeneratorTest extends TestCase
         $characterId = Uuid::v7();
         $definitions = self::definitionsSpanning(1, 60);
 
-        $today = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 20, 0, $definitions, []);
-        $tomorrow = VendorStockGenerator::stockFor($characterId, '2026-08-06', 20, 20, 0, $definitions, []);
+        $today = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
+        $tomorrow = VendorStockGenerator::stockFor($characterId, '2026-08-06', 20, 0, $definitions, []);
 
         self::assertNotEquals($today, $tomorrow);
+    }
+
+    /**
+     * The reason the reference item level has to be frozen for the day
+     * (VendorStock): it is a real input to the roll, so reading it live off the
+     * character would turn unequipping a weapon into a free reroll.
+     */
+    public function testStockChangesWithTheReferenceItemLevel(): void
+    {
+        $characterId = Uuid::v7();
+        $definitions = self::definitionsSpanning(1, 60);
+
+        $geared = VendorStockGenerator::stockFor($characterId, '2026-08-05', 40, 0, $definitions, []);
+        $stripped = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
+
+        self::assertNotEquals($geared, $stripped);
     }
 
     public function testEveryOfferSitsInsideTheStockBand(): void
@@ -81,7 +97,7 @@ final class VendorStockGeneratorTest extends TestCase
         $definitions = self::definitionsSpanning(1, 60);
         [$min, $max] = VendorRules::stockItemLevelBand(VendorRules::referenceItemLevel(20, 20));
 
-        $offers = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 20, 0, $definitions, []);
+        $offers = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
 
         foreach ($offers as $offer) {
             self::assertGreaterThanOrEqual($min, $offer->itemLevel);
@@ -94,7 +110,7 @@ final class VendorStockGeneratorTest extends TestCase
         $definitions = self::definitionsSpanning(1, 60);
 
         for ($seed = 0; $seed < 50; ++$seed) {
-            $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 20, 100, $definitions, []);
+            $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 100, $definitions, []);
 
             foreach ($offers as $offer) {
                 self::assertNotSame(ItemRarity::Epic, $offer->rarity);
@@ -108,7 +124,7 @@ final class VendorStockGeneratorTest extends TestCase
         $characterId = Uuid::v7();
         $definitions = self::definitionsSpanning(1, 60);
 
-        $offers = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 20, 0, $definitions, []);
+        $offers = VendorStockGenerator::stockFor($characterId, '2026-08-05', 20, 0, $definitions, []);
 
         foreach ($offers as $offer) {
             self::assertGreaterThan(0, $offer->price);
@@ -125,14 +141,14 @@ final class VendorStockGeneratorTest extends TestCase
         // A single very low-level definition, nowhere near a high-level band.
         $definitions = self::definitionsSpanning(1, 1, 1);
 
-        $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 55, 55, 0, $definitions, []);
+        $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 55, 0, $definitions, []);
 
         self::assertCount(VendorRules::STOCK_SIZE, $offers);
     }
 
     public function testEmptyDefinitionsProduceNoStock(): void
     {
-        $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 20, 0, [], []);
+        $offers = VendorStockGenerator::stockFor(Uuid::v7(), '2026-08-05', 20, 0, [], []);
 
         self::assertSame([], $offers);
     }
