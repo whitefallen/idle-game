@@ -41,34 +41,6 @@ final class EquipmentTest extends ApiTestCase
     }
 
     /**
-     * Advances a character to the given level.
-     *
-     * Items carry level requirements, and a freshly created character is level
-     * 1, so most equipment tests need this. Granting the experience directly
-     * keeps them from depending on how many fights a level happens to take.
-     */
-    private function levelTo(string $characterId, int $level): void
-    {
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-
-        /** @var \App\Feature\Character\Domain\Entity\Character $character */
-        $character = $entityManager->find(
-            \App\Feature\Character\Domain\Entity\Character::class,
-            Uuid::fromString($characterId),
-        );
-
-        $character->awardExperience(
-            \App\Feature\Character\Domain\Service\ProgressionRules::cumulativeExperienceFor($level),
-            \App\Feature\Inventory\Domain\Model\EquipmentBonuses::none(),
-            new \DateTimeImmutable(),
-        );
-
-        $entityManager->flush();
-        $entityManager->clear();
-    }
-
-    /**
      * @return array<string, mixed>
      */
     private function statsOf(string $characterId): array

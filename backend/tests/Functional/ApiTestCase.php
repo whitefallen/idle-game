@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Service\ProgressionRules;
+use App\Feature\Inventory\Domain\Model\EquipmentBonuses;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Base class for HTTP contract tests.
@@ -180,5 +185,31 @@ abstract class ApiTestCase extends WebTestCase
         $character = $response['body']['data']['character'];
 
         return $character;
+    }
+
+    /**
+     * Advances a character to the given level.
+     *
+     * Items and encounters carry level requirements, and a freshly created
+     * character is level 1, so most tests that equip or refine something need
+     * this. Granting the experience directly keeps a test from depending on
+     * how many fights a level happens to take.
+     */
+    protected function levelTo(string $characterId, int $level): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        /** @var Character $character */
+        $character = $entityManager->find(Character::class, Uuid::fromString($characterId));
+
+        $character->awardExperience(
+            ProgressionRules::cumulativeExperienceFor($level),
+            EquipmentBonuses::none(),
+            new \DateTimeImmutable(),
+        );
+
+        $entityManager->flush();
+        $entityManager->clear();
     }
 }

@@ -44,4 +44,5 @@ export const queryKeys = {
   availableEncounters: (characterId: string) => ['characters', characterId, 'encounters', 'available'] as const,
   encounterHistory: (characterId: string) => ['characters', characterId, 'encounters'] as const,
   holding: (characterId: string) => ['characters', characterId, 'holding'] as const,
+  inventory: (characterId: string) => ['characters', characterId, 'inventory'] as const,
 };

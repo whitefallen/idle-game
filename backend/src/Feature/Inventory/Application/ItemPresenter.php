@@ -8,6 +8,7 @@ use App\Feature\Inventory\Domain\Entity\ItemInstance;
 use App\Feature\Inventory\Domain\Model\ModifierMode;
 use App\Feature\Inventory\Domain\Repository\AffixRepository;
 use App\Feature\Inventory\Domain\Repository\ItemDefinitionRepository;
+use App\Feature\Inventory\Domain\Service\RefinementRules;
 
 final class ItemPresenter
 {
@@ -44,6 +45,7 @@ final class ItemPresenter
             'icon' => $definition?->icon,
             'item_level' => $item->itemLevel(),
             'rarity' => $item->rarity()->value,
+            'refinement' => $this->refinementOf($item),
             'two_handed' => $definition !== null && $definition->twoHanded,
             'weapon_class' => $definition?->weaponClass?->value,
             'equipped_slot' => $item->equippedSlot()?->value,
@@ -59,6 +61,31 @@ final class ItemPresenter
             ],
 
             'affixes' => $this->affixesOf($item),
+        ];
+    }
+
+    /**
+     * The next refinement step's cost, computed server-side rather than left
+     * to the client: `next_gold_cost` and `next_material_cost` are the exact
+     * inputs RefineItemHandler will charge, so a client never has to
+     * reimplement docs/items.md section 5's formula to show it, and never
+     * drifts from what the server actually enforces. Null past the cap — there
+     * is no next step to preview.
+     *
+     * @return array<string, mixed>
+     */
+    private function refinementOf(ItemInstance $item): array
+    {
+        $level = $item->refineLevel();
+        $atCap = $level >= RefinementRules::MAX_LEVEL;
+
+        return [
+            'level' => $level,
+            'max_level' => RefinementRules::MAX_LEVEL,
+            'at_cap' => $atCap,
+            'next_gold_cost' => $atCap ? null : RefinementRules::goldCost($item->itemLevel(), $level),
+            'next_material_cost' => $atCap ? null : RefinementRules::materialCost($item->itemLevel(), $level),
+            'next_material_tier' => $atCap ? null : RefinementRules::materialTierForItemLevel($item->itemLevel()),
         ];
     }
 

@@ -284,11 +284,11 @@ the provisioner. Reads never provision, so opening the page is not a write.
 
 ### 7.3 Not built
 
-Holding upgrades, staff and supply runs (§6) remain deferred, as does
-refinement — the sink these materials exist to feed. Until refinement ships, a
-claimed stash accumulates with nothing to spend it on, which is the honest cost
-of building the supply line before the thing it supplies. The alternative order
-was worse: refinement would have landed on a supply line that did not exist.
+Holding upgrades, staff and supply runs (§6) remain deferred. Refinement — the
+sink these materials exist to feed — has since shipped (`items.md` §9.1): a
+claimed stash now has somewhere to go. Building the supply line before the
+thing it supplies was the honest order; the alternative would have landed
+refinement on a supply line that did not exist.
 
 `SLOT_TIER_BASE_BP` is fixed at 10000 (×1.0). It is named rather than absent so
 that Holding upgrades change a value the formula already reads, instead of

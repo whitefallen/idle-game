@@ -4,14 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Holding;
 
-use App\Feature\Character\Domain\Entity\Character;
-use App\Feature\Character\Domain\Service\ProgressionRules;
 use App\Feature\Holding\Domain\Service\HoldingRules;
-use App\Feature\Inventory\Domain\Model\EquipmentBonuses;
 use App\Tests\Functional\ApiTestCase;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -500,23 +495,5 @@ final class HoldingFlowTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
 
         return (int) $connection->fetchOne('SELECT COUNT(*) FROM holding');
-    }
-
-    private function levelTo(string $characterId, int $level): void
-    {
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-
-        /** @var Character $character */
-        $character = $entityManager->find(Character::class, Uuid::fromString($characterId));
-
-        $character->awardExperience(
-            ProgressionRules::cumulativeExperienceFor($level),
-            EquipmentBonuses::none(),
-            new DateTimeImmutable(),
-        );
-
-        $entityManager->flush();
-        $entityManager->clear();
     }
 }

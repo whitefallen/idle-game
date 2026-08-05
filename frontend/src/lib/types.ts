@@ -263,3 +263,70 @@ export interface ClaimedHolding {
   holding: Holding;
   character: CharacterDetail;
 }
+
+export type EquipmentSlotName =
+  | 'Head'
+  | 'Chest'
+  | 'Legs'
+  | 'Hands'
+  | 'Feet'
+  | 'MainHand'
+  | 'OffHand'
+  | 'Amulet'
+  | 'Ring1'
+  | 'Ring2';
+
+export interface ItemAffix {
+  id: string;
+  localisation_key: string;
+  kind: 'prefix' | 'suffix';
+  stat: string;
+  mode: 'flat' | 'percent';
+  tier: number;
+  value: number;
+}
+
+/**
+ * The next refinement step's cost, computed server-side. Null fields mean the
+ * item is at RefinementRules.MAX_LEVEL — there is no next step to preview.
+ */
+export interface ItemRefinement {
+  level: number;
+  max_level: number;
+  at_cap: boolean;
+  next_gold_cost: number | null;
+  next_material_cost: number | null;
+  next_material_tier: number | null;
+}
+
+export interface ItemDetail {
+  id: string;
+  definition_id: string;
+  localisation_key: string;
+  slot: EquipmentSlotName | null;
+  icon: string | null;
+  item_level: number;
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  refinement: ItemRefinement;
+  two_handed: boolean;
+  weapon_class: 'heavy' | 'light' | 'focus' | null;
+  equipped_slot: EquipmentSlotName | null;
+  base_armour: number;
+  base_damage: number;
+  requirements: {
+    level: number;
+    attributes: Partial<Record<AttributeCode, number>>;
+  };
+  affixes: ItemAffix[];
+}
+
+export interface Inventory {
+  equipped: ItemDetail[];
+  carried: ItemDetail[];
+  materials: MaterialStack[];
+}
+
+export interface RefinedItem {
+  item: ItemDetail;
+  character: CharacterDetail;
+}

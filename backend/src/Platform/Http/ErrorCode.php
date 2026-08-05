@@ -31,6 +31,7 @@ enum ErrorCode: string
     case InsufficientVigor = 'INSUFFICIENT_VIGOR';
     case ActivityInProgress = 'ACTIVITY_IN_PROGRESS';
     case InsufficientGold = 'INSUFFICIENT_GOLD';
+    case InsufficientMaterial = 'INSUFFICIENT_MATERIAL';
     case InsufficientPoints = 'INSUFFICIENT_POINTS';
     case RequirementNotMet = 'REQUIREMENT_NOT_MET';
     case IdempotencyConflict = 'IDEMPOTENCY_CONFLICT';
@@ -58,6 +59,7 @@ enum ErrorCode: string
             self::CharacterLimitReached,
             self::InsufficientVigor,
             self::InsufficientGold,
+            self::InsufficientMaterial,
             self::InsufficientPoints,
             self::RequirementNotMet => Response::HTTP_UNPROCESSABLE_ENTITY,
             self::RateLimited => Response::HTTP_TOO_MANY_REQUESTS,

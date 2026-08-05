@@ -57,6 +57,14 @@ enum AuditAction: string
     case HoldingSlotAssigned = 'holding.slot_assigned';
 
     /**
+     * An item's refinement level advancing, with the gold and material spent
+     * and the resulting balances (docs/idle.md rule T6's reasoning applies
+     * here too: this is the currency movement docs/economy.md section 5 asks
+     * for, and the one EncounterResolved's docblock named in advance).
+     */
+    case ItemRefined = 'item.refined';
+
+    /**
      * Whether this action is a security event rather than ordinary gameplay.
      * Security events are retained and alerted on differently.
      */
