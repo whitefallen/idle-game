@@ -8,6 +8,10 @@
 # Deptrac's analysis cache. Machine-local and rewritten on every run, so
 # tracking it puts unrelated churn in every diff that happens to run `make lint`.
 /backend/.deptrac.cache
+# PHPStan's result cache, pointed here (rather than its default of the system
+# temp dir) so CI can persist it across runs. Same reasoning as the deptrac
+# cache above: machine-local, regenerated every run.
+/backend/.phpstan-cache/
 # Symfony's config-builder reference, regenerated whenever the container is
 # built. Its contents depend on the environment that last built it — a dev boot
 # writes "when@dev" blocks a prod boot does not — so tracking it guarantees

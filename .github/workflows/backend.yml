@@ -91,6 +91,20 @@ jobs:
       - name: Validate the content library
         run: docker compose exec -T php php bin/console content:validate
 
+      # PHPStan's result cache lives at backend/.phpstan-cache (phpstan.neon
+      # points it there instead of the container's ephemeral /tmp) so it
+      # survives between runs. The cache is self-invalidating per file hash, so
+      # a stale or partial hit is never wrong — only less warm — which is why
+      # restore-keys falls back this far: any previous cache beats none.
+      - name: Cache PHPStan result cache
+        uses: actions/cache@v4
+        with:
+          path: backend/.phpstan-cache
+          key: phpstan-${{ hashFiles('backend/composer.lock') }}-${{ github.sha }}
+          restore-keys: |
+            phpstan-${{ hashFiles('backend/composer.lock') }}-
+            phpstan-
+
       - name: Static analysis
         run: docker compose exec -T php php vendor/bin/phpstan analyse --no-progress
 
