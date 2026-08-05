@@ -43,7 +43,8 @@ export default defineConfig({
           { text: '9. Data model', link: '/data-model' },
           { text: '10. API', link: '/api' },
           { text: '11. Account & authentication', link: '/account' },
-          { text: '12. Frontend architecture', link: '/frontend-architecture' },
+          { text: '12. Vendor', link: '/vendor' },
+          { text: '13. Frontend architecture', link: '/frontend-architecture' },
         ],
       },
       {

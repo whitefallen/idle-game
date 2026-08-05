@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { newIdempotencyKey, request } from '@/lib/api';
 import { queryKeys } from '@/lib/queryClient';
-import type { Inventory, RefinedItem } from '@/lib/types';
+import type { Inventory, RefinedItem, SoldItem } from '@/lib/types';
 
 export function useInventory(characterId: string) {
   return useQuery({
@@ -33,6 +33,32 @@ export function useRefineItem(characterId: string) {
           items.map((item) => (item.id === result.item.id ? result.item : item));
 
         return { ...current, equipped: replace(current.equipped), carried: replace(current.carried) };
+      });
+
+      client.setQueryData(queryKeys.character(characterId), result.character);
+      void client.invalidateQueries({ queryKey: queryKeys.characters });
+    },
+  });
+}
+
+export function useSellItem(characterId: string) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: (itemId: string) =>
+      request<SoldItem>(`/items/${itemId}/sell`, {
+        method: 'POST',
+        idempotencyKey: newIdempotencyKey(),
+      }),
+
+    onSuccess: (result, itemId) => {
+      // The sold item is gone rather than replaced, so it is filtered out
+      // in place instead of patched — the same reasoning useRefineItem's
+      // onSuccess documents, just for removal instead of replacement.
+      client.setQueryData<Inventory>(queryKeys.inventory(characterId), (current) => {
+        if (!current) return current;
+
+        return { ...current, carried: current.carried.filter((item) => item.id !== itemId) };
       });
 
       client.setQueryData(queryKeys.character(characterId), result.character);

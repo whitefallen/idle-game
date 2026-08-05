@@ -50,11 +50,10 @@ an assumption.
 | Sink | Scale | Character |
 |---|---|---|
 | **Refinement** | `40 * ilvl * (refine+1)^2` | Primary. Unbounded appetite, escalating |
-| **Repair** | `3 * ilvl * durabilityLost` | Continuous, proportional to activity |
+| **Vendor purchases** | `vendorValue * markup(offer ilvl, gear ilvl, rarity)` | Continuous, priced against how far ahead of current gear an offer sits — see [items.md](items.md) §5 |
 | **Respec** | `150 * L + 5 * L^2` | Recurring, voluntary, scales with progression |
 | **Crafting** | Recipe-defined | Scales with content tier |
 | **Holding upgrades** | Tier-defined | Long-horizon (deferred, see [idle.md](idle.md) §6) |
-| **Vendor purchases** | Fixed | Minor; consumables and utility |
 
 ### 3.1 The sink design rule
 
@@ -64,8 +63,12 @@ certainty; it is only a question of how many months.
 
 The two structural sinks are built for this:
 
-- **Repair** scales with activity and item level simultaneously, so it absorbs
-  more from exactly the players earning more.
+- **Vendor purchases** replace the durability/repair sink an earlier draft of
+  this document specified (see [items.md](items.md) §6 for why that was
+  dropped). It scales with activity indirectly rather than per-encounter: a
+  player who plays more re-rolls the vendor's daily stock more often and sees
+  more offers worth the markup, so spend still tracks engagement without
+  penalising a player who stops.
 - **Refinement** scales quadratically in refine level and linearly in item level,
   which gives it an effectively unbounded appetite. It is the pressure valve that
   absorbs accumulated wealth at every tier.

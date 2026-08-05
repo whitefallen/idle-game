@@ -24,7 +24,8 @@ For someone new to the project, read in this order:
 | 9 | [data-model.md](data-model.md) | Database schema and indexing strategy |
 | 10 | [api.md](api.md) | REST conventions, error contract, versioning |
 | 11 | [account.md](account.md) | Registration, login, rate limiting, the session every other endpoint depends on |
-| 12 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
+| 12 | [vendor.md](vendor.md) | Daily stock generation, pricing, buying and selling — the gold sink that replaced durability |
+| 13 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
 
 ## Architecture Decision Records
 

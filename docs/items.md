@@ -162,21 +162,18 @@ does not transfer.
 
 ---
 
-## 6. Durability
+## 6. Durability — considered, rejected
 
-Every equipped item has durability, reduced by 1 per encounter (0 on a draw).
-At 0 durability the item contributes **no stats** but is never destroyed.
-
-Repair cost:
-
-```
-repairCost = 3 * ilvl * (maxDurability - currentDurability)         (tunable)
-```
-
-Durability exists as a **continuous gold sink proportional to activity**, which
-is the property a stable economy most needs (see [economy.md](economy.md) §3).
-Item destruction is deliberately excluded: it punishes inattention rather than
-bad decisions, and it is a common cause of account abandonment.
+An earlier draft of this document specified durability: every equipped item
+losing 1 durability per encounter, contributing no stats at 0, repaired for
+`3 * ilvl * durabilityLost` gold. It was never built, and the design is not
+going forward. Its one real job — a gold sink that scales with activity,
+rather than with a single voluntary purchase — is now covered by the Vendor
+(§9.1 below; [economy.md](economy.md) §3), which prices its best offers against
+how far above a character's current gear they sit, so spend still tracks how
+much a player is playing without penalising a player who stops. Durability
+would have added state to every item and a maintenance chore to every session
+for a property Vendor gets from pricing alone.
 
 ---
 
@@ -280,6 +277,11 @@ the same division of responsibility `AssignProductionSlotHandler` uses for
 production lines. Takes an idempotency key, since it is a real gold-and-material
 spend, and audits every step (`AuditAction::ItemRefined`).
 
+**The Vendor** — `GET /api/v1/characters/{characterId}/vendor`,
+`POST /api/v1/characters/{characterId}/vendor/buy`, `POST /api/v1/items/{id}/sell`.
+Replaced durability/repair as the gold sink priced against active play; see
+[vendor.md](vendor.md) for the full design.
+
 ### 9.2 Deviations from the design above
 
 **Affixes are gated by pool, not by slot.** §4.1 shows a `slots: [...]` list on
@@ -313,14 +315,11 @@ drawn from a stream, so adding a new roll site cannot disturb existing ones.
 
 ### 9.4 Not yet built
 
-- **Durability and repair** (§6) — items do not degrade, so the repair gold sink
-  named in [economy.md](economy.md) is not yet collecting.
 - **Unique properties** (§4.2) — Legendary items currently roll affixes only.
   This needs the effect-primitive vocabulary to be addressable from item data.
-- **Vendors** — no buy, sell, or `vendorValue` redemption path.
 - **Equip/unequip UI** — those endpoints exist and are tested; the React screens
-  do not. The inventory panel added for refinement lists equipped and carried
-  items and lets a player refine one, but does not yet let a player equip,
-  unequip, or choose a slot from the browser.
+  do not. The inventory panel lists equipped and carried items and lets a
+  player refine or sell one, but does not yet let a player equip, unequip, or
+  choose a slot from the browser.
 
 None of these are blocked; they were cut to keep the slice reviewable.
