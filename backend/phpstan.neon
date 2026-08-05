@@ -5,6 +5,13 @@ includes:
 parameters:
     level: 8
 
+    # Defaults to the system temp dir, which does not survive between CI
+    # containers and throws the result cache away on every run. Pointed here
+    # instead — inside the bind mount, not var/ (a separate, non-bind-mounted
+    # volume in compose.yaml) — so CI can cache it across runs the same way
+    # it caches the Docker image layers.
+    tmpDir: .phpstan-cache
+
     paths:
         - src
         - tests
