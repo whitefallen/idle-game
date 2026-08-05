@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend audit prune prune-dry
+.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend ci-docs audit prune prune-dry docs docs-build
 
 DC := docker compose
 PHP := $(DC) exec -T php
@@ -53,7 +53,7 @@ lint: ## Static analysis and layering checks
 content-validate: ## Validate the content library
 	$(PHP) php bin/console content:validate
 
-ci: ci-backend ci-frontend ## Run everything CI runs, in the same order
+ci: ci-backend ci-frontend ci-docs ## Run everything CI runs, in the same order
 
 # Mirrors .github/workflows/backend.yml step for step. If the two drift, the
 # point of running checks locally is lost — a green local run must mean a green
@@ -68,6 +68,19 @@ ci-backend: ## Run the backend pipeline locally
 
 ci-frontend: ## Run the frontend pipeline locally
 	$(DC) run --rm --no-deps -T frontend sh -lc "npm ci && npm audit --audit-level=high && npm run typecheck && npx vitest run && npm run build"
+
+# Mirrors .github/workflows/docs.yml's build job. No npm audit here: vitepress
+# pins a vite/esbuild combo with an unresolved, dev-server-only advisory
+# (GHSA-67mh-4wv8-2f99) that does not reach the built static site, and gating
+# on it would fail every run for something CI cannot fix by waiting.
+ci-docs: ## Run the docs build locally
+	cd docs && npm ci && npm run docs:build
+
+docs: ## Serve the documentation site locally, with live reload
+	cd docs && npm install && npm run docs:dev
+
+docs-build: ## Build the documentation site
+	cd docs && npm install && npm run docs:build
 
 audit: ## Check dependencies for known vulnerabilities
 	$(PHP) composer audit --no-interaction
