@@ -45,6 +45,7 @@ final class ResolveDropsHandler
         private readonly ItemDefinitionRepository $definitions,
         private readonly AffixRepository $affixes,
         private readonly ItemInstanceRepository $items,
+        private readonly GrantMaterialsHandler $grantMaterials,
         private readonly IdentifierGenerator $identifiers,
         private readonly Clock $clock,
     ) {
@@ -111,7 +112,11 @@ final class ResolveDropsHandler
             }
         }
 
-        return ['items' => $granted, 'materials' => $materials];
+        // Rolled amounts become a balance here rather than being reported and
+        // discarded. The stash is the supply line refinement draws on, so a
+        // material the client was told it received and the server never stored
+        // is a reward that quietly does not exist.
+        return ['items' => $granted, 'materials' => ($this->grantMaterials)($characterId, $materials)];
     }
 
     private function rollItem(

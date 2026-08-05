@@ -9,6 +9,7 @@ use App\Feature\Inventory\Domain\Model\DropEntryKind;
 use App\Feature\Inventory\Domain\Model\DropTable;
 use App\Feature\Inventory\Domain\Repository\DropTableRepository;
 use App\Feature\Inventory\Domain\Repository\ItemDefinitionRepository;
+use App\Feature\Inventory\Domain\Repository\MaterialRepository;
 use App\Platform\Content\ContentIssue;
 use App\Platform\Content\ContentProvider;
 use App\Platform\Content\ContentSource;
@@ -25,6 +26,7 @@ final class YamlDropTableRepository implements DropTableRepository, ContentProvi
     public function __construct(
         private readonly ContentSource $source,
         private readonly ItemDefinitionRepository $items,
+        private readonly MaterialRepository $materials,
     ) {
     }
 
@@ -70,6 +72,22 @@ final class YamlDropTableRepository implements DropTableRepository, ContentProvi
             }
 
             foreach ($table->entries as $entry) {
+                // A material entry naming a material nothing defines rolls into
+                // a grant that is silently discarded, which reads to a player
+                // as a drop rate that does not work. The schema can check that
+                // the id is well-formed but not that it exists.
+                if ($entry->kind === DropEntryKind::Material && $entry->materialId !== null) {
+                    if (!$this->materials->has($entry->materialId)) {
+                        $issues[] = new ContentIssue(
+                            self::DIRECTORY,
+                            (string) $id,
+                            sprintf('Drops unknown material "%s".', $entry->materialId),
+                        );
+                    }
+
+                    continue;
+                }
+
                 if ($entry->kind !== DropEntryKind::Item || $entry->pool === null) {
                     continue;
                 }

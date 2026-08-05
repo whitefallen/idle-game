@@ -1,0 +1,57 @@
+# The refinement materials.
+#
+# Materials are deliberately *not* a currency (docs/economy.md section 1). They
+# have no vendor price in either direction, which is the whole point: a player
+# with a large gold balance cannot convert it into refinement progress, so the
+# gold sink and the material sink stay independent and neither one can be
+# short-circuited by the other.
+#
+# `production` marks a material a Holding line can produce. The four tiered
+# materials have it; `blightcore` deliberately does not — it drops from the
+# stretch 2 and 3 tables only. That distinction is the interdependence the idle
+# design is built on (docs/idle.md section 1): offline time supplies the bulk
+# input to refinement, but not all of it, so a player who never fights accrues
+# materials they cannot fully spend.
+#
+# Rates are the tunable table in docs/idle.md section 2 and are expressed per
+# hour. They fall roughly by half per tier, which is what makes a tier-4
+# refinement project a multi-week commitment rather than an afternoon.
+
+- id: material.emberash
+  localisationKey: material.emberash
+  tier: 1
+  icon: material_emberash
+  production:
+    ratePerHour: 12
+    unlockLevel: 1
+
+- id: material.slagiron
+  localisationKey: material.slagiron
+  tier: 2
+  icon: material_slagiron
+  production:
+    ratePerHour: 7
+    unlockLevel: 15
+
+- id: material.verdigris
+  localisationKey: material.verdigris
+  tier: 3
+  icon: material_verdigris
+  production:
+    ratePerHour: 4
+    unlockLevel: 30
+
+- id: material.cinderglass
+  localisationKey: material.cinderglass
+  tier: 4
+  icon: material_cinderglass
+  production:
+    ratePerHour: 2
+    unlockLevel: 45
+
+# Drop-only. Nothing produces it passively and nothing sells it, so the only
+# route to it is fighting the stretch 2 and 3 content that drops it.
+- id: material.blightcore
+  localisationKey: material.blightcore
+  tier: 2
+  icon: material_blightcore

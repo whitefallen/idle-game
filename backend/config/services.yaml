@@ -29,6 +29,7 @@ services:
             - '../src/**/Domain/Rng/'
             - '../src/**/Domain/Service/'
             - '../src/Feature/Encounter/Application/ResolvedEncounter.php'
+            - '../src/Feature/Holding/Application/ClaimedHolding.php'
             - '../src/Platform/Outbox/OutboxMessage.php'
             - '../src/Platform/Outbox/DomainEventNotification.php'
             - '../src/Platform/Idempotency/IdempotencyRecord.php'
@@ -94,6 +95,15 @@ services:
 
     App\Feature\Inventory\Domain\Repository\ItemInstanceRepository:
         alias: App\Feature\Inventory\Infrastructure\Doctrine\DoctrineItemInstanceRepository
+
+    App\Feature\Inventory\Domain\Repository\MaterialRepository:
+        alias: App\Feature\Inventory\Infrastructure\Content\YamlMaterialRepository
+
+    App\Feature\Inventory\Domain\Repository\MaterialStackRepository:
+        alias: App\Feature\Inventory\Infrastructure\Doctrine\DoctrineMaterialStackRepository
+
+    App\Feature\Holding\Domain\Repository\HoldingRepository:
+        alias: App\Feature\Holding\Infrastructure\Doctrine\DoctrineHoldingRepository
 
     # ------------------------------------------------------------------
     # Platform services

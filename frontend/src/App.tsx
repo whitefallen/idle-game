@@ -8,6 +8,7 @@ import { CharacterSheet } from '@/features/character/CharacterSheet';
 import { useCharacter } from '@/features/character/api';
 import { EncounterPanel } from '@/features/encounter/EncounterPanel';
 import { ReplayView } from '@/features/encounter/ReplayView';
+import { HoldingPanel } from '@/features/holding/HoldingPanel';
 import { t } from '@/lib/i18n';
 import type { EncounterDetail } from '@/lib/types';
 
@@ -84,7 +85,15 @@ export function App() {
             ) : replay ? (
               <ReplayView encounter={replay} onClose={() => setReplay(null)} />
             ) : (
-              <EncounterPanel characterId={characterId} onResolved={setReplay} />
+              <>
+                <EncounterPanel characterId={characterId} onResolved={setReplay} />
+                {/*
+                  The idle layer sits under the active one deliberately: the
+                  Holding supplies what the beacon-line spends, and seeing them
+                  together is what makes that relationship legible.
+                */}
+                <HoldingPanel characterId={characterId} />
+              </>
             )}
           </>
         )}
