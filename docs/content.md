@@ -152,7 +152,4 @@ Recorded rather than quietly tolerated:
   ([items.md](items.md) §3) — but it means deeper content drops the same three
   bases. Adding items tagged `pool.stretch2` / `pool.stretch3` and repointing the
   `pool` field is the whole fix.
-- **`material.blightcore` has no consumer yet.** It drops from stretch 2 elites
-  and stretch 3 content and is intended for refinement; until the refinement
-  system exists it accumulates.
 - **Levels 13–14 and 23+ have no content.**
