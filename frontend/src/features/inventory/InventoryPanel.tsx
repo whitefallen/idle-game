@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, ErrorNotice, Panel } from '@/components/ui';
 import { t } from '@/lib/i18n';
 import type { ItemDetail, MaterialStack } from '@/lib/types';
-import { useInventory, useRefineItem } from './api';
+import { useInventory, useRefineItem, useSellItem } from './api';
 
 /**
  * The refinement sink, laid over the whole inventory rather than a screen of
@@ -17,11 +17,15 @@ function ItemRow({
   materials,
   onRefine,
   busy,
+  onSell,
+  sellBusy,
 }: {
   item: ItemDetail;
   materials: MaterialStack[];
   onRefine: (itemId: string, materialId: string) => void;
   busy: boolean;
+  onSell: (itemId: string) => void;
+  sellBusy: boolean;
 }) {
   const { refinement } = item;
 
@@ -43,9 +47,16 @@ function ItemRow({
             {item.equipped_slot && ` · ${t(`slot.${item.equipped_slot}`)}`}
           </p>
         </div>
-        <span className="text-sm tabular-nums">
-          +{refinement.level}/{refinement.max_level}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm tabular-nums">
+            +{refinement.level}/{refinement.max_level}
+          </span>
+          {!item.equipped_slot && (
+            <Button variant="ghost" busy={sellBusy} onClick={() => onSell(item.id)}>
+              {t('item.sell', { gold: item.vendor_value })}
+            </Button>
+          )}
+        </div>
       </div>
 
       {refinement.at_cap ? (
@@ -86,6 +97,7 @@ function ItemRow({
 export function InventoryPanel({ characterId }: { characterId: string }) {
   const inventory = useInventory(characterId);
   const refine = useRefineItem(characterId);
+  const sell = useSellItem(characterId);
 
   if (inventory.isError) {
     return (
@@ -104,6 +116,7 @@ export function InventoryPanel({ characterId }: { characterId: string }) {
   return (
     <Panel title={t('item.inventory')}>
       <ErrorNotice error={refine.error} />
+      <ErrorNotice error={sell.error} />
 
       {items.length === 0 ? (
         <p className="text-sm text-ash-400">{t('item.empty')}</p>
@@ -116,6 +129,8 @@ export function InventoryPanel({ characterId }: { characterId: string }) {
               materials={inventory.data.materials}
               busy={refine.isPending}
               onRefine={(itemId, materialId) => refine.mutate({ itemId, materialId })}
+              sellBusy={sell.isPending}
+              onSell={(itemId) => sell.mutate(itemId)}
             />
           ))}
         </ul>

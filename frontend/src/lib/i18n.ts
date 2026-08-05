@@ -150,6 +150,12 @@ const strings: Record<string, string> = {
   'item.refine': 'Refine ({gold}g, {material})',
   'item.refineMaxed': 'Fully refined.',
   'item.noMaterial': 'No matching material',
+  'item.sell': 'Sell ({gold}g)',
+
+  'vendor.title': 'Vendor',
+  'vendor.empty': 'Nothing in stock today.',
+  'vendor.buy': 'Buy ({gold}g)',
+  'vendor.requiresLevel': 'Requires level {level}',
 
   'rarity.common': 'Common',
   'rarity.uncommon': 'Uncommon',

@@ -45,4 +45,5 @@ export const queryKeys = {
   encounterHistory: (characterId: string) => ['characters', characterId, 'encounters'] as const,
   holding: (characterId: string) => ['characters', characterId, 'holding'] as const,
   inventory: (characterId: string) => ['characters', characterId, 'inventory'] as const,
+  vendorStock: (characterId: string) => ['characters', characterId, 'vendor'] as const,
 };

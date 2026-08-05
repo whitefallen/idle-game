@@ -54,6 +54,7 @@ final class ItemPresenter
             // from the stored instance. See docs/items.md section 1.
             'base_armour' => $definition?->baseArmour() ?? 0,
             'base_damage' => $definition?->baseWeaponDamage() ?? 0,
+            'vendor_value' => $definition === null ? 0 : $definition->vendorValue,
 
             'requirements' => [
                 'level' => $definition === null ? 1 : $definition->requiredLevel,

@@ -70,6 +70,21 @@ final readonly class JsonBody
         return is_string($value) && $value !== '' ? $value : null;
     }
 
+    public function requireInt(string $key): int
+    {
+        $value = $this->data[$key] ?? null;
+
+        if (!is_int($value)) {
+            throw ApiException::of(
+                ErrorCode::ValidationFailed,
+                sprintf('"%s" is required and must be an integer.', $key),
+                ['field' => $key],
+            );
+        }
+
+        return $value;
+    }
+
     /**
      * @return array<string, mixed>
      */

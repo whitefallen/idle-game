@@ -10,6 +10,7 @@ import { EncounterPanel } from '@/features/encounter/EncounterPanel';
 import { ReplayView } from '@/features/encounter/ReplayView';
 import { HoldingPanel } from '@/features/holding/HoldingPanel';
 import { InventoryPanel } from '@/features/inventory/InventoryPanel';
+import { VendorPanel } from '@/features/vendor/VendorPanel';
 import { t } from '@/lib/i18n';
 import type { EncounterDetail } from '@/lib/types';
 
@@ -95,10 +96,16 @@ export function App() {
                 */}
                 <HoldingPanel characterId={characterId} />
                 {/*
-                  Inventory sits last: it is where the Holding's output — and
-                  the beacon-line's drops — actually get spent.
+                  Inventory sits after the Holding: it is where the Holding's
+                  output — and the beacon-line's drops — actually get spent.
                 */}
                 <InventoryPanel characterId={characterId} />
+                {/*
+                  The Vendor sits last: it is the other side of the same
+                  inventory screen, buying with the gold everything above just
+                  produced and selling off what it decluttered.
+                */}
+                <VendorPanel characterId={characterId} />
               </>
             )}
           </>

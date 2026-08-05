@@ -65,6 +65,17 @@ enum AuditAction: string
     case ItemRefined = 'item.refined';
 
     /**
+     * A Vendor purchase, with the gold spent and the resulting balance — the
+     * "shop" currency movement EncounterResolved's docblock named in advance.
+     */
+    case ItemPurchased = 'item.purchased';
+
+    /**
+     * A Vendor sale, with the gold awarded and the resulting balance.
+     */
+    case ItemSold = 'item.sold';
+
+    /**
      * Whether this action is a security event rather than ordinary gameplay.
      * Security events are retained and alerted on differently.
      */

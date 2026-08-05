@@ -313,6 +313,7 @@ export interface ItemDetail {
   equipped_slot: EquipmentSlotName | null;
   base_armour: number;
   base_damage: number;
+  vendor_value: number;
   requirements: {
     level: number;
     attributes: Partial<Record<AttributeCode, number>>;
@@ -328,5 +329,44 @@ export interface Inventory {
 
 export interface RefinedItem {
   item: ItemDetail;
+  character: CharacterDetail;
+}
+
+/**
+ * One rolled slot in a character's daily vendor stock. Never persisted —
+ * recomputed the same way on every read, so `offer_index` is what a buy
+ * request names rather than an id. See docs/items.md section 5.
+ */
+export interface VendorOffer {
+  offer_index: number;
+  definition_id: string;
+  localisation_key: string;
+  slot: EquipmentSlotName | null;
+  icon: string | null;
+  item_level: number;
+  rarity: 'common' | 'uncommon' | 'rare';
+  two_handed: boolean;
+  weapon_class: 'heavy' | 'light' | 'focus' | null;
+  base_armour: number;
+  base_damage: number;
+  requirements: {
+    level: number;
+    attributes: Partial<Record<AttributeCode, number>>;
+  };
+  affixes: ItemAffix[];
+  price: number;
+}
+
+export interface VendorStock {
+  offers: VendorOffer[];
+}
+
+export interface PurchasedItem {
+  item: ItemDetail;
+  character: CharacterDetail;
+}
+
+export interface SoldItem {
+  sold: { definition_id: string; gold_awarded: number };
   character: CharacterDetail;
 }
