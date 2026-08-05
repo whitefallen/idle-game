@@ -30,6 +30,11 @@
 # because tsc writes one next to whichever tsconfig produced it.
 *.tsbuildinfo
 
+# Docs site
+/docs/node_modules/
+/docs/.vitepress/dist/
+/docs/.vitepress/cache/
+
 # Docker
 /.docker-data/
 
