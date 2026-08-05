@@ -41,8 +41,13 @@ context, the decision, the alternatives rejected, and the consequences we accept
 
 ## Status
 
-Design phase. No application code exists yet. The first implementation
-milestone is defined at the end of [architecture.md](architecture.md).
+Past design phase. The vertical slice defined at the end of
+[architecture.md](architecture.md) §9 has shipped, along with the systems
+listed in its §9.1 status note. What is built, what deviates from the design
+above, and what is deliberately still missing is recorded per-system —
+[idle.md](idle.md) §7, [items.md](items.md) §9 — rather than summarised here,
+so it cannot drift out of sync with a change that updates the code but not
+this file.
 
 ## Conventions used in these documents
 

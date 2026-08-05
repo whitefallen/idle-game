@@ -242,7 +242,7 @@ reasonable-looking commit at a time.
 
 ### 8.1 Continuous integration
 
-Two workflows in `.github/workflows/`, path-filtered per ADR-0001 so a
+Three workflows in `.github/workflows/`, path-filtered per ADR-0001 so a
 frontend-only change does not run PHPUnit.
 
 **Backend** (`backend/**`, `content/**`, `docker/**`, `compose.yaml`) runs
@@ -257,6 +257,10 @@ to match. `npm ci` rather than `npm install`, so a lockfile that disagrees with
 `package.json` fails rather than being silently reconciled. The production build
 runs too: it catches what the dev server does not.
 
+**Docs** (`docs/**`) builds this directory as a static site on every push and
+pull request, and deploys it to GitHub Pages from `main` only — a pull request
+proves the site still builds without publishing a preview no one asked for.
+
 Content is treated as a backend change on purpose. A mistuned monster is caught
 by the balance simulator, and a malformed drop table by the content validator —
 both of which live in the backend job.
@@ -265,11 +269,13 @@ both of which live in the backend job.
 the workflows drift, running checks locally stops meaning anything, so they are
 changed together.
 
-**Known consequence of path filtering:** a pull request touching only `docs/`
-runs no workflow. If a branch protection rule ever requires these checks, such a
-pull request can never satisfy it. The fix at that point is an always-running
-gate job that reports success when the filtered jobs are skipped — not to remove
-the filtering, which is what keeps the pipeline fast.
+A pull request touching only `docs/` now runs the docs workflow rather than
+nothing — the gap this section used to record here closed when that workflow
+was added. The general shape of the concern remains true of any future path
+filter, though: if a branch protection rule ever requires checks that a given
+change's paths do not trigger, the fix is an always-running gate job that
+reports success when the filtered jobs are skipped, not removing the filtering
+that keeps the pipeline fast.
 
 ---
 
@@ -299,3 +305,18 @@ What is deliberately **excluded** from Slice 0: the Holding, refinement,
 quests, guilds, the shop, and all art. Those are additive; the six items above
 are the load-bearing ones. If Slice 0 is right, the rest is content and features.
 If Slice 0 is wrong, everything built on it has to move.
+
+### 9.1 Status
+
+Slice 0 shipped; Slice 0 was right — nothing it established has had to move.
+Built since, additive as anticipated above: Vigor and its activity gate,
+disciplines, the battle plan editor, equipment and affixes, the Holding
+(idle.md), and refinement (items.md §5). Each system records its own built /
+deviated / not-yet-built detail where it lives — [idle.md](idle.md) §7,
+[items.md](items.md) §9 — rather than here, so this section stays a record of
+the original plan instead of a second copy of a status that would drift the
+moment either document changed without the other.
+
+Still not built, per that exclusion list above: quests, guilds, the shop, and
+art — content and items carry an `icon` id (see [items.md](items.md) §7) but no
+asset exists behind any of them yet.
