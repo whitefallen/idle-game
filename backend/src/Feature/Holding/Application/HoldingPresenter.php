@@ -8,7 +8,7 @@ use App\Feature\Holding\Domain\Entity\Holding;
 use App\Feature\Holding\Domain\Model\HoldingYield;
 use App\Feature\Holding\Domain\Model\ProductionSlot;
 use App\Feature\Holding\Domain\Service\HoldingRules;
-use App\Feature\Inventory\Domain\Entity\MaterialStack;
+use App\Feature\Inventory\Application\MaterialStackPresenter;
 use App\Feature\Inventory\Domain\Model\MaterialDefinition;
 use App\Feature\Inventory\Domain\Repository\MaterialRepository;
 use App\Feature\Inventory\Domain\Repository\MaterialStackRepository;
@@ -32,6 +32,7 @@ final class HoldingPresenter
     public function __construct(
         private readonly MaterialRepository $materials,
         private readonly MaterialStackRepository $stacks,
+        private readonly MaterialStackPresenter $stackPresenter,
         private readonly ProductionRates $rates,
     ) {
     }
@@ -218,35 +219,6 @@ final class HoldingPresenter
      */
     private function stash(Uuid $characterId): array
     {
-        $definitions = $this->materials->all();
-
-        return array_map(
-            static function (MaterialStack $stack) use ($definitions): array {
-                // A stack whose definition has been withdrawn from content
-                // still renders, with the id standing in for the name. The
-                // balance is the player's; it does not disappear because a
-                // designer retired the material.
-                if (!isset($definitions[$stack->materialId()])) {
-                    return [
-                        'material_id' => $stack->materialId(),
-                        'localisation_key' => $stack->materialId(),
-                        'tier' => 0,
-                        'icon' => 'material_unknown',
-                        'quantity' => $stack->quantity(),
-                    ];
-                }
-
-                $definition = $definitions[$stack->materialId()];
-
-                return [
-                    'material_id' => $stack->materialId(),
-                    'localisation_key' => $definition->localisationKey,
-                    'tier' => $definition->tier,
-                    'icon' => $definition->icon,
-                    'quantity' => $stack->quantity(),
-                ];
-            },
-            $this->stacks->findByCharacter($characterId),
-        );
+        return $this->stackPresenter->collection($this->stacks->findByCharacter($characterId));
     }
 }

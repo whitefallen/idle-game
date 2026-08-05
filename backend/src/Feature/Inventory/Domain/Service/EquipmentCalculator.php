@@ -69,8 +69,13 @@ final class EquipmentCalculator
             $itemArmour = $definition->baseArmour();
             $itemDamage = $definition->baseWeaponDamage();
 
-            $armourPercentBp = 0;
-            $damagePercentBp = 0;
+            // Refinement is 4% of the item's own base stats per level
+            // (docs/items.md section 5), so it is seeded into the same
+            // basis-point accumulators the percent affixes below add to,
+            // rather than being a second code path applied separately.
+            $refinementBp = $item->refineLevel() * RefinementRules::PERCENT_BP_PER_LEVEL;
+            $armourPercentBp = $refinementBp;
+            $damagePercentBp = $refinementBp;
 
             foreach (self::orderedAffixes($item, $affixes) as [$affix, $value]) {
                 if ($affix->mode === ModifierMode::Percent) {

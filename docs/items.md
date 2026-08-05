@@ -268,6 +268,18 @@ plus `EquipmentBonuses`, never stored. The single exception remains `power_score
 (ADR-0006), refreshed after every equip and unequip so leaderboards cannot rank a
 player by gear they have taken off.
 
+**Refinement** (§5) — `POST /api/v1/items/{id}/refine`. `item_instance.refine_level`
+is the only new state; cost and the resulting stat bonus are both derived from it
+plus the item's level, never stored (`RefinementRules`). The bonus is folded into
+`EquipmentCalculator` as another percent modifier on the item's own base stats, the
+same accumulator affixes already use, rather than a second code path. The caller
+chooses which material to spend, not the server: a tier can hold more than one
+material (a drop-only one alongside a producible one, per [idle.md](idle.md) §1),
+and the handler only enforces that the chosen material's tier matches the item —
+the same division of responsibility `AssignProductionSlotHandler` uses for
+production lines. Takes an idempotency key, since it is a real gold-and-material
+spend, and audits every step (`AuditAction::ItemRefined`).
+
 ### 9.2 Deviations from the design above
 
 **Affixes are gated by pool, not by slot.** §4.1 shows a `slots: [...]` list on
@@ -301,12 +313,14 @@ drawn from a stream, so adding a new roll site cannot disturb existing ones.
 
 ### 9.4 Not yet built
 
-- **Refinement** (§5) — no `+0..+10`, no refinement stones, no failure handling.
 - **Durability and repair** (§6) — items do not degrade, so the repair gold sink
   named in [economy.md](economy.md) is not yet collecting.
 - **Unique properties** (§4.2) — Legendary items currently roll affixes only.
   This needs the effect-primitive vocabulary to be addressable from item data.
 - **Vendors** — no buy, sell, or `vendorValue` redemption path.
-- **Inventory UI** — the endpoints exist and are tested; the React screens do not.
+- **Equip/unequip UI** — those endpoints exist and are tested; the React screens
+  do not. The inventory panel added for refinement lists equipped and carried
+  items and lets a player refine one, but does not yet let a player equip,
+  unequip, or choose a slot from the browser.
 
 None of these are blocked; they were cut to keep the slice reviewable.

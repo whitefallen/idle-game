@@ -7,8 +7,10 @@ namespace App\Feature\Inventory\Domain\Entity;
 use App\Feature\Inventory\Domain\Model\EquipmentSlot;
 use App\Feature\Inventory\Domain\Model\ItemRarity;
 use App\Feature\Inventory\Domain\Model\RolledAffix;
+use App\Feature\Inventory\Domain\Service\RefinementRules;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use DomainException;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -69,6 +71,20 @@ class ItemInstance
     /** Null means the item is in the inventory rather than worn. */
     #[ORM\Column(type: 'string', length: 20, nullable: true, enumType: EquipmentSlot::class)]
     private ?EquipmentSlot $equippedSlot = null;
+
+    /**
+     * 0 to RefinementRules::MAX_LEVEL. Every new item starts unrefined, so this
+     * is never a constructor argument — only ever advanced one level at a time
+     * by refine().
+     *
+     * Carries a database-level default, unlike this entity's other integer
+     * columns: those were only ever created by a fresh CREATE TABLE, but this
+     * one was added to a table that may already hold rows, and "unrefined" is
+     * the only correct backfill for every item that predates refinement — not
+     * a placeholder standing in for a real migration.
+     */
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $refineLevel = 0;
 
     #[ORM\Column(type: 'datetimetz_immutable')]
     private DateTimeImmutable $createdAt;
@@ -150,6 +166,27 @@ class ItemInstance
     public function unequip(): void
     {
         $this->equippedSlot = null;
+    }
+
+    public function refineLevel(): int
+    {
+        return $this->refineLevel;
+    }
+
+    /**
+     * Advances refinement by exactly one level. There is no failure chance and
+     * nothing to roll — the only thing that can go wrong is attempting a level
+     * past the cap, which is a defensive invariant rather than a gameplay
+     * outcome: the handler is expected to check first and never call this once
+     * a player is actually at the cap.
+     */
+    public function refine(): void
+    {
+        if ($this->refineLevel >= RefinementRules::MAX_LEVEL) {
+            throw new DomainException('This item is already at maximum refinement.');
+        }
+
+        ++$this->refineLevel;
     }
 
     public function createdAt(): DateTimeImmutable
