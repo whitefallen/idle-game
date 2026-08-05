@@ -116,8 +116,11 @@ backend/src/Feature/Combat/
     └── EncounterController.php
 ```
 
-Planned features: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`,
-`Quest`, `Holding`, `Crafting`, `Progression`, `Guild`, `Leaderboard`, `Shop`.
+Built: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`, `Holding`.
+Not yet built: `Quest`, `Crafting`, `Guild`, `Leaderboard`, `Shop` — see §9.1
+for what each system built so far covers and
+[account.md](account.md) §6 / [items.md](items.md) §9.4 / [idle.md](idle.md)
+§7.3 for what each one still does not.
 
 Cross-cutting concerns live in `Platform/` — `Platform/Content` (loading,
 caching, validating `content/`), `Platform/Outbox`, `Platform/Audit`,
