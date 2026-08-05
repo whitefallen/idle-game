@@ -23,7 +23,8 @@ For someone new to the project, read in this order:
 | 8 | [architecture.md](architecture.md) | Layers, feature map, domain events, repository layout |
 | 9 | [data-model.md](data-model.md) | Database schema and indexing strategy |
 | 10 | [api.md](api.md) | REST conventions, error contract, versioning |
-| 11 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
+| 11 | [account.md](account.md) | Registration, login, rate limiting, the session every other endpoint depends on |
+| 12 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
 
 ## Architecture Decision Records
 
