@@ -13,9 +13,17 @@ use Symfony\Component\Uid\Uuid;
  * Rolls a character's daily vendor stock.
  *
  * Pure and deterministic, the same way ItemGenerator is: the same character,
- * date, luck and content produce the same stock every time, so nothing needs
- * to be stored and a buy request can be verified by re-deriving the exact
- * offer it names rather than trusting the client's copy of it.
+ * date, reference item level, luck and content produce the same stock every
+ * time, so no offer needs to be stored and a buy request can be verified by
+ * re-deriving the exact offer it names rather than trusting the client's copy
+ * of it.
+ *
+ * Determinism is only worth as much as the stability of the inputs, which is
+ * why the reference item level and Luck arrive as arguments already frozen for
+ * the day (VendorStock) rather than being read live off the character here —
+ * live inputs meant a player could re-roll the day's stock by unequipping a
+ * weapon. This class stays pure either way; it simply must not be handed a
+ * moving target.
  *
  * The seed is derived from the character and the day, not from any encounter
  * — vendor rolls must never correlate with, or be influenced by, combat loot
@@ -37,13 +45,11 @@ final class VendorStockGenerator
     public static function stockFor(
         Uuid $characterId,
         string $dateKey,
-        int $characterLevel,
-        int $averageEquippedItemLevel,
+        int $referenceItemLevel,
         int $luck,
         array $definitions,
         array $affixes,
     ): array {
-        $referenceItemLevel = VendorRules::referenceItemLevel($characterLevel, $averageEquippedItemLevel);
         [$minItemLevel, $maxItemLevel] = VendorRules::stockItemLevelBand($referenceItemLevel);
         $seed = self::seedFor($characterId, $dateKey);
 

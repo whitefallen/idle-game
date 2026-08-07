@@ -112,6 +112,63 @@ final class VendorFlowTest extends ApiTestCase
         self::assertSame($first['body']['data']['offers'], $second['body']['data']['offers']);
     }
 
+    /**
+     * The reroll exploit, closed.
+     *
+     * Seeding on (character, day) alone was not enough: the roll also consumed
+     * the character's live level, Luck and average equipped item level, so
+     * changing any of them re-rolled the day's eight offers on the next read.
+     * Levelling and spending an attribute point move both of those inputs, and
+     * the stock must not notice. See docs/vendor.md section 2.
+     */
+    public function testChangingLevelOrAttributesDoesNotRerollTheDaysStock(): void
+    {
+        $this->registerAndLogin('rerollhunter@example.com');
+        $character = $this->createCharacter('Rerollhunter');
+
+        $before = $this->stock($character['id'])['body']['data']['offers'];
+
+        $this->levelTo($character['id'], 12);
+        $allocated = $this->postJson(
+            '/api/v1/characters/' . $character['id'] . '/attributes',
+            ['allocation' => ['LUK' => 5]],
+        );
+        self::assertSame(200, $allocated['status'], self::describe($allocated['body']));
+
+        $after = $this->stock($character['id'])['body']['data']['offers'];
+
+        self::assertSame($before, $after);
+    }
+
+    /**
+     * The same guarantee for a client that never calls the read endpoint.
+     *
+     * A rejected buy must still freeze the day, or failing a purchase, changing
+     * gear and retrying becomes the reroll loop by another route — which is why
+     * BuyVendorItemHandler freezes before it opens its transaction rather than
+     * inside it.
+     */
+    public function testAFailedBuyStillFreezesTheDaysStock(): void
+    {
+        $this->registerAndLogin('failedbuyer@example.com');
+        $character = $this->createCharacter('Failedbuyer');
+
+        $rejected = $this->buy($character['id'], 0);
+        self::assertSame('INSUFFICIENT_GOLD', $rejected['body']['error']['code']);
+        $pricedAt = $rejected['body']['error']['details']['required'];
+
+        // A rejected buy rolls its transaction back, and Doctrine closes the
+        // EntityManager when it does. A real client's next request gets a fresh
+        // one; this test reaches into the container directly, so it has to ask.
+        static::getContainer()->get('doctrine')->resetManager();
+
+        $this->levelTo($character['id'], 12);
+
+        $offers = $this->stock($character['id'])['body']['data']['offers'];
+
+        self::assertSame($pricedAt, $offers[0]['price']);
+    }
+
     public function testBuyingAnOfferDebitsExactPriceAndGrantsTheItem(): void
     {
         $this->registerAndLogin('buyer@example.com');

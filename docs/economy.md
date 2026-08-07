@@ -65,10 +65,13 @@ The two structural sinks are built for this:
 
 - **Vendor purchases** replace the durability/repair sink an earlier draft of
   this document specified (see [items.md](items.md) §6 for why that was
-  dropped). It scales with activity indirectly rather than per-encounter: a
-  player who plays more re-rolls the vendor's daily stock more often and sees
-  more offers worth the markup, so spend still tracks engagement without
-  penalising a player who stops.
+  dropped). It scales with activity indirectly rather than per-encounter: each
+  day's stock is priced against the gear a character actually has, so a player
+  who plays more comes back on more days and meets more offers worth the
+  markup. Spend still tracks engagement without penalising a player who stops.
+  Note that the day's stock is a single roll, frozen on first sight
+  ([vendor.md](vendor.md) §2) — the sink is fed by returning across days, never
+  by re-rolling within one.
 - **Refinement** scales quadratically in refine level and linearly in item level,
   which gives it an effectively unbounded appetite. It is the pressure valve that
   absorbs accumulated wealth at every tier.

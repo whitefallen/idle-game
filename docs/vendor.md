@@ -30,17 +30,44 @@ hand-tuning per-level offer tables.
 `GET /api/v1/characters/{characterId}/vendor` — eight offers
 (`VendorRules::STOCK_SIZE`), rolled fresh once per character per UTC day.
 
-**Nothing is stored.** Stock is fully reproducible from
-`(characterId, today's date, the character's current level, Luck and average
-equipped item level)`, the same closed-form philosophy the Holding's accrual
-uses ([idle.md](idle.md) section 7.2): a `GET` recomputes it, and a buy
-recomputes the exact same offer it names to price and mint — never trusting
-a price or a roll the client saw. The roll is counter-based
+**No offer is stored.** Stock is fully reproducible from
+`(characterId, the date, the reference item level and Luck frozen for that
+day)`, the same closed-form philosophy the Holding's accrual uses
+([idle.md](idle.md) section 7.2): a `GET` recomputes it, and a buy recomputes
+the exact same offer it names to price and mint — never trusting a price or a
+roll the client saw. The roll is counter-based
 (`ItemRoll`/`ItemGenerator`, the same machinery combat drops use), seeded
 from the character and the day rather than from any encounter, so vendor
 rolls can never correlate with, or be influenced by, loot rolls
 ([items.md](items.md) section 9.3 explains why loot and combat RNG are kept
 separate; the same reasoning applies a second time here).
+
+**The day's inputs are frozen, so stock cannot be re-rolled.** Seeding on
+`(character, date)` makes a page refresh harmless on its own, but it is not
+enough: the roll also consumes the character's level, Luck and average equipped
+item level, and a player can change all three at will. Unequipping a weapon,
+spending an attribute point or levelling up re-rolled the day's eight offers on
+the next read — a free reroll, repeatable as often as a player cared to click,
+which would have made the daily cadence the Vendor is priced around meaningless.
+
+The first request that resolves a character's stock on a given day therefore
+writes a `vendor_stock` row capturing the reference item level and Luck in
+force at that moment ([data-model.md](data-model.md) section 2), and every
+later resolve that day reads the row instead of the character. The offers a
+character sees at 09:00 are the offers they can buy at 23:00, whatever they did
+to their gear in between. Two consequences worth stating plainly:
+
+- **The read endpoint writes**, on the first request of the day only. It is
+  still a `GET` — the response is identical for every later request, and the
+  write is a freeze rather than a state change a player can observe as
+  anything other than "the stock stopped moving".
+- **A rejected buy still freezes the day.** `BuyVendorItemHandler` freezes
+  before it opens its transaction rather than inside it, because a snapshot
+  rolled back with a failed purchase would hand the same reroll to a client
+  that never calls the read endpoint: fail a buy, change gear, try again.
+
+Snapshots are pruned after seven days ([data-model.md](data-model.md)
+section 6); they are unreadable once their day is over.
 
 **The item level band skews upward.** A character's *reference item level* is
 the higher of their level and their average equipped item level (so a fresh
@@ -104,7 +131,8 @@ at UTC midnight. An offer displayed just before the boundary and bought just
 after will buy whatever the new day's stock has at that index, not the offer
 shown — the same way a real shop's stock can turn over between a customer
 looking and paying. Rare, low-stakes, and self-correcting on the next
-`GET`.
+`GET`. Note that this is the *only* way the offer at an index can change
+between looking and paying; within a day it is fixed (section 2).
 
 ---
 

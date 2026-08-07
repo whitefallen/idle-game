@@ -102,6 +102,9 @@ services:
     App\Feature\Inventory\Domain\Repository\MaterialStackRepository:
         alias: App\Feature\Inventory\Infrastructure\Doctrine\DoctrineMaterialStackRepository
 
+    App\Feature\Inventory\Domain\Repository\VendorStockRepository:
+        alias: App\Feature\Inventory\Infrastructure\Doctrine\DoctrineVendorStockRepository
+
     App\Feature\Holding\Domain\Repository\HoldingRepository:
         alias: App\Feature\Holding\Infrastructure\Doctrine\DoctrineHoldingRepository
 

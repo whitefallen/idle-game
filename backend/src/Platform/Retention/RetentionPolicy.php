@@ -55,6 +55,12 @@ final readonly class RetentionPolicy
                 rationale: 'Published messages are kept only long enough to debug a delivery problem.',
             ),
             new self(
+                table: 'vendor_stock',
+                column: 'created_at',
+                retainDays: 7,
+                rationale: 'A frozen day of vendor stock is unreadable once that day is over; a week is slack for investigating a purchase dispute.',
+            ),
+            new self(
                 table: 'idempotency_record',
                 column: 'created_at',
                 retainDays: 1,
