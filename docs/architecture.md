@@ -139,6 +139,20 @@ The one permitted direct dependency is on another feature's **read model** —
 a published, stable query interface. Quest may ask Character for a level. It may
 not mutate it.
 
+This holds for **both** delivery paths in §4. The deferred path uses the outbox;
+the atomic path uses `Platform\Event\DomainEventDispatcher`, which publishes
+synchronously inside the caller's transaction ([ADR-0007](adr/0007-synchronous-domain-event-bus.md)).
+A synchronous subscriber **may not return a value** to the emitter — where the
+emitter needs to know what a subscriber did, it reads that feature's read model
+afterwards. `RespecHandler` is the worked example: it announces the reset and
+then diffs the equipped set, rather than being told what Inventory removed.
+
+Two direct cross-feature calls predate the dispatcher and have not been migrated
+— `ClaimHoldingHandler` → `GrantMaterialsHandler` and `ResolveEncounterHandler`
+→ `ResolveDropsHandler`. Both feed the callee's return value into an outbox
+event, so converting them means solving the no-return-value rule for each.
+ADR-0007 records this as known debt; new work uses the dispatcher.
+
 ---
 
 ## 4. Domain events
@@ -147,7 +161,7 @@ Two delivery paths, chosen per handler ([ADR-0004](adr/0004-transactional-outbox
 
 | Path | Use for | Guarantee |
 |---|---|---|
-| **Synchronous, in-transaction** | Effects that must be atomic with the action: XP, gold, loot, inventory, quest counters | All-or-nothing with the originating command |
+| **Synchronous, in-transaction** (`DomainEventDispatcher`) | Effects that must be atomic with the action: XP, gold, loot, inventory, quest counters | All-or-nothing with the originating command |
 | **Transactional outbox → Messenger** | Everything else: achievements, leaderboard refresh, analytics, notifications | At-least-once, eventually |
 
 Getting this split wrong is a rewrite, not a refactor, which is why it is decided
@@ -157,9 +171,10 @@ bug, if this effect were missing for thirty seconds?** If yes, it is synchronous
 Async handlers must be **idempotent**, because at-least-once delivery means
 duplicates will happen.
 
-Core events: `CharacterCreated`, `EncounterResolved`, `MonsterKilled`,
-`PlayerLeveledUp`, `ItemEquipped`, `ItemRefined`, `QuestProgressed`,
-`QuestCompleted`, `HoldingClaimed`, `CurrencyChanged`, `DungeonFinished`.
+Core events: `CharacterCreated`, `CharacterRespecced`, `EncounterResolved`,
+`MonsterKilled`, `PlayerLeveledUp`, `ItemEquipped`, `ItemRefined`,
+`QuestProgressed`, `QuestCompleted`, `HoldingClaimed`, `CurrencyChanged`,
+`DungeonFinished`.
 
 Events are **immutable value objects containing ids and primitives** — never
 Doctrine entities. An entity in an event is a reference to mutable state that

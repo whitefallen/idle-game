@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Character;
 
 use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Event\CharacterRespecced;
 use App\Feature\Character\Domain\Service\ProgressionRules;
 use App\Feature\Inventory\Domain\Entity\ItemInstance;
 use App\Feature\Inventory\Domain\Model\ItemRarity;
 use App\Tests\Functional\ApiTestCase;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use RuntimeException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Uid\Uuid;
 
 final class RespecTest extends ApiTestCase
@@ -265,6 +268,48 @@ final class RespecTest extends ApiTestCase
         $after = $this->getJson('/api/v1/characters/' . $character['id'])['body']['data']['character'];
 
         self::assertSame($cost, $after['gold'], 'Charged exactly once.');
+    }
+
+    /**
+     * The guarantee that makes the synchronous path worth having: a subscriber
+     * that fails takes the whole respec with it. Charging a player for a
+     * reallocation that left illegal gear on would be worse than refusing the
+     * reallocation. See ADR-0007.
+     */
+    public function testAFailingSubscriberRollsTheWholeRespecBack(): void
+    {
+        $this->registerAndLogin('rollback@example.com');
+        $character = $this->createCharacter('Rollback');
+
+        $this->levelTo($character['id'], 4);
+        $this->postJson('/api/v1/characters/' . $character['id'] . '/attributes', [
+            'allocation' => ['STR' => 25],
+        ]);
+
+        $cost = ProgressionRules::respecCost(4);
+        $this->grantGold($character['id'], $cost);
+
+        // The client reboots the kernel between requests by default, which
+        // would discard a listener registered here before the request that has
+        // to see it.
+        $this->client->disableReboot();
+
+        /** @var EventDispatcherInterface $events */
+        $events = static::getContainer()->get('event_dispatcher');
+        $events->addListener(CharacterRespecced::class, static function (): never {
+            throw new RuntimeException('Subscriber failed.');
+        });
+
+        $response = $this->respec($character['id']);
+
+        self::assertSame(500, $response['status'], 'The failure is not swallowed.');
+
+        // Nothing committed: not the gold, not the reallocation.
+        $after = $this->getJson('/api/v1/characters/' . $character['id'])['body']['data']['character'];
+
+        self::assertSame($cost, $after['gold'], 'The gold was not spent.');
+        self::assertSame(30, $after['attributes']['STR'], 'The allocation still stands.');
+        self::assertSame(0, $after['unspent_points']);
     }
 
     public function testCannotRespecAnotherAccountsCharacter(): void
