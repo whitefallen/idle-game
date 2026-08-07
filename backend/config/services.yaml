@@ -127,6 +127,11 @@ services:
     App\Platform\Outbox\OutboxRecorder:
         alias: App\Platform\Outbox\DoctrineOutboxRecorder
 
+    # The in-transaction half of the ADR-0004 split; the outbox above is the
+    # deferred half. See ADR-0007.
+    App\Platform\Event\DomainEventDispatcher:
+        alias: App\Platform\Event\SymfonyDomainEventDispatcher
+
     App\Platform\Audit\AuditLogger:
         alias: App\Platform\Audit\DoctrineAuditLogger
 

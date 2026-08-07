@@ -21,6 +21,12 @@ use Symfony\Component\Uid\Uuid;
  * hole, not a feature: the check has to survive the character changing
  * underneath the item.
  *
+ * Reached through StripInvalidatedGearOnRespec rather than called by Character
+ * directly (ADR-0007). Kept as a separate handler from the listener so the
+ * behaviour stays callable and testable on its own, and so a second trigger —
+ * a level change, an attribute drain — is a new listener rather than a copy of
+ * this logic.
+ *
  * Nothing is flushed here — the caller owns the transaction, so a respec that
  * rolls back leaves the gear on.
  */
