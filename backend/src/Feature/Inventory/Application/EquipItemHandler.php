@@ -12,6 +12,7 @@ use App\Feature\Inventory\Domain\Repository\ItemDefinitionRepository;
 use App\Feature\Inventory\Domain\Repository\AffixRepository;
 use App\Feature\Inventory\Domain\Repository\ItemInstanceRepository;
 use App\Feature\Inventory\Domain\Service\EquipmentCalculator;
+use App\Feature\Inventory\Domain\Service\ItemRequirements;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ErrorCode;
 use App\Platform\Persistence\DuplicateKeyException;
@@ -146,25 +147,29 @@ final class EquipItemHandler
      */
     private function assertRequirementsMet(int $level, array $attributes, ItemDefinition $definition): void
     {
-        if ($level < $definition->requiredLevel) {
+        $unmet = ItemRequirements::firstUnmet($level, $attributes, $definition);
+
+        if ($unmet === null) {
+            return;
+        }
+
+        if ($unmet['kind'] === 'level') {
             throw ApiException::of(
                 ErrorCode::RequirementNotMet,
-                sprintf('This item requires level %d.', $definition->requiredLevel),
-                ['required_level' => $definition->requiredLevel, 'character_level' => $level],
+                sprintf('This item requires level %d.', $unmet['required']),
+                ['required_level' => $unmet['required'], 'character_level' => $unmet['current']],
             );
         }
 
-        foreach ($definition->attributeRequirements as $code => $required) {
-            $current = $attributes[$code] ?? 0;
-
-            if ($current < $required) {
-                throw ApiException::of(
-                    ErrorCode::RequirementNotMet,
-                    sprintf('This item requires %d %s.', $required, $code),
-                    ['attribute' => $code, 'required' => $required, 'current' => $current],
-                );
-            }
-        }
+        throw ApiException::of(
+            ErrorCode::RequirementNotMet,
+            sprintf('This item requires %d %s.', $unmet['required'], $unmet['attribute'] ?? ''),
+            [
+                'attribute' => $unmet['attribute'] ?? '',
+                'required' => $unmet['required'],
+                'current' => $unmet['current'],
+            ],
+        );
     }
 
     /**

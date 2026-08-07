@@ -14,7 +14,7 @@ use App\Feature\Combat\Domain\Model\Outcome;
  * handler reads it.
  *
  * Subscribers to this event handle the deferred half of the fan-out — quest
- * progress, achievements, the guild feed, analytics. Experience, gold and
+ * progress, achievements, analytics. Experience, gold and
  * Vigor are applied synchronously inside the resolving transaction, because a
  * player would notice and report those missing. See ADR-0004.
  */

@@ -162,8 +162,8 @@ each unequipped item in the inventory panel).
 
 ### 6.2 Not yet built
 
-- **Holding upgrades** — the Vendor is the Vendor is the *replacement*
-  structural sink for durability/repair, priced against active play. It does
+- **Holding upgrades** — the Vendor is the *replacement* structural sink for
+  durability/repair, priced against active play. It does
   not cover idle-only players the way a passive-generation sink would; that
   remains [idle.md](idle.md) section 6's deferred Holding upgrades.
 - **A "sold out" or limited-quantity stock** — every offer can be bought any

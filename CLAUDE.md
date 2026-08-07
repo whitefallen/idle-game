@@ -98,15 +98,15 @@ Inventory/
 
 Combat/
 
-Quest/
+Encounter/
 
-Guild/
+Holding/
+
+Quest/
 
 Dungeon/
 
 Shop/
-
-Crafting/
 
 Avoid:
 
@@ -158,9 +158,9 @@ Never trust the client for:
 * loot
 * cooldowns
 * inventory
-* crafting
+* vendor prices and purchases
+* refinement
 * quest completion
-* dungeon completion
 
 Every important action must be validated server-side.
 
@@ -272,7 +272,6 @@ Quest types:
 * Explore
 * Dialogue
 * Escort
-* Craft
 * Dungeon
 
 Rewards:
@@ -296,11 +295,12 @@ Currencies
 
 Gold sinks:
 
-* repairs
-* crafting
-* rerolling
-* vendors
-* auction fees
+* refinement
+* vendor purchases
+* respec
+
+Durability/repair was considered and rejected; crafting and guilds are out of
+scope. See docs/economy.md and docs/architecture.md section 9.2.
 
 Economy must remain stable over years.
 

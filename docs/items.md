@@ -14,7 +14,7 @@ The single most important distinction in the item system:
 |---|---|---|
 | What | The template: "Warden's Halberd" | One specific rolled copy owned by a player |
 | Where | `content/items/*.yaml`, loaded and cached | `item_instance` table |
-| Mutable | Only by content release | Yes — refinement, durability, binding |
+| Mutable | Only by content release | Yes — refinement, equipped slot, binding |
 | Count | Thousands | Millions |
 
 An instance stores a **reference to its definition plus its rolled state** — it

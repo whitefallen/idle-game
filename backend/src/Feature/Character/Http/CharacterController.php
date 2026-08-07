@@ -7,13 +7,17 @@ namespace App\Feature\Character\Http;
 use App\Feature\Character\Application\AllocateAttributePointsHandler;
 use App\Feature\Character\Application\CharacterPresenter;
 use App\Feature\Character\Application\CreateCharacterHandler;
+use App\Feature\Character\Application\RespecHandler;
 use App\Feature\Character\Application\UpdateBattlePlanHandler;
 use App\Feature\Character\Application\UpdateLoadoutHandler;
 use App\Feature\Character\Application\ViewCharacterHandler;
 use App\Feature\Combat\Domain\Model\PlanIssue;
+use App\Feature\Inventory\Application\ItemPresenter;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ApiResponder;
 use App\Platform\Http\JsonBody;
+use App\Platform\Idempotency\IdempotencyStore;
+use App\Platform\Persistence\TransactionManager;
 use App\Platform\Security\CurrentAccount;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +32,9 @@ final class CharacterController
         private readonly CurrentAccount $currentAccount,
         private readonly ViewCharacterHandler $view,
         private readonly CharacterPresenter $presenter,
+        private readonly ItemPresenter $itemPresenter,
+        private readonly IdempotencyStore $idempotency,
+        private readonly TransactionManager $transactions,
     ) {
     }
 
@@ -77,6 +84,53 @@ final class CharacterController
         );
 
         return $this->responder->ok(['character' => $this->presenter->detail($character)]);
+    }
+
+    /**
+     * Resets every allocated attribute and returns the points, for gold.
+     *
+     * Takes no body: the cost is derived from the character's level server-side
+     * and the reset is total, so there is nothing for the client to say. It
+     * still accepts an idempotency key, for the same reason buy and refine do —
+     * it spends real gold, and a retried request must not charge twice.
+     *
+     * The response carries `unequipped` because a respec can take gear off:
+     * an item whose attribute requirement the new allocation no longer meets
+     * cannot stay on (see UnequipUnmetRequirementsHandler).
+     */
+    #[Route('/{id}/respec', name: 'character_respec', methods: ['POST'])]
+    public function respec(string $id, Request $request, RespecHandler $handler): JsonResponse
+    {
+        $accountId = $this->currentAccount->id();
+
+        $idempotencyKey = IdempotencyStore::keyFrom($request);
+        $requestHash = IdempotencyStore::hashOf($request);
+
+        if ($idempotencyKey !== null) {
+            $replayed = $this->idempotency->replay($idempotencyKey, $accountId, $requestHash);
+
+            if ($replayed !== null) {
+                $response = $this->responder->ok($replayed['body'], $replayed['status']);
+                $response->headers->set('Idempotency-Replayed', 'true');
+
+                return $response;
+            }
+        }
+
+        $outcome = $handler($accountId, $this->parseId($id));
+
+        $payload = [
+            'character' => $this->presenter->detail($outcome->character),
+            'gold_spent' => $outcome->goldSpent,
+            'unequipped' => array_map($this->itemPresenter->one(...), $outcome->unequipped),
+        ];
+
+        if ($idempotencyKey !== null) {
+            $this->idempotency->remember($idempotencyKey, $accountId, $requestHash, $payload, 200);
+            $this->transactions->commit();
+        }
+
+        return $this->responder->ok($payload);
     }
 
     /**

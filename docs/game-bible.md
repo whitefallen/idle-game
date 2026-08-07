@@ -31,9 +31,10 @@ This framing does deliberate work:
   holding a line, so patrolling it again is the job, not a grind loop excuse.
 - It justifies **passive accrual**. Your holding produces while you are away
   because it is a place, staffed by people, not a slot machine.
-- It justifies **guilds** as beacon-chains — a natural cooperative unit.
 - It leaves room for years of content: new stretches of the line, new blight
-  variants, new orders.
+  variants, new orders. (The framing would also justify guilds as beacon-chains,
+  should they ever be in scope; they are not — see
+  [architecture.md](architecture.md) §9.2.)
 
 ## 3. Core pillars
 
@@ -56,7 +57,7 @@ Log in
   │
   ├─▶ Collect Holding output          (materials + gold accrued while away, capped)
   │
-  ├─▶ Spend it                        (refine gear, craft, repair — the main power axis)
+  ├─▶ Spend it                        (refine gear, buy from the Vendor — the main power axis)
   │
   ├─▶ Adjust                          (attributes, equipment, discipline loadout, battle plan)
   │
@@ -91,9 +92,10 @@ a bigger number.
 
 ### 4.3 Long loop (months)
 
-Seasonal beacon-line campaigns; guild-scale objectives; collection and mastery
-of item sets and disciplines. Detailed in a later document — deliberately not
-designed yet, so it can respond to how players actually play.
+Seasonal beacon-line campaigns; collection and mastery of item sets and
+disciplines. Detailed in a later document — deliberately not designed yet, so it
+can respond to how players actually play. Guild-scale objectives are not part of
+this; guilds are out of scope ([architecture.md](architecture.md) §9.2).
 
 ## 5. The signature mechanic: the Battle Plan
 
@@ -115,7 +117,7 @@ Why this is the right core mechanic for this game:
 
 - **It is idle-compatible.** No real-time input is required, so the game stays
   playable in a browser tab on a phone, and offline/asynchronous content (arena
-  defence, guild battles) uses the exact same resolution path as active play.
+  defence) uses the exact same resolution path as active play.
 - **It is strategic.** The interesting decision is anticipating situations, which
   rewards planning over reflexes and reading over grinding.
 - **It is deterministic and replayable.** A plan is data. A fight is
@@ -140,7 +142,9 @@ There are **no fixed classes**. A character's identity is the combination of:
 - **Discipline loadout** — a limited number of slotted abilities and passives
 - **Battle plan** — how those abilities are actually used
 
-All four are respec-able for gold (a designed sink; see [economy.md](economy.md)).
+All four are changeable at will. Only attribute reallocation costs gold (a
+designed sink; see [economy.md](economy.md) §4) — equipment, loadout and battle
+plan changes are free.
 Respec being cheap and always available is a deliberate decision: it makes
 experimentation the fun part rather than a punished mistake, and it removes the
 single most common reason players abandon a character.
@@ -177,8 +181,8 @@ Stated explicitly so that future feature proposals can be measured against it:
 
 - Not a real-time action game. No twitch input, ever.
 - Not a gacha. No randomised paid rewards of any kind.
-- Not a PvP-first game. PvP exists (arena, guild objectives) but is opt-in and
-  never a required progression path.
+- Not a PvP-first game. PvP exists (arena) but is opt-in and never a required
+  progression path.
 - Not a wipe/prestige game. Progress is permanent. Seasons add content and
   optional parallel ladders; they never reset a character.
 - Not infinitely scaling. Numbers stay in ranges a human can reason about.
@@ -189,11 +193,14 @@ Stated explicitly so that future feature proposals can be measured against it:
 Recorded rather than answered, to be resolved before the systems they touch are
 built:
 
-1. **Death penalty.** Currently none beyond durability loss and a wasted Vigor
-   cost. Whether losing an encounter should cost anything more is unresolved.
+1. **Death penalty.** Currently none beyond the wasted Vigor cost — durability
+   was considered and rejected ([items.md](items.md) §6), so a loss costs only
+   the attempt. Whether losing an encounter should cost anything more is
+   unresolved.
 2. **Trading between players.** An auction house is a powerful economic sink
    (fees) but is also the single largest vector for real-money trading and bot
    farming. Deferred until the economy has real data. See [economy.md](economy.md) §7.
-3. **Guild depth.** Guilds are in the pillar list but their mechanics are
-   unspecified. Deliberately deferred.
-4. **Season structure.** See §4.3.
+3. **Season structure.** See §4.3.
+
+Guild depth was previously listed here. It is no longer an open question: guilds
+are out of scope ([architecture.md](architecture.md) §9.2).
