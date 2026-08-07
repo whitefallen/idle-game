@@ -38,7 +38,11 @@ updated_at        timestamptz     NOT NULL
 `citext` avoids the classic duplicate-account-by-case bug. Passwords are Argon2id
 via Symfony's hasher; the algorithm is never pinned in application code.
 
-### `character`
+### `game_character`
+
+Named `game_character` rather than `character`, which is a reserved word in
+several SQL dialects and a type name in Postgres.
+
 ```
 id              uuid    PK
 account_id      uuid    FK → account(id) ON DELETE CASCADE
@@ -69,16 +73,24 @@ Indexes: `idx_character_account_id`, `idx_character_power_score` (leaderboard),
 ### `item_instance`
 ```
 id              uuid    PK
-character_id    uuid    FK → character(id) ON DELETE CASCADE
+character_id    uuid    FK → game_character(id) ON DELETE CASCADE
 definition_id   text    NOT NULL          -- content id, e.g. item.wardens_halberd
-ilvl            int     NOT NULL
+item_level      int     NOT NULL
 rarity          text    NOT NULL
-affixes         jsonb   NOT NULL DEFAULT '[]'
+affixes         jsonb   NOT NULL
 refine_level    int     NOT NULL DEFAULT 0
 equipped_slot   text    NULL              -- NULL = in inventory
-bound           bool    NOT NULL DEFAULT true
-created_at, updated_at
+created_at
 ```
+
+No `bound` column. Every item is bound, because there is no trading
+([economy.md](economy.md) §7) — ownership is `character_id`, and a flag that is
+`true` on every row in the table answers no question. It becomes a column when
+some items can be unbound, not before.
+
+No `updated_at` either. An item's mutable state is refinement and its slot, and
+both are audited events with their own timestamps — a row-level modified time
+would be a second, less precise answer to a question already answered.
 
 `definition_id` is a **content id string, not a foreign key** — definitions live
 in `content/`, not in the database. Integrity is enforced by the content

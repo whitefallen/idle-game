@@ -14,7 +14,7 @@ The single most important distinction in the item system:
 |---|---|---|
 | What | The template: "Warden's Halberd" | One specific rolled copy owned by a player |
 | Where | `content/items/*.yaml`, loaded and cached | `item_instance` table |
-| Mutable | Only by content release | Yes — refinement, equipped slot, binding |
+| Mutable | Only by content release | Yes — refinement, equipped slot |
 | Count | Thousands | Millions |
 
 An instance stores a **reference to its definition plus its rolled state** — it
@@ -317,9 +317,12 @@ drawn from a stream, so adding a new roll site cannot disturb existing ones.
 
 - **Unique properties** (§4.2) — Legendary items currently roll affixes only.
   This needs the effect-primitive vocabulary to be addressable from item data.
-- **Equip/unequip UI** — those endpoints exist and are tested; the React screens
-  do not. The inventory panel lists equipped and carried items and lets a
-  player refine or sell one, but does not yet let a player equip, unequip, or
-  choose a slot from the browser.
 
-None of these are blocked; they were cut to keep the slice reviewable.
+Not blocked; cut to keep the slice reviewable.
+
+Equipping was on this list and is now built: the inventory panel separates worn
+from carried, equips, unequips, and offers a ring-slot choice — the one slot
+where the player has a genuine decision to make. Requirements are displayed but
+never enforced client-side; the server refuses and names the requirement that
+failed, because a second copy of that rule in the browser would drift from this
+one.

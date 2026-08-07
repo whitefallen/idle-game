@@ -107,6 +107,19 @@ export function ErrorNotice({ error }: { error: unknown }) {
     if (typeof requiredLevel === 'number') {
       detail = t('encounter.locked', { level: requiredLevel });
     }
+
+    // A failed attribute requirement names the attribute, what it needs and
+    // what the character has. "You do not meet the requirements yet" alone
+    // leaves the player guessing which of five attributes to raise.
+    const attribute = error.details.attribute;
+
+    if (typeof attribute === 'string' && typeof required === 'number' && typeof error.details.current === 'number') {
+      detail = t('item.requiresAttribute', {
+        required,
+        attribute: t(`attribute.${attribute}`),
+        current: error.details.current,
+      });
+    }
   }
 
   return (
