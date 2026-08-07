@@ -75,8 +75,6 @@ ilvl            int     NOT NULL
 rarity          text    NOT NULL
 affixes         jsonb   NOT NULL DEFAULT '[]'
 refine_level    int     NOT NULL DEFAULT 0
-durability      int     NOT NULL
-max_durability  int     NOT NULL
 equipped_slot   text    NULL              -- NULL = in inventory
 bound           bool    NOT NULL DEFAULT true
 created_at, updated_at

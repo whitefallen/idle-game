@@ -52,8 +52,12 @@ an assumption.
 | **Refinement** | `40 * ilvl * (refine+1)^2` | Primary. Unbounded appetite, escalating |
 | **Vendor purchases** | `vendorValue * markup(offer ilvl, gear ilvl, rarity)` | Continuous, priced against how far ahead of current gear an offer sits — see [items.md](items.md) §5 |
 | **Respec** | `150 * L + 5 * L^2` | Recurring, voluntary, scales with progression |
-| **Crafting** | Recipe-defined | Scales with content tier |
 | **Holding upgrades** | Tier-defined | Long-horizon (deferred, see [idle.md](idle.md) §6) |
+
+Crafting was previously listed as a fourth sink. It is out of scope
+([architecture.md](architecture.md) §9.2), which puts more weight on refinement
+and the Vendor: they are now the only two sinks that scale, and the 80–95%
+absorption target below has to be met by them alone.
 
 ### 3.1 The sink design rule
 
@@ -84,7 +88,7 @@ metric with an alert, checked by the progression simulator in CI
 
 ### 3.2 What is deliberately *not* a sink
 
-- **Death costs.** Losing an encounter costs Vigor and durability, nothing more.
+- **Death costs.** Losing an encounter costs the Vigor spent on it, nothing more.
   Punishing failure discourages the experimentation the battle plan mechanic
   depends on.
 - **Consumable-gated progression.** No item required to attempt content.
@@ -107,6 +111,12 @@ income. Discipline loadout changes are **free** outside combat, and battle plan
 edits are always free. The design intent is that build iteration is the fun part
 of the game; the gold cost exists to make attribute respec a considered decision
 and to provide a wealth sink, not to discourage it.
+
+Built as `POST /characters/{id}/respec` ([api.md](api.md) §6). The cost is read
+from the character's level at the moment of the call and charged in the same
+transaction as the reallocation, so a respec cannot be charged for and not
+applied. It also unequips gear the new allocation cannot support — see
+[progression.md](progression.md) §2.1.
 
 ---
 
@@ -142,7 +152,7 @@ Binding rules. A feature proposal that violates one is rejected, not negotiated.
 
 **Emberdust may buy:**
 
-- Cosmetics — appearance, dyes, pets, titles, guild banners
+- Cosmetics — appearance, dyes, pets, titles
 - Stash and inventory space
 - Additional battle plan and loadout *presets* (not additional slots)
 - Character slots
@@ -190,5 +200,8 @@ flow, then design trading against that data with the anti-abuse work budgeted
 in advance. Adding trading to a stable economy is tractable; removing it from a
 broken one is not.
 
-**Guild-scoped item donation** is the likely first step: most of the social
-benefit, a bounded and auditable graph, far less RMT surface.
+An earlier draft named **guild-scoped item donation** as the likely first step —
+most of the social benefit, a bounded and auditable graph, far less RMT surface.
+That route is closed while guilds are out of scope
+([architecture.md](architecture.md) §9.2), so if trading is ever taken up it
+will have to be designed without a guild boundary to lean on.

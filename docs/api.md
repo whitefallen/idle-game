@@ -86,7 +86,8 @@ interval and show a countdown. Its `details` carry `seconds_remaining` and
 ## 4. Idempotency
 
 Every mutating request accepts `Idempotency-Key`. Required on requests that
-grant or consume resources: encounters, claims, purchases, refinement, crafting.
+grant or consume resources: encounters, claims, refinement, vendor purchases and
+sales.
 
 A replay with the same key returns the original response with
 `Idempotency-Replayed: true`. The same key with a different body returns 409.
@@ -114,38 +115,51 @@ registration are rate-limited aggressively and every failure is audited.
 
 ```
 POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-POST   /api/v1/auth/logout
+POST   /api/v1/auth/login                      firewall json_login
+POST   /api/v1/auth/logout                     firewall logout
+GET    /api/v1/auth/me
 
 GET    /api/v1/characters
 POST   /api/v1/characters
 GET    /api/v1/characters/{id}
 POST   /api/v1/characters/{id}/attributes      allocate points
-POST   /api/v1/characters/{id}/respec
+POST   /api/v1/characters/{id}/respec          reset allocation for gold
 
 GET    /api/v1/characters/{id}/inventory
 POST   /api/v1/items/{id}/equip
 POST   /api/v1/items/{id}/unequip
 POST   /api/v1/items/{id}/refine
-POST   /api/v1/items/{id}/repair
+POST   /api/v1/items/{id}/sell
 
-GET    /api/v1/characters/{id}/battle-plans
-PUT    /api/v1/characters/{id}/battle-plans/{planId}
-PUT    /api/v1/characters/{id}/loadout             replace the slotted disciplines
+GET    /api/v1/characters/{id}/vendor          today's stock
+POST   /api/v1/characters/{id}/vendor/buy
 
+GET    /api/v1/battle-plan/grammar             public; conditions and actions
+PUT    /api/v1/characters/{id}/battle-plan
+PUT    /api/v1/characters/{id}/loadout         replace the slotted disciplines
+
+GET    /api/v1/characters/{id}/encounters/available
 POST   /api/v1/encounters                      resolve a fight
 GET    /api/v1/encounters/{id}                 full replay log
+GET    /api/v1/characters/{id}/encounters      history
 
 GET    /api/v1/characters/{id}/holding
 POST   /api/v1/characters/{id}/holding/claim
 PUT    /api/v1/characters/{id}/holding/slots/{index}
-
-GET    /api/v1/quests
-POST   /api/v1/quests/{id}/accept
-POST   /api/v1/quests/{id}/complete
-
-GET    /api/v1/leaderboards/power
 ```
+
+`POST /characters/{id}/respec` takes no body — the cost is derived from the
+character's level server-side and the reset is total, so there is nothing for
+the client to say. Its response carries `gold_spent` and `unequipped`: a respec
+strips any equipped item whose attribute requirement the new allocation no
+longer meets, and a side effect the player did not ask for has to be reported
+rather than merely applied. See [progression.md](progression.md) §3.
+
+Two endpoints named in earlier drafts are **not** in the list, for different
+reasons:
+
+- `POST /items/{id}/repair` — removed with durability ([items.md](items.md) §6).
+- `/quests/*` and `/leaderboards/power` — not built ([architecture.md](architecture.md) §9.1).
 
 `POST /encounters` returns the created encounter **including the full log**, so
 the client can replay immediately without a second round trip.

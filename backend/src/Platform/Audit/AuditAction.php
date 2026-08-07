@@ -27,6 +27,15 @@ enum AuditAction: string
     case AttributesAllocated = 'character.attributes_allocated';
 
     /**
+     * An attribute respec: the gold it cost, the balance left, and any gear the
+     * reallocation stripped. The unequipped list is audited because it is the
+     * one part of a respec a player did not explicitly ask for, and "where did
+     * my sword go" needs an answer that does not depend on the client having
+     * rendered the response.
+     */
+    case CharacterRespecced = 'character.respecced';
+
+    /**
      * Carries every currency, experience and Vigor mutation an encounter
      * caused, with amounts and resulting balances, which is what
      * docs/economy.md section 5 requires.

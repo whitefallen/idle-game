@@ -8,7 +8,7 @@ namespace App\Platform\Outbox;
  * Records a domain event for deferred publication.
  *
  * Used for effects a player would not notice missing for thirty seconds:
- * achievements, guild feed entries, leaderboard refreshes, analytics. Effects
+ * achievements, leaderboard refreshes, analytics. Effects
  * that must be atomic with the action — experience, gold, loot, inventory —
  * are applied synchronously inside the same transaction instead.
  *

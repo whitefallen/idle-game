@@ -93,8 +93,9 @@ class MaterialStack
     }
 
     /**
-     * Reserved for refinement and crafting, which are the only sinks the design
-     * gives materials. Present now so that the invariant — a stack never goes
+     * Refinement is the only sink the design gives materials — crafting, the
+     * other candidate, is out of scope (docs/architecture.md section 9.2).
+     * Present now so that the invariant — a stack never goes
      * negative — is stated once, in the entity, rather than being rediscovered
      * by the first caller that needs to spend.
      */

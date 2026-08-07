@@ -32,8 +32,8 @@ Three properties fall out of it, and each one is worth the constraint on its own
    kernel, no database and no fixtures. Thousands of balance scenarios run in CI.
 2. **Disputability.** When a player asks why they lost, the stored seed and
    ruleset version reproduce the fight exactly, on any machine, years later.
-3. **Reusability.** Active encounters, arena defence, guild battles and the
-   balance simulator all call the same function. There is exactly one combat
+3. **Reusability.** Active encounters, arena defence and the balance simulator
+   all call the same function. There is exactly one combat
    implementation, so there is exactly one place for combat bugs to live.
 
 ### 1.2 What is persisted

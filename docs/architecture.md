@@ -117,7 +117,7 @@ backend/src/Feature/Combat/
 ```
 
 Built: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`, `Holding`.
-Not yet built: `Quest`, `Crafting`, `Guild`, `Leaderboard`, `Shop` — see §9.1
+Not yet built: `Quest`, `Leaderboard`, `Shop` — see §9.1
 for what each system built so far covers and
 [account.md](account.md) §6 / [items.md](items.md) §9.4 / [idle.md](idle.md)
 §7.3 for what each one still does not.
@@ -148,7 +148,7 @@ Two delivery paths, chosen per handler ([ADR-0004](adr/0004-transactional-outbox
 | Path | Use for | Guarantee |
 |---|---|---|
 | **Synchronous, in-transaction** | Effects that must be atomic with the action: XP, gold, loot, inventory, quest counters | All-or-nothing with the originating command |
-| **Transactional outbox → Messenger** | Everything else: achievements, guild feed, leaderboard refresh, analytics, notifications | At-least-once, eventually |
+| **Transactional outbox → Messenger** | Everything else: achievements, leaderboard refresh, analytics, notifications | At-least-once, eventually |
 
 Getting this split wrong is a rewrite, not a refactor, which is why it is decided
 before any handler exists. The test: **would a player notice, and consider it a
@@ -214,7 +214,7 @@ architecturally:
 - **Server state → TanStack Query. Local UI state → Zustand.** No duplication,
   and specifically: no copying server data into a Zustand store.
 - The frontend contains **no authoritative gameplay logic**. It may *display* a
-  predicted value (an estimated repair cost, a projected accrual) but must label
+  predicted value (a projected accrual, an interpolated Vigor bar) but must label
   it as an estimate and must never submit a computed value as fact.
 - The combat replay renders a **server-produced log**. It does not simulate.
 - API types are **generated** from the backend's OpenAPI schema, not hand-written.
@@ -305,7 +305,7 @@ chosen to exercise every architectural claim at least once:
    replay that shows which battle plan rule fired each turn.
 
 What is deliberately **excluded** from Slice 0: the Holding, refinement,
-quests, guilds, the shop, and all art. Those are additive; the six items above
+quests, the shop, and all art. Those are additive; the six items above
 are the load-bearing ones. If Slice 0 is right, the rest is content and features.
 If Slice 0 is wrong, everything built on it has to move.
 
@@ -320,6 +320,21 @@ deviated / not-yet-built detail where it lives — [idle.md](idle.md) §7,
 the original plan instead of a second copy of a status that would drift the
 moment either document changed without the other.
 
-Still not built, per that exclusion list above: quests, guilds, the shop, and
-art — content and items carry an `icon` id (see [items.md](items.md) §7) but no
-asset exists behind any of them yet.
+Still not built, per that exclusion list above: quests, the shop, and art —
+content and items carry an `icon` id (see [items.md](items.md) §7) but no asset
+exists behind any of them yet.
+
+### 9.2 Cut from scope: crafting and guilds
+
+Crafting and guilds are **out of scope**, not merely deferred. Both were sized
+against the effort available and judged too large to build well: crafting needs
+a recipe corpus, a material economy tuned against refinement, and a second
+item-generation path that must not undercut drops; guilds need membership,
+permissions, a social surface, and cooperative content to be about.
+
+Half-built versions of either would be worse than their absence, so the design
+documents record their *rationale* — the beacon-chain framing, guild feed
+outbox consumers, crafting as a material sink — without treating them as
+pending work. Where a document names them as a motivating example, that example
+now reads as a hypothetical rather than a plan. Reopening either is a scope
+decision, not a backlog pull.

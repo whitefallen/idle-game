@@ -92,6 +92,18 @@ Equipment adds to attributes on top of allocation. Allocated and equipped
 attribute values are tracked separately so that unequipping never puts a
 character into an invalid state.
 
+Only **allocated** attributes count toward an item's requirements. Equipment
+bonuses deliberately do not: letting one item's attribute grant satisfy another
+item's requirement makes a set of items mutually load-bearing, so removing any
+one of them can cascade through the rest.
+
+Because a respec can drop an allocated attribute below what a worn item
+demands, **respec unequips gear it invalidates** and reports what came off. The
+alternative — leaving it worn, since requirements are otherwise checked only at
+the moment of equipping — would let a player allocate into a requirement, equip,
+respec into a different build and keep the gear, which is a server-authority
+hole rather than a convenience. The item is kept, only not worn.
+
 ### 2.2 Stat budget discipline
 
 A hard design rule, not a suggestion: **no derived stat may exceed roughly 4× its
