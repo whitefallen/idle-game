@@ -211,18 +211,25 @@ of is one they cannot plan around — the same principle as §5.
 | Source | Character of the disciplines gained |
 |--------|-------------------------------------|
 | Level milestones | The baseline kit; guarantees every character has options |
+| Dungeon clears (proposed) | Build-defining, permanent per-character divergence — see [dungeons.md](dungeons.md) section 3 |
 | Reputation vendors | Alternative versions of earlier disciplines, for specialisation |
 
-Quest- and dungeon-granted disciplines were considered and **dropped, not
-merely deferred**. Quest ([ADR-0008](adr/0008-quest-snapshot-resolution.md))
-and Dungeon are both built now, and their existing reward shape — fixed XP,
-gold and materials — was judged sufficient on its own; level milestones
-remain the only acquisition path in active use. `DisciplineSource::Quest` and
-`::Dungeon` stay in the enum rather than being removed, since ownership was
-designed from the start to be "the derived set, union a stored one" for
-exactly these sources (see "Ownership is derived, not stored" above), but no
-content authors against either today, and reopening this is a scope decision,
-not a backlog pull.
+**Quest-granted disciplines are dropped, not merely deferred.** Quest
+([ADR-0008](adr/0008-quest-snapshot-resolution.md)) is built, and its reward
+shape — fixed XP, gold and materials — was judged sufficient on its own;
+quests stay standalone and flat-reward. `DisciplineSource::Quest` stays in
+the enum rather than being removed, but no content authors against it, and
+reopening this is a scope decision, not a backlog pull.
+
+**Dungeon-granted disciplines were dropped and then deliberately reopened.**
+The same reasoning applied to Dungeon initially, but a follow-up design pass
+settled on a concrete, non-random mechanism aimed at giving players real
+build-to-build uniqueness — a per-character discipline pool, drawn from on
+a dungeon clear, never a chance of nothing. See
+[dungeons.md](dungeons.md) sections 2-4 for the full shape — design is
+settled, nothing is built. `DisciplineSource::Dungeon`'s ownership-union
+support (see "Ownership is derived, not stored" above) is what it will build
+on once it is.
 
 Deliberately **no random discipline drops**. Build-defining progression must not
 be gated behind a drop roll; that converts strategy into lottery participation
