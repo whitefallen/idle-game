@@ -146,6 +146,13 @@ GET    /api/v1/characters/{id}/encounters      history
 GET    /api/v1/characters/{id}/holding
 POST   /api/v1/characters/{id}/holding/claim
 PUT    /api/v1/characters/{id}/holding/slots/{index}
+
+GET    /api/v1/characters/{id}/quests
+POST   /api/v1/characters/{id}/quests/{questId}/accept
+POST   /api/v1/characters/{id}/quests/{questId}/claim
+
+GET    /api/v1/characters/{id}/dungeons
+POST   /api/v1/characters/{id}/dungeons/{dungeonId}/enter
 ```
 
 `POST /characters/{id}/respec` takes no body — the cost is derived from the
@@ -155,11 +162,23 @@ strips any equipped item whose attribute requirement the new allocation no
 longer meets, and a side effect the player did not ask for has to be reported
 rather than merely applied. See [progression.md](progression.md) §3.
 
-Two endpoints named in earlier drafts are **not** in the list, for different
+`POST /characters/{id}/quests/{questId}/accept` takes no body: a quest is an
+expedition, not a live fight — it snapshots the character's combat state and
+starts a content-defined timer, spending no Vigor. `claim` is only accepted
+once that timer elapses, and resolves the quest's one fight against the frozen
+snapshot server-side; the client learns the outcome from the response, never
+by supplying one. See [ADR-0008](adr/0008-quest-snapshot-resolution.md).
+
+`POST /characters/{id}/dungeons/{dungeonId}/enter` takes no body either: it
+consumes the dungeon's key material and resolves every stage in one request,
+returning a full per-stage replay log the same way `POST /encounters` does for
+a single fight.
+
+Endpoints named in earlier drafts are **not** in the list, for different
 reasons:
 
 - `POST /items/{id}/repair` — removed with durability ([items.md](items.md) §6).
-- `/quests/*` and `/leaderboards/power` — not built ([architecture.md](architecture.md) §9.1).
+- `/leaderboards/power` — not built ([architecture.md](architecture.md) §9.1).
 
 `POST /encounters` returns the created encounter **including the full log**, so
 the client can replay immediately without a second round trip.

@@ -1,0 +1,19 @@
+# Dungeons for beacon-line stretch 1: the "hard avenue", gated by a key.
+#
+# A dungeon is existing EncounterDefinitions run in sequence as one request,
+# stopping at the first non-Victory stage. Unlike Quest it resolves live —
+# see docs/adr/0008-quest-snapshot-resolution.md's alternatives-considered
+# section for why the two features deliberately use different mechanisms.
+
+- id: dungeon.stretch1.blight_hollow
+  localisationKey: dungeon.stretch1.blight_hollow
+  requiredLevel: 4
+  keyMaterialId: material.dungeon_key
+  encounters:
+    - encounter.stretch1.patrol
+    - encounter.stretch1.swarm
+    - encounter.stretch1.stalker
+  completionBonus:
+    xp: 80
+    gold: 60
+  dropTable: droptable.stretch1.elite

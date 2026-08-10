@@ -30,6 +30,8 @@ services:
             - '../src/**/Domain/Service/'
             - '../src/Feature/Encounter/Application/ResolvedEncounter.php'
             - '../src/Feature/Holding/Application/ClaimedHolding.php'
+            - '../src/Feature/Quest/Application/ClaimedQuest.php'
+            - '../src/Feature/Dungeon/Application/EnteredDungeon.php'
             - '../src/Platform/Outbox/OutboxMessage.php'
             - '../src/Platform/Outbox/DomainEventNotification.php'
             - '../src/Platform/Idempotency/IdempotencyRecord.php'
@@ -107,6 +109,18 @@ services:
 
     App\Feature\Holding\Domain\Repository\HoldingRepository:
         alias: App\Feature\Holding\Infrastructure\Doctrine\DoctrineHoldingRepository
+
+    App\Feature\Quest\Domain\Repository\QuestDefinitionRepository:
+        alias: App\Feature\Quest\Infrastructure\Content\YamlQuestDefinitionRepository
+
+    App\Feature\Quest\Domain\Repository\QuestRunRepository:
+        alias: App\Feature\Quest\Infrastructure\Doctrine\DoctrineQuestRunRepository
+
+    App\Feature\Dungeon\Domain\Repository\DungeonDefinitionRepository:
+        alias: App\Feature\Dungeon\Infrastructure\Content\YamlDungeonDefinitionRepository
+
+    App\Feature\Dungeon\Domain\Repository\DungeonRunRepository:
+        alias: App\Feature\Dungeon\Infrastructure\Doctrine\DoctrineDungeonRunRepository
 
     # ------------------------------------------------------------------
     # Platform services

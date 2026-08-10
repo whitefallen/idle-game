@@ -38,6 +38,13 @@ floats. There are no fractional currencies.
 | Vendor sales | `vendorValue` of item | Recycles unwanted drops |
 | Holding tithe | `4 + 2 * charLevel` per hour, capped | Deliberately minor — see [idle.md](idle.md) §2 |
 
+Dungeon access is gated by a key material, consumed on entry, which a kill
+quest can grant as part of its fixed reward. This is a content-authored pacing
+lever, not a server-enforced cooldown: nothing stops a player who accumulates
+several keys from entering several dungeons in a row, and the weekly-cadence
+figure above is a design target for key supply, not a rule this system
+enforces directly.
+
 **Encounter gold must remain the dominant faucet.** If passive gold ever rivals
 active gold, the Vigor cap stops constraining income and the parity contract in
 [game-bible.md](game-bible.md) §7 breaks. This ratio is a monitored metric, not

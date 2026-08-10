@@ -107,6 +107,15 @@ and more on top of what exists.
   no-return-value rule for each. They are a deliberate follow-up, not an
   oversight — recorded here so the inconsistency is a known debt with an owner
   rather than a puzzle for the next reader.
+- **Quest and Dungeon (2026-08-10) grew this list rather than shrinking it.**
+  Both call `CharacterParticipantFactory` (Encounter/Application) to build a
+  combat participant, and both grant rewards through `GrantMaterialsHandler`
+  and, for Dungeon, `ResolveDropsHandler` (Inventory/Application) — the same
+  shape as the original three, and rejected as bus subscribers for the same
+  reason: the caller needs the granted amounts back in its own response, which
+  is the no-return-value rule biting again. Docs/architecture.md section 3.1
+  points here rather than repeating the list, so this paragraph is the one
+  place that has to stay current as the exception set grows.
 - Ordering between subscribers of the same event is Symfony's priority, which is
   a global number. If two subscribers ever need a defined order, that is a
   smell worth examining before reaching for the priority argument.

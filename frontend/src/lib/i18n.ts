@@ -133,6 +133,29 @@ const strings: Record<string, string> = {
   'encounter.history': 'Recent encounters',
   'encounter.noHistory': 'No encounters yet.',
 
+  'quest.title': 'Quests',
+  'quest.accept': 'Accept',
+  'quest.claim': 'Claim',
+  'quest.locked': 'Requires level {level}',
+  'quest.active': 'Under way — ready in {time}',
+  'quest.readyToClaim': 'Ready to claim',
+  'quest.failed': 'Last attempt failed. Accept again to retry.',
+  'quest.claimed': 'Completed',
+  'quest.rewards': '{xp} xp, {gold} gold',
+  'quest.contentChanged': 'This quest changed while it was under way. Accept it again.',
+  'quest.none': 'No quests available yet.',
+
+  'dungeon.title': 'Dungeons',
+  'dungeon.enter': 'Enter',
+  'dungeon.locked': 'Requires level {level}',
+  'dungeon.keysHeld': '{count} key(s) held',
+  'dungeon.noKey': 'No key — complete a kill quest that rewards one first.',
+  'dungeon.stages': '{count} stages',
+  'dungeon.completionBonus': '+{xp} xp, +{gold} gold on a full clear',
+  'dungeon.cleared': 'Cleared',
+  'dungeon.notCleared': 'Not cleared — stopped at stage {stage}',
+  'dungeon.none': 'No dungeons available yet.',
+
   'holding.title': 'The Holding',
   'holding.claim': 'Claim',
   'holding.slot': 'Slot {index}',
@@ -200,6 +223,7 @@ const strings: Record<string, string> = {
   'material.material.verdigris': 'Verdigris',
   'material.material.cinderglass': 'Cinderglass',
   'material.material.blightcore': 'Blightcore',
+  'material.material.dungeon_key': 'Dungeon Key',
 
   'outcome.victory': 'Victory',
   'outcome.defeat': 'Defeat',
@@ -273,6 +297,11 @@ const strings: Record<string, string> = {
   'encounterName.encounter.stretch3.sentinels': 'The Sealed Door',
   'encounterName.encounter.stretch3.warden_of_ash': 'The Warden of Ash',
 
+  'questName.quest.stretch1.blightling_watch': 'Blightling Watch',
+  'questName.quest.stretch1.stalker_hunt': 'Stalker Hunt',
+
+  'dungeonName.dungeon.stretch1.blight_hollow': 'The Blight Hollow',
+
   'event.damage': '{source} hits {target} for {amount}',
   'event.damage.crit': '{source} critically hits {target} for {amount}',
   'event.miss': '{source} misses {target}',
@@ -299,6 +328,7 @@ const strings: Record<string, string> = {
   'error.INSUFFICIENT_VIGOR': 'Not enough Vigor.',
   'error.ACTIVITY_IN_PROGRESS': 'Another activity is still resolving.',
   'error.INSUFFICIENT_GOLD': 'Not enough gold.',
+  'error.INSUFFICIENT_MATERIAL': 'Not enough of that material.',
   'error.INSUFFICIENT_POINTS': 'Not enough unspent points.',
   'error.REQUIREMENT_NOT_MET': 'You do not meet the requirements yet.',
   'error.IDEMPOTENCY_CONFLICT': 'That action was already submitted differently.',

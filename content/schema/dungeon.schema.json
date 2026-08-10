@@ -1,0 +1,53 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://emberwatch.local/schema/dungeon.schema.json",
+    "title": "Dungeon definitions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "localisationKey", "requiredLevel", "keyMaterialId", "encounters", "completionBonus"],
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^dungeon\\.[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
+            },
+            "localisationKey": {
+                "type": "string",
+                "minLength": 1
+            },
+            "requiredLevel": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 60
+            },
+            "keyMaterialId": {
+                "comment": "Consumed on entry. Entering with none held is rejected before any stage resolves.",
+                "type": "string",
+                "pattern": "^material\\.[a-z][a-z0-9_]*$"
+            },
+            "encounters": {
+                "comment": "Existing EncounterDefinitions, run in order as one stage each. A run stops at the first non-Victory stage.",
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 6,
+                "items": { "type": "string", "pattern": "^encounter\\.[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" }
+            },
+            "completionBonus": {
+                "comment": "Flat top-up on top of the summed per-stage encounter rewards, granted only on a full clear. Tuned so total reward lands near ~8x a patrol per docs/economy.md section 2.",
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["xp", "gold"],
+                "properties": {
+                    "xp": { "type": "integer", "minimum": 0 },
+                    "gold": { "type": "integer", "minimum": 0 }
+                }
+            },
+            "dropTable": {
+                "type": "string",
+                "pattern": "^droptable\\.[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+# Kill quests for beacon-line stretch 1.
+#
+# A quest is an expedition, not a live fight: accepting it snapshots the
+# character's combat state, and claiming it (after durationSeconds has
+# elapsed) resolves exactly one simulated fight against that frozen snapshot.
+# See docs/adr/0008-quest-snapshot-resolution.md.
+#
+# Rewards are fixed per quest rather than formula-derived, per
+# docs/economy.md section 2, and a quest can be claimed successfully at most
+# once — the reward is one-time, front-loaded content.
+
+- id: quest.stretch1.blightling_watch
+  localisationKey: quest.stretch1.blightling_watch
+  requiredLevel: 1
+  durationSeconds: 60
+  monsters:
+    - monster.blightling
+  rewards:
+    xp: 20
+    gold: 15
+    materials:
+      material.dungeon_key: 1
+
+- id: quest.stretch1.stalker_hunt
+  localisationKey: quest.stretch1.stalker_hunt
+  requiredLevel: 4
+  durationSeconds: 90
+  monsters:
+    - monster.blight_stalker
+  rewards:
+    xp: 40
+    gold: 30

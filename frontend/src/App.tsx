@@ -6,10 +6,12 @@ import { BattlePlanEditor } from '@/features/character/BattlePlanEditor';
 import { CharacterList } from '@/features/character/CharacterList';
 import { CharacterSheet } from '@/features/character/CharacterSheet';
 import { useCharacter } from '@/features/character/api';
+import { DungeonPanel } from '@/features/dungeon/DungeonPanel';
 import { EncounterPanel } from '@/features/encounter/EncounterPanel';
 import { ReplayView } from '@/features/encounter/ReplayView';
 import { HoldingPanel } from '@/features/holding/HoldingPanel';
 import { InventoryPanel } from '@/features/inventory/InventoryPanel';
+import { QuestPanel } from '@/features/quest/QuestPanel';
 import { VendorPanel } from '@/features/vendor/VendorPanel';
 import { t } from '@/lib/i18n';
 import type { EncounterDetail } from '@/lib/types';
@@ -95,6 +97,14 @@ export function App() {
                   together is what makes that relationship legible.
                 */}
                 <HoldingPanel characterId={characterId} />
+                {/*
+                  Quests sit after the Holding: an expedition, not a live
+                  fight — accept, wait out the timer, claim. One of their
+                  possible rewards is the key the Dungeon panel right below
+                  consumes, so the two are ordered to read as cause and effect.
+                */}
+                <QuestPanel characterId={characterId} />
+                <DungeonPanel characterId={characterId} />
                 {/*
                   Inventory sits after the Holding: it is where the Holding's
                   output — and the beacon-line's drops — actually get spent.

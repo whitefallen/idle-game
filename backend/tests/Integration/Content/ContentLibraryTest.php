@@ -8,9 +8,11 @@ use App\Feature\Combat\Domain\Engine\CombatEngine;
 use App\Feature\Combat\Domain\Model\CombatInput;
 use App\Feature\Combat\Domain\Repository\AbilityRepository;
 use App\Feature\Combat\Domain\Repository\EffectRepository;
+use App\Feature\Dungeon\Domain\Repository\DungeonDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use App\Feature\Inventory\Domain\Repository\MaterialRepository;
+use App\Feature\Quest\Domain\Repository\QuestDefinitionRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -93,6 +95,88 @@ final class ContentLibraryTest extends KernelTestCase
     }
 
     /**
+     * The same strength of check as {@see testEveryEncounterResolves()},
+     * applied to Quest's own monster match-ups: a quest names monsters
+     * directly rather than an EncounterDefinition, so it is not covered by
+     * that test.
+     */
+    public function testEveryQuestResolves(): void
+    {
+        self::bootKernel();
+        $container = static::getContainer();
+
+        /** @var QuestDefinitionRepository $quests */
+        $quests = $container->get(QuestDefinitionRepository::class);
+        /** @var MonsterRepository $monsters */
+        $monsters = $container->get(MonsterRepository::class);
+        /** @var AbilityRepository $abilities */
+        $abilities = $container->get(AbilityRepository::class);
+        /** @var EffectRepository $effects */
+        $effects = $container->get(EffectRepository::class);
+
+        $engine = new CombatEngine();
+
+        self::assertNotEmpty($quests->all(), 'Expected authored quests.');
+
+        foreach ($quests->all() as $questId => $quest) {
+            $participants = [ContentTestCharacter::participant()];
+
+            foreach ($quest->monsterIds as $index => $monsterId) {
+                $participants[] = $monsters->get($monsterId)->toParticipant(
+                    sprintf('monster-%02d-%s', $index, $monsterId),
+                );
+            }
+
+            $input = new CombatInput(
+                $participants,
+                $abilities->all(),
+                $effects->all(),
+                CombatEngine::RULESET_VERSION,
+            );
+
+            $log = $engine->resolve($input, 20260802);
+
+            self::assertLessThanOrEqual(
+                CombatEngine::MAX_ROUNDS,
+                $log->rounds,
+                sprintf('Quest "%s" did not terminate.', $questId),
+            );
+        }
+    }
+
+    /**
+     * Every dungeon's key material and encounter sequence must resolve to
+     * real content — schema validity checks the ids are well-formed, not
+     * that they exist, and referential integrity is already asserted by
+     * content:validate. This additionally proves every referenced encounter
+     * is one {@see testEveryEncounterResolves()} has already fought.
+     */
+    public function testEveryDungeonReferencesFightableEncounters(): void
+    {
+        self::bootKernel();
+        $container = static::getContainer();
+
+        /** @var DungeonDefinitionRepository $dungeons */
+        $dungeons = $container->get(DungeonDefinitionRepository::class);
+        /** @var EncounterDefinitionRepository $encounters */
+        $encounters = $container->get(EncounterDefinitionRepository::class);
+
+        self::assertNotEmpty($dungeons->all(), 'Expected authored dungeons.');
+
+        foreach ($dungeons->all() as $dungeonId => $dungeon) {
+            self::assertGreaterThanOrEqual(2, count($dungeon->encounterIds), $dungeonId);
+
+            foreach ($dungeon->encounterIds as $encounterId) {
+                self::assertTrue($encounters->has($encounterId), sprintf(
+                    'Dungeon "%s" references unfightable encounter "%s".',
+                    $dungeonId,
+                    $encounterId,
+                ));
+            }
+        }
+    }
+
+    /**
      * Every authored ability must be reachable from the localisation key it
      * declares. A missing key renders as a raw id in the client, which players
      * report as a bug.
@@ -133,6 +217,20 @@ final class ContentLibraryTest extends KernelTestCase
 
         foreach ($materials->all() as $material) {
             self::assertNotSame('', $material->localisationKey, $material->id);
+        }
+
+        /** @var QuestDefinitionRepository $quests */
+        $quests = $container->get(QuestDefinitionRepository::class);
+
+        foreach ($quests->all() as $quest) {
+            self::assertNotSame('', $quest->localisationKey, $quest->id);
+        }
+
+        /** @var DungeonDefinitionRepository $dungeons */
+        $dungeons = $container->get(DungeonDefinitionRepository::class);
+
+        foreach ($dungeons->all() as $dungeon) {
+            self::assertNotSame('', $dungeon->localisationKey, $dungeon->id);
         }
     }
 

@@ -215,6 +215,13 @@ of is one they cannot plan around — the same principle as §5.
 | Dungeon completion | Higher-impact, build-defining options |
 | Reputation vendors | Alternative versions of earlier disciplines, for specialisation |
 
+Quest ([ADR-0008](adr/0008-quest-snapshot-resolution.md)) and Dungeon are now
+built, but neither row above is fulfilled by them yet: today's quests are
+standalone kill expeditions with fixed XP/gold/material rewards and no
+prerequisite chains, and dungeons grant their completion bonus the same way.
+Neither grants a discipline. "Quest chains" and dungeon-sourced disciplines
+remain future work on top of what exists, not a description of it.
+
 Deliberately **no random discipline drops**. Build-defining progression must not
 be gated behind a drop roll; that converts strategy into lottery participation
 and is the primary complaint pattern in comparable games.
@@ -244,6 +251,10 @@ progress:
 | Item level | Dungeon tier 3 requires average equipped item level 28 |
 | Quest completion | Stretch 5 requires the stretch 4 chain |
 | Reputation | Vendor tier 2 requires Honoured with the order |
+
+The "quest completion" gate above describes chained content gating, which
+needs the quest-prerequisite concept §4.2 also flags as not yet built. Today's
+quests gate only on character level, the same as encounters and dungeons.
 
 Every gate is exposed through the API as a structured, localisable requirement
 object so the UI can always tell the player exactly what is missing and how far

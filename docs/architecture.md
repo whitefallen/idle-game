@@ -26,6 +26,7 @@ idle-game/
 │   ├── items/
 │   ├── monsters/
 │   ├── quests/
+│   ├── dungeons/
 │   ├── disciplines/
 │   ├── droptables/
 │   ├── affixes/
@@ -116,8 +117,9 @@ backend/src/Feature/Combat/
     └── EncounterController.php
 ```
 
-Built: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`, `Holding`.
-Not yet built: `Quest`, `Leaderboard`, `Shop` — see §9.1
+Built: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`, `Holding`,
+`Quest`, `Dungeon`.
+Not yet built: `Leaderboard`, `Shop` — see §9.1
 for what each system built so far covers and
 [account.md](account.md) §6 / [items.md](items.md) §9.4 / [idle.md](idle.md)
 §7.3 for what each one still does not.
@@ -132,12 +134,23 @@ Platform.**
 
 ### 3.1 Cross-feature communication
 
-Features never call each other's application services directly. Combat does not
-call Quest. Combat emits `EncounterResolved`; Quest subscribes.
+Features never call each other's application services directly, in principle:
+Combat does not call Quest, and a feature reacting to another's outcome does
+so by subscribing to its event rather than being called into.
 
 The one permitted direct dependency is on another feature's **read model** —
 a published, stable query interface. Quest may ask Character for a level. It may
 not mutate it.
+
+In practice this rule already has named exceptions, carried as documented debt
+rather than silently broken — see [ADR-0007](adr/0007-synchronous-domain-event-bus.md)'s
+Costs section for the running list. Quest and Dungeon add to it deliberately:
+both call `CharacterParticipantFactory` (Encounter/Application) directly to
+build a combat participant, and Quest's and Dungeon's reward granting calls
+`GrantMaterialsHandler` and `ResolveDropsHandler` (Inventory/Application)
+directly, for the same reason the three original exceptions exist — the
+alternative is an event whose subscriber has to hand a value back to the
+emitter, which ADR-0007 already rejected as a return value wearing a costume.
 
 This holds for **both** delivery paths in §4. The deferred path uses the outbox;
 the atomic path uses `Platform\Event\DomainEventDispatcher`, which publishes
@@ -329,15 +342,16 @@ If Slice 0 is wrong, everything built on it has to move.
 Slice 0 shipped; Slice 0 was right — nothing it established has had to move.
 Built since, additive as anticipated above: Vigor and its activity gate,
 disciplines, the battle plan editor, equipment and affixes, the Holding
-(idle.md), and refinement (items.md §5). Each system records its own built /
-deviated / not-yet-built detail where it lives — [idle.md](idle.md) §7,
-[items.md](items.md) §9 — rather than here, so this section stays a record of
-the original plan instead of a second copy of a status that would drift the
+(idle.md), refinement (items.md §5), Quest and Dungeon
+([ADR-0008](adr/0008-quest-snapshot-resolution.md)). Each system records its
+own built / deviated / not-yet-built detail where it lives — [idle.md](idle.md)
+§7, [items.md](items.md) §9 — rather than here, so this section stays a record
+of the original plan instead of a second copy of a status that would drift the
 moment either document changed without the other.
 
-Still not built, per that exclusion list above: quests, the shop, and art —
-content and items carry an `icon` id (see [items.md](items.md) §7) but no asset
-exists behind any of them yet.
+Still not built, per that exclusion list above: the shop, and art — content
+and items carry an `icon` id (see [items.md](items.md) §7) but no asset exists
+behind any of them yet.
 
 ### 9.2 Cut from scope: crafting and guilds
 
