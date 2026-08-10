@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Bar, Button, ErrorNotice, Panel, Stat } from '@/components/ui';
 import { DisciplinePanel } from './DisciplinePanel';
 import { bp, duration, t } from '@/lib/i18n';
-import type { AttributeCode, CharacterDetail } from '@/lib/types';
-import { useAllocatePoints } from './api';
+import type { AttributeCode, CharacterDetail, ItemDetail } from '@/lib/types';
+import { useAllocatePoints, useRespec } from './api';
 
 const ATTRIBUTES: AttributeCode[] = ['STR', 'DEX', 'INT', 'CON', 'LUK'];
 
@@ -29,6 +29,77 @@ function VigorPanel({ character }: { character: CharacterDetail }) {
       <p className="mt-1 text-xs text-ash-400">
         {current >= max ? t('character.vigorFull') : t('character.vigorFullIn', { time: duration(secondsUntilFull) })}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Respec: reset every allocated point, for gold.
+ *
+ * Confirmed rather than fired on the first click. Respec is designed to be
+ * cheap and always available (docs/progression.md section 2.1), so the prompt
+ * is not there to discourage it — it is there because the action spends gold
+ * and can take gear off, and an irreversible spend one click away from a "+1"
+ * button will eventually be hit by accident.
+ *
+ * What came off is reported afterwards. A player who finds two empty slots and
+ * no explanation has been given a bug, not a consequence.
+ */
+function RespecControl({ character }: { character: CharacterDetail }) {
+  const respec = useRespec(character.id);
+  const [confirming, setConfirming] = useState(false);
+  const [unequipped, setUnequipped] = useState<ItemDetail[] | null>(null);
+
+  const affordable = character.gold >= character.respec_cost;
+
+  async function commit() {
+    const result = await respec.mutateAsync();
+
+    setConfirming(false);
+    setUnequipped(result.unequipped);
+  }
+
+  return (
+    <div className="mt-4 border-t border-ash-800 pt-3">
+      <ErrorNotice error={respec.error} />
+
+      {unequipped !== null && unequipped.length > 0 && (
+        <p role="status" className="mb-2 rounded-md border border-ash-700 bg-ash-800/60 px-3 py-2 text-xs text-ash-200">
+          {t('character.respecUnequipped', {
+            items: unequipped.map((item) => t(`item.${item.definition_id}`)).join(', '),
+          })}
+        </p>
+      )}
+
+      {confirming ? (
+        <div className="space-y-2">
+          <p className="text-xs text-ash-400">{t('character.respecConfirm', { gold: character.respec_cost })}</p>
+          <div className="flex gap-2">
+            <Button variant="primary" className="flex-1" busy={respec.isPending} onClick={commit}>
+              {t('character.respecConfirmYes')}
+            </Button>
+            <Button variant="ghost" onClick={() => setConfirming(false)} disabled={respec.isPending}>
+              {t('character.respecCancel')}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          variant="ghost"
+          className="w-full"
+          // The cost is shown on the button, not discovered after the click.
+          // It is the server's figure, carried on the character.
+          disabled={!affordable}
+          onClick={() => {
+            setUnequipped(null);
+            setConfirming(true);
+          }}
+        >
+          {t('character.respec', { gold: character.respec_cost })}
+        </Button>
+      )}
+
+      {!affordable && <p className="mt-1 text-xs text-ash-400">{t('character.respecUnaffordable')}</p>}
     </div>
   );
 }
@@ -144,6 +215,7 @@ export function CharacterSheet({
 
       <Panel title={t('character.attributes')}>
         <AttributeAllocator character={character} />
+        <RespecControl character={character} />
       </Panel>
 
       <DisciplinePanel character={character} />

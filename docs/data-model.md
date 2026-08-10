@@ -38,7 +38,11 @@ updated_at        timestamptz     NOT NULL
 `citext` avoids the classic duplicate-account-by-case bug. Passwords are Argon2id
 via Symfony's hasher; the algorithm is never pinned in application code.
 
-### `character`
+### `game_character`
+
+Named `game_character` rather than `character`, which is a reserved word in
+several SQL dialects and a type name in Postgres.
+
 ```
 id              uuid    PK
 account_id      uuid    FK → account(id) ON DELETE CASCADE
@@ -48,16 +52,28 @@ experience      bigint  NOT NULL DEFAULT 0
 gold            bigint  NOT NULL DEFAULT 0
 emberdust       bigint  NOT NULL DEFAULT 0
 unspent_points  int     NOT NULL DEFAULT 10
-str, dex, int_, con, luk   int  NOT NULL DEFAULT 5   -- allocated only
+strength, dexterity, intelligence, constitution, luck
+                int         NOT NULL DEFAULT 5        -- allocated only
 vigor_current   int         NOT NULL
 vigor_ticked_at timestamptz NOT NULL
+vigor_spent_at  timestamptz NULL                      -- the activity gate's anchor
+battle_plan     json        NOT NULL
+ability_ids     json        NOT NULL                  -- the slotted loadout
 power_score     int     NOT NULL DEFAULT 0            -- denormalised; ADR-0006
 created_at, updated_at
 ```
 
-`int_` is escaped because `int` is reserved. Attribute columns store the
-**allocated** values only; equipment contributions are computed on read, so
-unequipping can never leave an invalid state.
+Attribute columns are spelled out rather than abbreviated. An earlier draft used
+`str`/`int_` and noted that `int` needed escaping; the full names avoid the
+problem instead of working around it.
+
+Attribute columns store the **allocated** values only; equipment contributions
+are computed on read, so unequipping can never leave an invalid state.
+
+`battle_plan` and `ability_ids` are the character's own configuration rather
+than a separate aggregate: both are always read and written whole, with the
+character, and neither is ever queried into. See
+[progression.md](progression.md) §4 and [combat.md](combat.md) §5.
 
 Constraints: `CHECK (gold >= 0)`, `CHECK (emberdust >= 0)`,
 `CHECK (vigor_current >= 0)`. Currency going negative is a class of bug that must
@@ -69,16 +85,24 @@ Indexes: `idx_character_account_id`, `idx_character_power_score` (leaderboard),
 ### `item_instance`
 ```
 id              uuid    PK
-character_id    uuid    FK → character(id) ON DELETE CASCADE
+character_id    uuid    FK → game_character(id) ON DELETE CASCADE
 definition_id   text    NOT NULL          -- content id, e.g. item.wardens_halberd
-ilvl            int     NOT NULL
+item_level      int     NOT NULL
 rarity          text    NOT NULL
-affixes         jsonb   NOT NULL DEFAULT '[]'
+affixes         jsonb   NOT NULL
 refine_level    int     NOT NULL DEFAULT 0
 equipped_slot   text    NULL              -- NULL = in inventory
-bound           bool    NOT NULL DEFAULT true
-created_at, updated_at
+created_at
 ```
+
+No `bound` column. Every item is bound, because there is no trading
+([economy.md](economy.md) §7) — ownership is `character_id`, and a flag that is
+`true` on every row in the table answers no question. It becomes a column when
+some items can be unbound, not before.
+
+No `updated_at` either. An item's mutable state is refinement and its slot, and
+both are audited events with their own timestamps — a row-level modified time
+would be a second, less precise answer to a question already answered.
 
 `definition_id` is a **content id string, not a foreign key** — definitions live
 in `content/`, not in the database. Integrity is enforced by the content
@@ -99,7 +123,7 @@ checks alone lose to a race.
 ### `encounter`
 ```
 id                uuid        PK
-character_id      uuid        FK → character(id) ON DELETE CASCADE
+character_id      uuid        FK → game_character(id) ON DELETE CASCADE
 definition_id     text        NOT NULL
 seed              bigint      NOT NULL
 ruleset_version   text        NOT NULL
@@ -121,7 +145,7 @@ reasons in §6.
 ### `character_material`
 ```
 id              uuid        PK
-character_id    uuid        FK → character(id) ON DELETE CASCADE
+character_id    uuid        FK → game_character(id) ON DELETE CASCADE
 material_id     text        NOT NULL          -- content id, e.g. material.emberash
 quantity        bigint      NOT NULL
 created_at, updated_at
@@ -141,7 +165,7 @@ would serialise every material against every other one.
 ### `holding`
 ```
 id                uuid        PK
-character_id      uuid        UNIQUE FK → character(id) ON DELETE CASCADE
+character_id      uuid        UNIQUE FK → game_character(id) ON DELETE CASCADE
 slots             jsonb       NOT NULL   -- [{ index, materialId, accruedAt }]
 last_claimed_at   timestamptz NOT NULL   -- the gold tithe's anchor
 created_at, updated_at
@@ -165,7 +189,7 @@ the property that makes the JSON column right rather than merely convenient.
 ### `vendor_stock`
 ```
 id                    uuid        PK
-character_id          uuid        FK → character(id) ON DELETE CASCADE
+character_id          uuid        FK → game_character(id) ON DELETE CASCADE
 date_key              text        NOT NULL   -- the UTC day, as YYYY-MM-DD
 reference_item_level  int         NOT NULL
 luck                  int         NOT NULL
@@ -207,7 +231,7 @@ table's history grows.
 
 ### `audit_log`
 ```
-id            uuid          -- PK is (id, occurred_at); see partitioning below
+id            uuid          PK
 action        varchar(60)   NOT NULL
 account_id    uuid          NULL
 character_id  uuid          NULL
@@ -234,8 +258,13 @@ cap for no extra investigative power, since the mutations of a single fight are
 only ever read together.
 
 Indexes lead with the column an investigation filters on and end with
-`occurred_at`, so a time-bounded query prunes partitions:
+`occurred_at`, so a time-bounded query over one account, character or action
+scans a range rather than the table:
 `(account_id, occurred_at)`, `(character_id, occurred_at)`, `(action, occurred_at)`.
+
+The primary key is `id` alone. An earlier draft used `(id, occurred_at)`,
+which a partitioned table would have required — §6 records why partitioning
+was reverted.
 
 ### `idempotency_record`
 ```

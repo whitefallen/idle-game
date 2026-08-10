@@ -332,6 +332,24 @@ export interface RefinedItem {
   character: CharacterDetail;
 }
 
+export interface EquippedItem {
+  item: ItemDetail;
+  character: CharacterDetail;
+}
+
+/**
+ * The result of an attribute respec.
+ *
+ * `unequipped` is the part the player did not ask for: a reset can drop an
+ * allocated attribute below what a worn item requires, and gear that no longer
+ * qualifies comes off. It is usually empty. See docs/progression.md section 2.1.
+ */
+export interface RespecResult {
+  character: CharacterDetail;
+  gold_spent: number;
+  unequipped: ItemDetail[];
+}
+
 /**
  * One rolled slot in a character's daily vendor stock. Never persisted —
  * recomputed the same way on every read, so `offer_index` is what a buy

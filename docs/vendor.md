@@ -171,8 +171,8 @@ each unequipped item in the inventory panel).
   in most games do not limit quantity either, so this is a deliberate match
   to genre expectation, not an oversight, but it is worth recording as a
   choice rather than an accident.
-- **Vendor gear in the equip/unequip UI's absence** — items.md section 9.4
-  already records that equip/unequip has no frontend screen; a bought item
-  is equippable only through the endpoint, same as a dropped one.
-
 None of these are blocked; they simply have not been needed yet.
+
+A third entry — that a bought item could not be equipped from the browser —
+has been resolved: the inventory panel equips and unequips (items.md
+section 9.4), so vendor purchases are wearable the same way drops are.
