@@ -9,9 +9,11 @@ use App\Feature\Character\Domain\Entity\Character;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
 use App\Feature\Dungeon\Application\DungeonPresenter;
 use App\Feature\Dungeon\Application\EnterDungeonHandler;
+use App\Feature\Dungeon\Application\PickDungeonDisciplineHandler;
 use App\Feature\Dungeon\Domain\Repository\DungeonDefinitionRepository;
 use App\Platform\Http\ApiException;
 use App\Platform\Http\ApiResponder;
+use App\Platform\Http\JsonBody;
 use App\Platform\Idempotency\IdempotencyStore;
 use App\Platform\Persistence\TransactionManager;
 use App\Platform\Security\CurrentAccount;
@@ -79,6 +81,55 @@ final class DungeonController
             // The post-run character travels with the result, so the client
             // never has to re-fetch to show new experience and gold.
             'character' => $this->characterPresenter->detail($entered->character),
+        ];
+
+        if ($idempotencyKey !== null) {
+            $this->idempotency->remember($idempotencyKey, $accountId, $requestHash, $payload, 200);
+            $this->transactions->commit();
+        }
+
+        return $this->responder->ok($payload);
+    }
+
+    /**
+     * Confirms a discipline pick from a dungeon clear's offer. A separate
+     * step from `enter` on purpose — see PickDungeonDisciplineHandler.
+     */
+    #[Route(
+        '/characters/{characterId}/dungeons/runs/{runId}/discipline',
+        name: 'dungeon_pick_discipline',
+        methods: ['POST'],
+    )]
+    public function pickDiscipline(
+        string $characterId,
+        string $runId,
+        Request $request,
+        PickDungeonDisciplineHandler $handler,
+    ): JsonResponse {
+        $accountId = $this->currentAccount->id();
+        $id = $this->parseId($characterId, 'Character');
+        $runUuid = $this->parseId($runId, 'Dungeon run');
+        $disciplineId = JsonBody::from($request)->requireString('discipline_id');
+
+        $idempotencyKey = IdempotencyStore::keyFrom($request);
+        $requestHash = IdempotencyStore::hashOf($request);
+
+        if ($idempotencyKey !== null) {
+            $replayed = $this->idempotency->replay($idempotencyKey, $accountId, $requestHash);
+
+            if ($replayed !== null) {
+                $response = $this->responder->ok($replayed['body'], $replayed['status']);
+                $response->headers->set('Idempotency-Replayed', 'true');
+
+                return $response;
+            }
+        }
+
+        $picked = $handler($accountId, $id, $runUuid, $disciplineId);
+
+        $payload = [
+            'run' => $this->presenter->detail($picked->run, $picked->run->logs()),
+            'character' => $this->characterPresenter->detail($picked->character),
         ];
 
         if ($idempotencyKey !== null) {

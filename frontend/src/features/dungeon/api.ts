@@ -28,10 +28,34 @@ export function useEnterDungeon(characterId: string) {
       client.setQueryData(queryKeys.character(characterId), entered.character);
 
       void client.invalidateQueries({ queryKey: queryKeys.characters });
-      // A key was consumed and quest-granted materials feed this dungeon
-      // list's `keys_held`, so both need to reflect the new balance.
+      // The entry cost was consumed and quest-granted materials feed this
+      // dungeon list's affordability, so both need to reflect the new balance.
       void client.invalidateQueries({ queryKey: queryKeys.dungeons(characterId) });
       void client.invalidateQueries({ queryKey: queryKeys.quests(characterId) });
+    },
+  });
+}
+
+/**
+ * Confirms a discipline pick offered by a prior clear. A separate mutation
+ * from useEnterDungeon on purpose — see docs/dungeons.md section 2: the
+ * offer and the confirmation are deliberately two requests, always, even
+ * when only one option was offered.
+ */
+export function usePickDungeonDiscipline(characterId: string) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ runId, disciplineId }: { runId: string; disciplineId: string }) =>
+      request<EnteredDungeon>(`/characters/${characterId}/dungeons/runs/${runId}/discipline`, {
+        method: 'POST',
+        body: { discipline_id: disciplineId },
+        idempotencyKey: newIdempotencyKey(),
+      }),
+
+    onSuccess: (picked) => {
+      client.setQueryData(queryKeys.character(characterId), picked.character);
+      void client.invalidateQueries({ queryKey: queryKeys.characters });
     },
   });
 }

@@ -1,0 +1,14 @@
+# Dungeon-tier disciplines: the discipline collection pool, docs/dungeons.md
+# section 3. Kept in their own file, separate from core.yaml's level-milestone
+# kit, for the same reason abilities/dungeon.yaml is split out — these have no
+# unlockLevel and arrive by a different mechanism entirely.
+#
+# One entry per discipline-granting dungeon, at launch and going forward —
+# docs/dungeons.md section 4's "ship exact" rule. This is the first: it ships
+# alongside dungeon.stretch1.sealed_vault (content/dungeons/stretch1.yaml) and
+# nothing else grants it.
+
+- id: discipline.stonebreaker
+  localisationKey: discipline.stonebreaker
+  abilityId: ability.stonebreaker
+  source: dungeon

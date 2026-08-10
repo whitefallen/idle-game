@@ -6,7 +6,10 @@ namespace App\Feature\Dungeon\Application;
 
 use App\Feature\Character\Application\CharacterStats;
 use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Model\DisciplineSource;
+use App\Feature\Character\Domain\Repository\CharacterDisciplineRepository;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
+use App\Feature\Character\Domain\Repository\DisciplineRepository;
 use App\Feature\Combat\Domain\Engine\CombatEngine;
 use App\Feature\Combat\Domain\Model\CombatInput;
 use App\Feature\Combat\Domain\Model\Outcome;
@@ -22,6 +25,7 @@ use App\Feature\Encounter\Domain\Repository\EncounterDefinitionRepository;
 use App\Feature\Encounter\Domain\Repository\MonsterRepository;
 use App\Feature\Encounter\Domain\Service\RewardRules;
 use App\Feature\Inventory\Application\ResolveDropsHandler;
+use App\Feature\Inventory\Domain\Entity\MaterialStack;
 use App\Feature\Inventory\Domain\Repository\MaterialStackRepository;
 use App\Platform\Audit\AuditAction;
 use App\Platform\Audit\AuditLogger;
@@ -58,6 +62,8 @@ final class EnterDungeonHandler
         private readonly CharacterStats $stats,
         private readonly MaterialStackRepository $materialStacks,
         private readonly ResolveDropsHandler $drops,
+        private readonly DisciplineRepository $disciplines,
+        private readonly CharacterDisciplineRepository $ownedDisciplines,
         private readonly DungeonRunRepository $runs,
         private readonly IdentifierGenerator $identifiers,
         private readonly OutboxRecorder $outbox,
@@ -82,7 +88,7 @@ final class EnterDungeonHandler
                 $this->assertEligible($character, $definition);
 
                 $now = $this->clock->now();
-                $this->consumeKey($characterId, $definition, $now);
+                $this->consumeCost($characterId, $definition, $now);
 
                 $this->audit->record(
                     AuditAction::DungeonEntered,
@@ -94,6 +100,10 @@ final class EnterDungeonHandler
                 [$stages, $logs, $cleared, $lastSeed] = $this->runStages($character, $definition, $now);
                 $rewards = $this->applyCompletionRewards($character, $definition, $cleared, $lastSeed, $now);
 
+                $offeredDisciplineIds = !$definition->repeatable && $cleared
+                    ? $this->offerDisciplines($character)
+                    : null;
+
                 $run = new DungeonRun(
                     $this->identifiers->generate(),
                     $characterId,
@@ -103,6 +113,7 @@ final class EnterDungeonHandler
                     $cleared,
                     $rewards,
                     $now,
+                    $offeredDisciplineIds,
                 );
 
                 $this->runs->save($run);
@@ -150,22 +161,51 @@ final class EnterDungeonHandler
                 ['required_level' => $definition->requiredLevel, 'character_level' => $character->level()],
             );
         }
-    }
 
-    private function consumeKey(Uuid $characterId, DungeonDefinition $definition, \DateTimeImmutable $now): void
-    {
-        $stack = $this->materialStacks->findForUpdate($characterId, $definition->keyMaterialId);
-
-        if ($stack === null || $stack->quantity() < 1) {
+        // A failed attempt does not lock the player out — only a clear does.
+        // See docs/dungeons.md section 2.
+        if (!$definition->repeatable && $this->runs->hasCleared($character->id(), $definition->id)) {
             throw ApiException::of(
-                ErrorCode::InsufficientMaterial,
-                'This dungeon requires a key you do not hold.',
-                ['material_id' => $definition->keyMaterialId],
+                ErrorCode::Conflict,
+                'This dungeon has already been cleared and cannot be entered again.',
             );
         }
+    }
 
-        $stack->consume(1, $now);
-        $this->materialStacks->save($stack);
+    /**
+     * Locks every material in the cost, in sorted-by-id order — the same
+     * deadlock-avoidance reasoning GrantMaterialsHandler documents applies
+     * here in reverse: two dungeons with an overlapping cost must take their
+     * row locks in the same order. Checks the whole cost is affordable
+     * before consuming any of it, so a multi-material cost never partially
+     * spends on a request that was always going to fail.
+     */
+    private function consumeCost(Uuid $characterId, DungeonDefinition $definition, \DateTimeImmutable $now): void
+    {
+        $cost = $definition->cost;
+        ksort($cost, SORT_STRING);
+
+        /** @var array<string, MaterialStack> $stacks */
+        $stacks = [];
+
+        foreach ($cost as $materialId => $amount) {
+            $stack = $this->materialStacks->findForUpdate($characterId, $materialId);
+
+            if ($stack === null || $stack->quantity() < $amount) {
+                throw ApiException::of(
+                    ErrorCode::InsufficientMaterial,
+                    'This dungeon requires materials you do not have enough of.',
+                    ['material_id' => $materialId, 'required' => $amount, 'available' => $stack?->quantity() ?? 0],
+                );
+            }
+
+            $stacks[$materialId] = $stack;
+        }
+
+        foreach ($stacks as $materialId => $stack) {
+            $stack->consume($cost[$materialId], $now);
+            $this->materialStacks->save($stack);
+        }
     }
 
     /**
@@ -263,5 +303,34 @@ final class EnterDungeonHandler
             'items' => count($loot['items']),
             'materials' => $loot['materials'],
         ];
+    }
+
+    /**
+     * `min(3, remaining)` disciplines from this character's dungeon-tier
+     * pool — see docs/dungeons.md section 3. An empty list is valid: it
+     * means this character's pool is already fully collected, and the clear
+     * still stands on its other rewards alone.
+     *
+     * @return list<string>
+     */
+    private function offerDisciplines(Character $character): array
+    {
+        $owned = $this->ownedDisciplines->idsForCharacter($character->id());
+
+        $remaining = [];
+
+        foreach ($this->disciplines->all() as $discipline) {
+            if ($discipline->source === DisciplineSource::Dungeon && !in_array($discipline->id, $owned, true)) {
+                $remaining[] = $discipline->id;
+            }
+        }
+
+        if ($remaining === []) {
+            return [];
+        }
+
+        shuffle($remaining);
+
+        return array_slice($remaining, 0, 3);
     }
 }

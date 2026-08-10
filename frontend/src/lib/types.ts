@@ -438,15 +438,23 @@ export interface ClaimedQuest {
  * reward. `keys_held` lets the panel show whether entering is actually
  * possible without a failed request round trip.
  */
+/**
+ * `repeatable: false` is the one-time, discipline-granting archetype — once
+ * `cleared` is true it can never be entered again. `repeatable: true` is the
+ * grindable materials sink; `cleared` is always false for it, since there is
+ * no "cleared for good" state to report. See docs/dungeons.md section 1.
+ */
 export interface Dungeon {
   id: string;
   localisation_key: string;
   required_level: number;
-  key_material_id: string;
+  cost: Record<string, number>;
+  repeatable: boolean;
   stages: number;
   completion_bonus: { xp: number; gold: number };
   unlocked: boolean;
-  keys_held: number;
+  affordable: boolean;
+  cleared: boolean;
 }
 
 /** One resolved stage of a dungeon run. Absent stages after a loss simply were never fought. */
@@ -460,6 +468,12 @@ export interface DungeonStage {
   log: CombatLog;
 }
 
+/** One discipline offered in a pick — the ability id travels alongside so a name can be rendered without a second lookup. */
+export interface OfferedDiscipline {
+  id: string;
+  ability_id: string;
+}
+
 export interface DungeonRunResult {
   id: string;
   dungeon_id: string;
@@ -467,6 +481,14 @@ export interface DungeonRunResult {
   stages: DungeonStage[];
   rewards: { experience: number; gold: number; items: number; materials: Record<string, number> };
   created_at: string;
+  /**
+   * Set only on a full clear of a `repeatable: false` dungeon. An empty
+   * array is a valid, distinct state: this character's discipline pool was
+   * already fully collected. `null` means this run never offered a pick at
+   * all (repeatable dungeon, or not cleared).
+   */
+  offered_disciplines: OfferedDiscipline[] | null;
+  picked_discipline_id: string | null;
 }
 
 export interface EnteredDungeon {

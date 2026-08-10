@@ -1,14 +1,26 @@
-# Dungeons for beacon-line stretch 1: the "hard avenue", gated by a key.
+# Dungeons for beacon-line stretch 1. Two archetypes share this one content
+# type rather than forking into separate systems — see docs/dungeons.md
+# section 2:
 #
-# A dungeon is existing EncounterDefinitions run in sequence as one request,
-# stopping at the first non-Victory stage. Unlike Quest it resolves live —
-# see docs/adr/0008-quest-snapshot-resolution.md's alternatives-considered
-# section for why the two features deliberately use different mechanisms.
+# - `repeatable: false` is the one-time, discipline-granting kind: entry is
+#   refused once a character has cleared it, ever. Its `cost` is a
+#   quest-earned key, and a full clear offers a pick from this character's
+#   dungeon-tier discipline pool (docs/dungeons.md section 3).
+# - `repeatable: true` is the grindable materials sink: no discipline pick,
+#   just the normal XP/gold/materials/items reward shape, repeatable as many
+#   times as the cost can be paid.
+#
+# Both resolve live — see docs/adr/0008-quest-snapshot-resolution.md's
+# alternatives-considered section for why Dungeon deliberately does not use
+# Quest's snapshot-and-wait mechanism.
 
 - id: dungeon.stretch1.blight_hollow
   localisationKey: dungeon.stretch1.blight_hollow
   requiredLevel: 4
-  keyMaterialId: material.dungeon_key
+  cost:
+    material.emberash: 8
+    material.slagiron: 2
+  repeatable: true
   encounters:
     - encounter.stretch1.patrol
     - encounter.stretch1.swarm
@@ -17,3 +29,20 @@
     xp: 80
     gold: 60
   dropTable: droptable.stretch1.elite
+
+# The first discipline-granting dungeon. Ships alongside exactly one new
+# dungeon-tier discipline (discipline.stonebreaker, content/disciplines/
+# stretch1.yaml) — docs/dungeons.md section 4's "ship exact" rule, satisfied
+# from the very first piece of content in this archetype.
+- id: dungeon.stretch1.sealed_vault
+  localisationKey: dungeon.stretch1.sealed_vault
+  requiredLevel: 4
+  cost:
+    material.dungeon_key: 1
+  repeatable: false
+  encounters:
+    - encounter.stretch1.swarm
+    - encounter.stretch1.stalker
+  completionBonus:
+    xp: 80
+    gold: 60

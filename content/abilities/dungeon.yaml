@@ -1,0 +1,14 @@
+# Abilities granted by dungeon-tier disciplines (docs/dungeons.md section 3),
+# kept in their own file rather than a stretch file: these aren't part of the
+# level curve — they're picked from the dungeon discipline pool, so which
+# stretch a player is in when they get one is a matter of choice, not of
+# authored progression.
+
+- id: ability.stonebreaker
+  localisationKey: ability.stonebreaker
+  focusCost: 16
+  cooldownRounds: 3
+  damageCoefficientBp: 15000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy

@@ -7,7 +7,7 @@
     "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "localisationKey", "requiredLevel", "keyMaterialId", "encounters", "completionBonus"],
+        "required": ["id", "localisationKey", "requiredLevel", "cost", "repeatable", "encounters", "completionBonus"],
         "properties": {
             "id": {
                 "type": "string",
@@ -22,10 +22,16 @@
                 "minimum": 1,
                 "maximum": 60
             },
-            "keyMaterialId": {
-                "comment": "Consumed on entry. Entering with none held is rejected before any stage resolves.",
-                "type": "string",
-                "pattern": "^material\\.[a-z][a-z0-9_]*$"
+            "cost": {
+                "comment": "Consumed on entry, checked in full before anything is consumed. Entering with insufficient materials is rejected before any stage resolves.",
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": { "type": "integer", "minimum": 1 },
+                "propertyNames": { "pattern": "^material\\.[a-z][a-z0-9_]*$" }
+            },
+            "repeatable": {
+                "comment": "false marks the one-time, discipline-granting archetype: entry is refused once this character has already cleared it, regardless of how the cost is replenished. See docs/dungeons.md section 2.",
+                "type": "boolean"
             },
             "encounters": {
                 "comment": "Existing EncounterDefinitions, run in order as one stage each. A run stops at the first non-Victory stage.",

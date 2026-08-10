@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feature\Character\Application;
 
 use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Repository\CharacterDisciplineRepository;
 use App\Feature\Character\Domain\Repository\CharacterRepository;
 use App\Feature\Character\Domain\Repository\DisciplineRepository;
 use App\Platform\Clock\Clock;
@@ -31,6 +32,7 @@ final class UpdateLoadoutHandler
     public function __construct(
         private readonly CharacterRepository $characters,
         private readonly DisciplineRepository $disciplines,
+        private readonly CharacterDisciplineRepository $ownedDisciplines,
         private readonly Clock $clock,
         private readonly TransactionManager $transactions,
     ) {
@@ -74,7 +76,8 @@ final class UpdateLoadoutHandler
      */
     private function assertUnlocked(Character $character, array $abilityIds): void
     {
-        $granted = $this->disciplines->grantedAbilityIdsAtLevel($character->level());
+        $ownedIds = $this->ownedDisciplines->idsForCharacter($character->id());
+        $granted = $this->disciplines->grantedAbilityIdsAtLevel($character->level(), $ownedIds);
         $locked = array_values(array_diff($abilityIds, $granted));
 
         if ($locked === []) {

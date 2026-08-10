@@ -1,154 +1,156 @@
 # Dungeons
 
-The "hard avenue": a multi-encounter run resolved live in one request,
-gated by consuming a key material a kill quest can reward. Unlike Quest,
-which resolves against a frozen snapshot after a wait (see
+The "hard avenue": a multi-encounter run resolved live in one request. Unlike
+Quest, which resolves against a frozen snapshot after a wait (see
 [ADR-0008](adr/0008-quest-snapshot-resolution.md)), a dungeon run is fought
 with the character's current stats, stage by stage, in real time — it's
 occasional, sit-down content rather than an idle expedition.
 
-`backend/src/Feature/Dungeon/` owns it. See [architecture.md](architecture.md)
-section 3 for the feature-first layout.
+`backend/src/Feature/Dungeon/` owns it, with one cross-feature dependency:
+discipline grants call into `App\Feature\Character\Application\
+GrantDisciplineHandler` directly, the same documented-debt pattern as every
+other reward-granting call in this codebase — see
+[ADR-0007](adr/0007-synchronous-domain-event-bus.md)'s Costs section. See
+[architecture.md](architecture.md) section 3 for the feature-first layout.
 
 ---
 
-## 1. Built
+## 1. Two dungeon archetypes
 
-One archetype today: a `DungeonDefinition` names an ordered list of existing
-`EncounterDefinition`s (2-6 stages), a single key material consumed on entry,
-and a completion bonus (flat XP/gold) plus an optional drop-table roll on a
-full clear. A run stops at the first non-Victory stage; rewards already
-granted for cleared stages stand. Entry is not currently capped — nothing
-stops repeated clears of the same dungeon, given a fresh key each time.
+One `DungeonDefinition` content type, two shapes, distinguished by
+`repeatable`:
+
+| | Key-gated (`repeatable: false`) | Material-gated (`repeatable: true`) |
+|---|---|---|
+| Entry cost | A key material, quest-earned | A quantity of ordinary materials |
+| Repeatable | **No** — one clear per character, ever | Yes — a proper grind |
+| Signature reward | A discipline, picked from a pool (section 2) | Normal XP/gold/materials/items |
+| Purpose | Build-defining, permanent character divergence | The second materials sink refinement alone doesn't provide |
+
+`cost` is a material-id-to-quantity map (`{materialId: quantity, ...}`),
+checked in full and consumed in full or not at all — a key-gated dungeon's
+cost is just the one-material degenerate case. `repeatable: false` entry is
+refused once `DungeonRunRepository::hasCleared()` shows a prior **cleared**
+run for that `(character, dungeon)` pair — a failed attempt does not lock the
+player out, only a clear does.
+
+A run stops at the first non-Victory stage; rewards already granted for
+cleared stages stand. A repeatable dungeon has no cap beyond affording the
+cost again.
 
 - `GET /api/v1/characters/{characterId}/dungeons`
 - `POST /api/v1/characters/{characterId}/dungeons/{dungeonId}/enter`
 
 Content: `content/dungeons/`, schema `content/schema/dungeon.schema.json`.
+`content/dungeons/stretch1.yaml` has one of each archetype:
+`dungeon.stretch1.blight_hollow` (repeatable, material sink) and
+`dungeon.stretch1.sealed_vault` (one-time, discipline-granting).
 
 ---
 
-## 2. Proposed: two dungeon archetypes
+## 2. The discipline collection pool
 
-Design conversation following the Quest/Dungeon build settled on splitting
-Dungeon into two distinct shapes, both reusing the same underlying feature
-rather than becoming separate systems:
-
-| | Key-gated | Material-gated |
-|---|---|---|
-| Entry cost | A key material, quest-earned | A quantity of ordinary materials |
-| Repeatable | **No** — one clear per character, ever | Yes — a proper grind |
-| Signature reward | A discipline, picked from a pool (section 3) | Normal XP/gold/materials/items, same shape as today |
-| Purpose | Build-defining, permanent character divergence | The second materials sink refinement alone doesn't provide |
-
-Mechanically this is one generalization on `DungeonDefinition`, not a fork:
-
-- `keyMaterialId` (single material, implicit quantity 1) widens to a **cost
-  map** (`{materialId: quantity, ...}`). A key is the degenerate case,
-  `{material.dungeon_key: 1}`; a material-sink dungeon might be
-  `{material.emberash: 10, material.slagiron: 3}`.
-- A new `repeatable: bool`. When `false`, entry is refused if the character
-  has already cleared this dungeon — checked against `DungeonRun` history for
-  `(character_id, dungeon_id)`, not inferred from key scarcity. Key scarcity
-  today makes repeat entry to the one existing dungeon impossible almost by
-  accident (one quest grants one key); an explicit flag stops that becoming
-  false the moment a second key-granting quest is authored.
-- The discipline-pick reward (section 3) is exclusive to `repeatable: false`
-  dungeons. Repeatable ones keep today's reward shape unchanged.
-
----
-
-## 3. Proposed: the discipline collection pool
-
-The mechanism for player-to-player build divergence, replacing the two
+The mechanism for player-to-player build divergence, in place of the two
 rejected shapes that came up along the way: quest chains (scratched — quests
 stay standalone) and a random per-encounter drop chance (scratched — see
 [progression.md](progression.md) section 4.1's "no random discipline drops"
-principle, which this is designed to respect rather than violate).
+principle, which this respects rather than violates: a clear always grants a
+discipline, deterministically, once the player confirms a pick — the only
+randomness is in *which* options are on the table, closer to a raid-style
+"choose one of three drops" than to a lottery).
 
-**The shape:**
+**The shape, as built:**
 
-- A **per-character** pool of dungeon-tier disciplines. Not shared or
-  competitive across players — two characters can end up with the identical
-  set, or completely different ones, purely from the choices each one made.
-- Clearing any key-gated (`repeatable: false`) dungeon draws
-  `min(3, remaining pool size)` disciplines from that character's remaining
-  pool and presents them as a choice.
-- The player **must explicitly pick and confirm** — even when there is only
-  one option on offer. No auto-grant, ever. Consistency of the ritual matters
-  more than saving a click, and the one time there's truly only one option is
-  the most significant pick a player makes in this system (see below).
-- The chosen discipline leaves the pool permanently. The declined ones
-  **return to the pool** — not lost, just not guaranteed to reappear next
-  time either.
-- **One clear grants exactly one discipline, always.** There is no
-  larger-pool-therefore-more-picks scaling; the ratio is fixed.
-- **Discipline-granting dungeons are their own category, not a flag on
-  regular ones.** They are the *only* source of these disciplines — nothing
-  else grants them, and a regular (material-gated, repeatable) dungeon never
-  does either, even though both share the same underlying `Dungeon` feature.
-- **Supply ships exact, every time, not "roughly matched."** Every batch of
-  content adds *N* discipline-dungeons and *exactly N* new disciplines to the
-  pool — never more dungeons than disciplines, never more disciplines than
-  dungeons. This is a hard authoring rule, not a target to aim near.
-- **The terminal case follows from that exactness, not from luck.** With
-  supply always exact, a character's *last* discipline-dungeon clear — of
-  whichever ones exist at the time, in whatever order the player chose to
-  clear them — always lands on exactly one remaining option. Not "usually,"
-  not "if the numbers work out": guaranteed, by construction. That is the
-  intended, narratively marked end of that character's *current* collection,
-  until a new content wave adds the next matched batch.
+- A **per-character** pool. Not shared or competitive across players — two
+  characters can end up with the identical set, or completely different
+  ones, purely from the choices each one made. There is no stored "pool"
+  table: `EnterDungeonHandler::offerDisciplines()` computes it live, as all
+  `source: dungeon` disciplines minus this character's
+  `CharacterDisciplineRepository::idsForCharacter()` — the stored half
+  `DisciplineRepository`'s own docblock already anticipated.
+- On a full clear of a `repeatable: false` dungeon, `min(3, remaining)` are
+  drawn and stored on the `DungeonRun` row as `offeredDisciplineIds`. An
+  empty list is a valid, distinct state — this character's pool was already
+  exhausted, and the clear's other rewards (completion bonus, drop table)
+  still apply unchanged.
+- Confirming a pick is a **separate request** —
+  `POST /characters/{characterId}/dungeons/runs/{runId}/discipline` — from
+  entering the dungeon, always required even when only one option was
+  offered. No auto-grant. `DungeonRun::pickDiscipline()` refuses an id that
+  was not actually offered, and refuses a second pick on the same run.
+- The chosen discipline leaves the pool permanently (a `character_discipline`
+  row is inserted via `GrantDisciplineHandler`). The declined ones are simply
+  never removed — they remain part of the live-computed pool, available at
+  the next clear.
+- **One clear grants at most one discipline, always** — never more, per the
+  fixed `min(3, remaining)` draw and the one-time nature of the dungeons that
+  offer it.
+- **Supply ships exact.** `content/dungeons/stretch1.yaml` +
+  `content/disciplines/dungeon.yaml` shipped together: one discipline-granting
+  dungeon (`sealed_vault`), one discipline (`discipline.stonebreaker`). Every
+  future content wave adding a discipline-granting dungeon should add an
+  equal number of new disciplines alongside it — a hard authoring rule, not a
+  target to aim near.
+- **The terminal case follows from that exactness, not from luck.** A
+  character's last discipline-dungeon clear always lands on exactly one
+  remaining option, by construction, and that is the intended, narratively
+  marked end of that character's *current* collection — not a degraded state
+  to route around.
 
-**Why this doesn't reopen "no random discipline drops."** The rejected
-version was a chance to receive nothing. This is never that — a clear always
-grants a discipline, deterministically, once the player confirms a pick. The
-only randomness is in *which* options are on the table, not *whether* the
-player is rewarded, which is closer to a raid-style "choose one of three
-drops" pattern than to a lottery.
+---
+
+## 3. Ownership: the stored half
+
+`DisciplineRepository::availableAtLevel()` / `grantedAbilityIdsAtLevel()`
+each take an `$ownedIds` parameter (default `[]`, so every pre-existing
+level-only call site needed no change) and return the union of the
+level-derived set and the ids passed in. `CharacterPresenter` and
+`UpdateLoadoutHandler` are the two call sites that now fetch a character's
+owned ids from `CharacterDisciplineRepository` and pass them through — the
+first is what makes a dungeon-granted discipline show `unlocked: true` in the
+API, the second is what makes its ability actually slottable.
+
+`character_discipline` (migration `Version20260810170000`) is a row-per-grant
+table: existence of a row *is* ownership, no quantity, no revocation. This is
+the first source to use it; `DisciplineSource::Quest` and `::Reputation`
+remain unused in content — see [progression.md](progression.md) section 4.2
+for why quest-granted disciplines stay out of scope while dungeon-granted
+ones don't.
 
 ---
 
 ## 4. Settled during design
 
-- **Content math.** Not "roughly matched" — exact. Every content wave ships
-  the same number of new discipline-dungeons as new disciplines. See section
-  3.
-- **Tier/rarity flavour.** Dropped for this design. It existed only to
-  solve running low on options before a pick, and the exact-supply,
-  shrink-to-one shape already solves that on its own — a tier axis would add
-  a second content-authoring dimension with no mechanical job left to do.
-  Revisit only as pure presentation (a badge on the pick card) if wanted
-  later; it shouldn't touch the pool logic.
-- **Persistence shape.** No separate pool table. A character's offered three
-  are drawn from (all discipline-dungeon disciplines minus the ones this
-  character already owns) — reusing the same `character_discipline`
-  ownership row `progression.md`'s "Ownership is derived, not stored"
-  section already anticipated. The "pool" is a query, not stored state.
+Recorded here as the reasoning behind choices in sections 1-3, in case any of
+it needs revisiting later:
+
+- **Content math.** Exact, not "roughly matched" — see section 2.
+- **Tier/rarity flavour.** Dropped. It existed only to solve running low on
+  options before a pick, and the exact-supply, shrink-to-one shape already
+  solves that on its own — a tier axis would add a second content-authoring
+  dimension with no mechanical job left to do. Revisit only as pure
+  presentation (a badge on the pick card) if wanted later; it shouldn't touch
+  the pool logic.
 - **Reward shape.** The discipline pick is a bonus layer on the existing
-  completion-bonus-plus-drop-table reward, not a replacement — a
-  discipline-dungeon clear still pays normal XP/gold/materials/items on top.
-  Kept mainly for consistency with how every other dungeon clear already
-  pays out, now that exact supply means there's no undersupply risk left to
-  actively defend against.
+  completion-bonus-plus-drop-table reward, not a replacement — kept mainly
+  for consistency with how every other dungeon clear already pays out.
 - **Copy for the last pick.** No special-casing — the picker looks and reads
   exactly the same whether it's offering one option or three. Consistency of
-  the ritual wins over marking the moment; the significance is already
-  carried by the mechanic (this is the one they didn't get to decline), not
-  by the UI calling attention to itself.
+  the ritual wins over marking the moment.
 
 ---
 
 ## 5. Status
 
-Nothing in sections 2-4 is built. Section 1 is the entirety of what exists
-today.
+Built: everything in sections 1-3. `dungeon.stretch1.blight_hollow` (the
+original dungeon) was repurposed from key-gated to the repeatable,
+material-gated archetype as part of this work — its encounters and
+completion bonus are unchanged, only its cost and repeatability.
 
-This supersedes half of a decision recorded in
-[progression.md](progression.md) section 4.2: dungeon-granted disciplines
-were marked "dropped, not merely deferred" after the initial Quest/Dungeon
-build, on the grounds that the existing flat reward shape (XP, gold,
-materials) was sufficient on its own. This document is that decision being
-deliberately reopened for the *dungeon* half specifically, per direction to
-give players real build-to-build uniqueness. **Quest-granted disciplines
-remain out of scope** — quests stay standalone, flat-reward, one-time; only
-Dungeon's reward shape is gaining this.
+This closes out a decision recorded in [progression.md](progression.md)
+section 4.2: dungeon-granted disciplines were marked "dropped, not merely
+deferred," then deliberately reopened, and are now built — the union
+mechanism `DisciplineRepository`'s own docblock anticipated from the start is
+finally exercised. **Quest-granted disciplines remain out of scope** — quests
+stay standalone, flat-reward, one-time; only Dungeon's reward shape gained
+this.
