@@ -162,6 +162,24 @@ rather than a JSON column on the character, because both writers — encounter
 drops and Holding claims — read-modify-write under a row lock, and a JSON column
 would serialise every material against every other one.
 
+### `character_discipline`
+```
+id              uuid        PK
+character_id    uuid        FK → game_character(id) ON DELETE CASCADE
+discipline_id   text        NOT NULL          -- content id, e.g. discipline.stonebreaker
+granted_at      timestamptz NOT NULL
+```
+
+Constraints: `UNIQUE (character_id, discipline_id)`.
+
+The stored half of discipline ownership — see [progression.md](progression.md)
+§4.1, "Ownership is derived, not stored." Every level-milestone discipline is
+still a pure function of level and needs no row here; this table exists only
+for the disciplines that have no level to derive from. Existence of a row *is*
+ownership: no quantity, no revocation, nothing to update once granted. First
+(and currently only) writer is the dungeon discipline-pool pick
+([dungeons.md](dungeons.md) §2-3).
+
 ### `holding`
 ```
 id                uuid        PK
@@ -215,6 +233,56 @@ day races to freeze, and the losing side must adopt the winner's snapshot rather
 than fail. This is also why the unique index here is the mechanism rather than a
 backstop — unlike `holding`, there is no character row lock upstream to
 serialise the two.
+
+### `quest_run`
+```
+id              uuid        PK
+character_id    uuid        FK → game_character(id) ON DELETE CASCADE
+quest_id        text        NOT NULL
+status          text        NOT NULL   -- active | failed | claimed
+accepted_at     timestamptz NOT NULL
+completes_at    timestamptz NOT NULL
+snapshot        jsonb       NOT NULL   -- frozen Participant + rulesetVersion
+seed            bigint      NULL       -- set at claim
+outcome         text        NULL       -- set at claim
+log             bytea       NULL       -- gzip'd combat log, set at claim
+rewards         jsonb       NULL       -- set at claim, Victory only
+resolved_at     timestamptz NULL
+```
+
+Constraints: `UNIQUE (character_id, quest_id)`.
+
+One row per `(character, quest)`, **reused across attempts** rather than
+accumulating a history row per attempt: a `failed` row is overwritten in
+place by the next accept, because nothing was spent to reach `failed` — no
+Vigor, only time. `claimed` is terminal; the fixed one-time reward already
+paid out. See [ADR-0008](adr/0008-quest-snapshot-resolution.md) for why
+`snapshot` exists at all — a quest resolves against a frozen character state,
+possibly days after it was accepted.
+
+### `dungeon_run`
+```
+id                        uuid        PK
+character_id              uuid        FK → game_character(id) ON DELETE CASCADE
+dungeon_id                text        NOT NULL
+stages                    jsonb       NOT NULL   -- per-stage outcome, in order
+logs                      bytea       NOT NULL   -- gzip'd, index-aligned with stages
+cleared                   boolean     NOT NULL
+rewards                   jsonb       NOT NULL
+created_at                timestamptz NOT NULL
+offered_discipline_ids    jsonb       NULL       -- set at clear, repeatable:false only
+picked_discipline_id      text        NULL       -- set by a later, separate request
+```
+
+Indexed on `character_id`. One row **per attempt** — unlike `quest_run`,
+nothing is reused, since dungeon runs are occasional rather than a
+duration-gated one-time thing.
+
+`offered_discipline_ids` / `picked_discipline_id` are the two-step "offer,
+then confirm" state for the discipline collection pool
+([dungeons.md](dungeons.md) §2): the offer is computed and stored the moment
+a `repeatable: false` dungeon fully clears; the pick is a deliberately
+separate, later write.
 
 ### `outbox`
 ```

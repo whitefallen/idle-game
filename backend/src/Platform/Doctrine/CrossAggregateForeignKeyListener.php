@@ -40,6 +40,7 @@ final class CrossAggregateForeignKeyListener
         ['vendor_stock', 'character_id', 'game_character', 'id', 'CASCADE'],
         ['quest_run', 'character_id', 'game_character', 'id', 'CASCADE'],
         ['dungeon_run', 'character_id', 'game_character', 'id', 'CASCADE'],
+        ['character_discipline', 'character_id', 'game_character', 'id', 'CASCADE'],
 
         // audit_log deliberately has no foreign key, which is the one exception
         // to the rule in docs/data-model.md section 1. An audit record must

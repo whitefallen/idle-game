@@ -111,6 +111,14 @@ enum AuditAction: string
     case DungeonCompleted = 'dungeon.completed';
 
     /**
+     * A discipline pick confirmed from a dungeon clear's offer. The
+     * permanent, non-reversible half of docs/dungeons.md section 3's
+     * collection mechanic — recorded separately from DungeonCompleted since
+     * the pick can happen well after the clear that offered it.
+     */
+    case DungeonDisciplinePicked = 'dungeon.discipline_picked';
+
+    /**
      * Whether this action is a security event rather than ordinary gameplay.
      * Security events are retained and alerted on differently.
      */

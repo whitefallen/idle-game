@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feature\Character\Application;
 
 use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Repository\CharacterDisciplineRepository;
 use App\Feature\Character\Domain\Repository\DisciplineRepository;
 use App\Feature\Character\Domain\Service\ProgressionRules;
 use App\Feature\Character\Domain\Service\VigorRules;
@@ -24,6 +25,7 @@ final class CharacterPresenter
         private readonly BattlePlanGrammar $grammar,
         private readonly CharacterStats $stats,
         private readonly DisciplineRepository $disciplines,
+        private readonly CharacterDisciplineRepository $ownedDisciplines,
     ) {
     }
 
@@ -87,6 +89,7 @@ final class CharacterPresenter
     private function disciplines(Character $character): array
     {
         $slotted = $character->abilityIds();
+        $ownedIds = $this->ownedDisciplines->idsForCharacter($character->id());
         $entries = [];
 
         foreach ($this->disciplines->all() as $discipline) {
@@ -96,7 +99,8 @@ final class CharacterPresenter
                 'ability_id' => $discipline->abilityId,
                 'source' => $discipline->source->value,
                 'unlock_level' => $discipline->unlockLevel,
-                'unlocked' => $discipline->isAvailableAt($character->level()),
+                'unlocked' => $discipline->isAvailableAt($character->level())
+                    || in_array($discipline->id, $ownedIds, true),
                 'slotted' => in_array($discipline->abilityId, $slotted, true),
             ];
         }

@@ -153,6 +153,7 @@ POST   /api/v1/characters/{id}/quests/{questId}/claim
 
 GET    /api/v1/characters/{id}/dungeons
 POST   /api/v1/characters/{id}/dungeons/{dungeonId}/enter
+POST   /api/v1/characters/{id}/dungeons/runs/{runId}/discipline
 ```
 
 `POST /characters/{id}/respec` takes no body — the cost is derived from the
@@ -170,9 +171,17 @@ snapshot server-side; the client learns the outcome from the response, never
 by supplying one. See [ADR-0008](adr/0008-quest-snapshot-resolution.md).
 
 `POST /characters/{id}/dungeons/{dungeonId}/enter` takes no body either: it
-consumes the dungeon's key material and resolves every stage in one request,
+consumes the dungeon's entry cost and resolves every stage in one request,
 returning a full per-stage replay log the same way `POST /encounters` does for
-a single fight.
+a single fight. A `repeatable: false` dungeon's full clear response also
+carries `offered_disciplines` — up to three, from this character's dungeon-tier
+pool — which is not the same as granting one.
+
+`POST /characters/{id}/dungeons/runs/{runId}/discipline` takes
+`{"discipline_id": "..."}` and is the only thing that actually grants a
+discipline from that offer. Deliberately a separate request from `enter`,
+required even when the offer held only one option: see
+[dungeons.md](dungeons.md) §2 for why confirmation is never skipped.
 
 Endpoints named in earlier drafts are **not** in the list, for different
 reasons:

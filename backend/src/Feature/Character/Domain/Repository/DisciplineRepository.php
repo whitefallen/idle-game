@@ -21,23 +21,30 @@ interface DisciplineRepository
     public function get(string $id): Discipline;
 
     /**
-     * Every discipline a character of this level owns.
+     * Every discipline a character of this level, plus these owned ids, has
+     * available.
      *
-     * Ownership is derived rather than stored, because every discipline today
-     * is granted by a level milestone and that is a pure function of the level.
-     * No grant step, no row, no backfill, and no way for the stored set to
-     * drift from the rules. When quest, dungeon and reputation sources arrive
-     * they will need persistence, and this method becomes the union of the
-     * derived set and the stored one.
+     * Level-milestone ownership stays derived rather than stored — a pure
+     * function of the level, no grant step, no row, no backfill, no drift.
+     * `$ownedIds` is the stored half: quest, dungeon and reputation sourced
+     * disciplines, which have no level to derive from and must be looked up
+     * (see CharacterDisciplineRepository). Passing an empty array is exactly
+     * "level-derived only," so every existing caller before this stored half
+     * existed needed no change.
+     *
+     * @param list<string> $ownedIds
      *
      * @return array<string, Discipline> Keyed by id, ordered by id.
      */
-    public function availableAtLevel(int $level): array;
+    public function availableAtLevel(int $level, array $ownedIds = []): array;
 
     /**
-     * The ability ids a character of this level is allowed to slot.
+     * The ability ids a character of this level, plus these owned discipline
+     * ids, is allowed to slot.
+     *
+     * @param list<string> $ownedIds
      *
      * @return list<string> Ordered, without duplicates.
      */
-    public function grantedAbilityIdsAtLevel(int $level): array;
+    public function grantedAbilityIdsAtLevel(int $level, array $ownedIds = []): array;
 }

@@ -6,6 +6,7 @@ namespace App\Feature\Dungeon\Domain\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use DomainException;
 use JsonException;
 use RuntimeException;
 use Symfony\Component\Uid\Uuid;
@@ -67,9 +68,24 @@ class DungeonRun
     private DateTimeImmutable $createdAt;
 
     /**
+     * The discipline pick offered on this clear — `min(3, remaining pool)`,
+     * per docs/dungeons.md section 3. Null for a repeatable-dungeon run or a
+     * run that didn't fully clear; an empty array is a valid, distinct state
+     * (fully cleared, but this character's pool was already empty).
+     *
+     * @var list<string>|null
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $offeredDisciplineIds;
+
+    #[ORM\Column(type: 'string', length: 120, nullable: true)]
+    private ?string $pickedDisciplineId = null;
+
+    /**
      * @param list<array{encounterId: string, seed: string, outcome: string, rounds: int, experience: int, gold: int}> $stages
      * @param list<array<string, mixed>>                                                                              $logs
      * @param array<string, mixed>                                                                                    $rewards
+     * @param list<string>|null                                                                                       $offeredDisciplineIds
      */
     public function __construct(
         Uuid $id,
@@ -80,6 +96,7 @@ class DungeonRun
         bool $cleared,
         array $rewards,
         DateTimeImmutable $createdAt,
+        ?array $offeredDisciplineIds = null,
     ) {
         $this->id = $id;
         $this->characterId = $characterId;
@@ -88,6 +105,7 @@ class DungeonRun
         $this->cleared = $cleared;
         $this->rewards = $rewards;
         $this->createdAt = $createdAt;
+        $this->offeredDisciplineIds = $offeredDisciplineIds;
 
         $this->logs = self::compress($logs);
     }
@@ -136,6 +154,38 @@ class DungeonRun
     public function createdAt(): DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function offeredDisciplineIds(): ?array
+    {
+        return $this->offeredDisciplineIds;
+    }
+
+    public function pickedDisciplineId(): ?string
+    {
+        return $this->pickedDisciplineId;
+    }
+
+    /**
+     * Resolves the pending offer. Refuses anything that was not actually
+     * offered, and refuses a second pick — the offer is spent the moment it
+     * is confirmed, same "no re-litigating a settled choice" spirit as
+     * QuestRun's terminal states.
+     */
+    public function pickDiscipline(string $disciplineId): void
+    {
+        if ($this->pickedDisciplineId !== null) {
+            throw new DomainException('This dungeon run\'s discipline pick has already been made.');
+        }
+
+        if ($this->offeredDisciplineIds === null || !in_array($disciplineId, $this->offeredDisciplineIds, true)) {
+            throw new DomainException(sprintf('"%s" was not offered on this dungeon run.', $disciplineId));
+        }
+
+        $this->pickedDisciplineId = $disciplineId;
     }
 
     /**

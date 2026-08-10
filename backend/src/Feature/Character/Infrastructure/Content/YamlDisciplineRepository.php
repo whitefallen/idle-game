@@ -46,19 +46,20 @@ final class YamlDisciplineRepository implements DisciplineRepository, ContentPro
             ?? throw new InvalidArgumentException(sprintf('Unknown discipline "%s".', $id));
     }
 
-    public function availableAtLevel(int $level): array
+    public function availableAtLevel(int $level, array $ownedIds = []): array
     {
         return array_filter(
             $this->all(),
-            static fn (Discipline $discipline): bool => $discipline->isAvailableAt($level),
+            static fn (Discipline $discipline): bool => $discipline->isAvailableAt($level)
+                || in_array($discipline->id, $ownedIds, true),
         );
     }
 
-    public function grantedAbilityIdsAtLevel(int $level): array
+    public function grantedAbilityIdsAtLevel(int $level, array $ownedIds = []): array
     {
         $abilityIds = [];
 
-        foreach ($this->availableAtLevel($level) as $discipline) {
+        foreach ($this->availableAtLevel($level, $ownedIds) as $discipline) {
             $abilityIds[$discipline->abilityId] = true;
         }
 

@@ -116,6 +116,13 @@ and more on top of what exists.
   is the no-return-value rule biting again. Docs/architecture.md section 3.1
   points here rather than repeating the list, so this paragraph is the one
   place that has to stay current as the exception set grows.
+- **Dungeon's discipline-pool pick (2026-08-10) adds one more.**
+  `PickDungeonDisciplineHandler` (Dungeon/Application) calls
+  `GrantDisciplineHandler` (Character/Application) directly for the same
+  reason as the rest of this list — the caller needs to know whether the
+  grant actually happened (already-owned is a valid no-op) to decide what to
+  report back, which a fire-and-forget event can't answer synchronously. See
+  docs/dungeons.md section 3.
 - Ordering between subscribers of the same event is Symfony's priority, which is
   a global number. If two subscribers ever need a defined order, that is a
   smell worth examining before reaching for the priority argument.

@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace App\Feature\Dungeon\Application;
 
 use App\Feature\Character\Domain\Entity\Character;
+use App\Feature\Character\Domain\Repository\DisciplineRepository;
 use App\Feature\Dungeon\Domain\Entity\DungeonRun;
 use App\Feature\Dungeon\Domain\Model\DungeonDefinition;
+use App\Feature\Dungeon\Domain\Repository\DungeonRunRepository;
 use App\Feature\Inventory\Domain\Repository\MaterialStackRepository;
 
 final class DungeonPresenter
 {
-    public function __construct(private readonly MaterialStackRepository $materialStacks)
-    {
+    public function __construct(
+        private readonly MaterialStackRepository $materialStacks,
+        private readonly DisciplineRepository $disciplines,
+        private readonly DungeonRunRepository $runs,
+    ) {
     }
 
     /**
@@ -40,26 +45,38 @@ final class DungeonPresenter
     }
 
     /**
-     * @param array<string, int> $keysHeldByMaterialId
+     * @param array<string, int> $heldByMaterialId
      *
      * @return array<string, mixed>
      */
-    private function summary(DungeonDefinition $definition, Character $character, array $keysHeldByMaterialId): array
+    private function summary(DungeonDefinition $definition, Character $character, array $heldByMaterialId): array
     {
-        $keysHeld = $keysHeldByMaterialId[$definition->keyMaterialId] ?? 0;
+        $affordable = true;
+
+        foreach ($definition->cost as $materialId => $amount) {
+            if (($heldByMaterialId[$materialId] ?? 0) < $amount) {
+                $affordable = false;
+
+                break;
+            }
+        }
 
         return [
             'id' => $definition->id,
             'localisation_key' => $definition->localisationKey,
             'required_level' => $definition->requiredLevel,
-            'key_material_id' => $definition->keyMaterialId,
+            'cost' => $definition->cost,
+            'repeatable' => $definition->repeatable,
             'stages' => count($definition->encounterIds),
             'completion_bonus' => [
                 'xp' => $definition->completionBonusExperience,
                 'gold' => $definition->completionBonusGold,
             ],
             'unlocked' => $character->level() >= $definition->requiredLevel,
-            'keys_held' => $keysHeld,
+            'affordable' => $affordable,
+            // Only meaningful for a one-time dungeon; always false for a
+            // repeatable one, which has no "cleared for good" state.
+            'cleared' => !$definition->repeatable && $this->runs->hasCleared($character->id(), $definition->id),
         ];
     }
 
@@ -76,6 +93,8 @@ final class DungeonPresenter
             array_keys($run->stages()),
         );
 
+        $offered = $run->offeredDisciplineIds();
+
         return [
             'id' => $run->id()->toRfc4122(),
             'dungeon_id' => $run->dungeonId(),
@@ -83,6 +102,14 @@ final class DungeonPresenter
             'stages' => $stages,
             'rewards' => $run->rewards(),
             'created_at' => $run->createdAt()->format(DATE_RFC3339),
+            // Ability id travels alongside each offered discipline id so the
+            // client can render a name without a second lookup — the same
+            // reason CharacterPresenter::disciplines() includes it.
+            'offered_disciplines' => $offered === null ? null : array_map(
+                fn (string $id): array => ['id' => $id, 'ability_id' => $this->disciplines->get($id)->abilityId],
+                $offered,
+            ),
+            'picked_discipline_id' => $run->pickedDisciplineId(),
         ];
     }
 }

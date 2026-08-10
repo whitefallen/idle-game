@@ -193,9 +193,12 @@ monster ability can never accidentally hand it to players.
 **Ownership is derived, not stored.** Every discipline today is granted by a
 level milestone, which is a pure function of the character's level — so there is
 no grant step, no column, no backfill, and no way for a stored set to drift from
-the rules. When quest, dungeon and reputation sources arrive, ownership becomes
-the union of the derived set and a stored one; only the non-derivable half needs
-persisting.
+the rules. For a quest, dungeon or reputation sourced discipline — none of
+which has a level to derive from — ownership is the union of the derived set
+and a stored one (`character_discipline`); only the non-derivable half needs
+persisting. Dungeon is the first source to actually exercise this, via the
+discipline collection pool ([dungeons.md](dungeons.md) section 2); quest and
+reputation sources remain unused in content.
 
 **Unslotting an ability the battle plan still uses is refused**, not silently
 repaired. A plan is authored, sometimes carefully, and quietly deleting a rule
@@ -211,7 +214,7 @@ of is one they cannot plan around — the same principle as §5.
 | Source | Character of the disciplines gained |
 |--------|-------------------------------------|
 | Level milestones | The baseline kit; guarantees every character has options |
-| Dungeon clears (proposed) | Build-defining, permanent per-character divergence — see [dungeons.md](dungeons.md) section 3 |
+| Dungeon clears | Build-defining, permanent per-character divergence — see [dungeons.md](dungeons.md) section 2 |
 | Reputation vendors | Alternative versions of earlier disciplines, for specialisation |
 
 **Quest-granted disciplines are dropped, not merely deferred.** Quest
@@ -221,15 +224,15 @@ quests stay standalone and flat-reward. `DisciplineSource::Quest` stays in
 the enum rather than being removed, but no content authors against it, and
 reopening this is a scope decision, not a backlog pull.
 
-**Dungeon-granted disciplines were dropped and then deliberately reopened.**
-The same reasoning applied to Dungeon initially, but a follow-up design pass
-settled on a concrete, non-random mechanism aimed at giving players real
-build-to-build uniqueness — a per-character discipline pool, drawn from on
-a dungeon clear, never a chance of nothing. See
-[dungeons.md](dungeons.md) sections 2-4 for the full shape — design is
-settled, nothing is built. `DisciplineSource::Dungeon`'s ownership-union
-support (see "Ownership is derived, not stored" above) is what it will build
-on once it is.
+**Dungeon-granted disciplines were dropped, then deliberately reopened, and
+are now built.** The same reasoning applied to Dungeon initially, but a
+follow-up design pass settled on a concrete, non-random mechanism aimed at
+giving players real build-to-build uniqueness — a per-character discipline
+pool, drawn from on a dungeon clear, never a chance of nothing. See
+[dungeons.md](dungeons.md) sections 1-3 for the full shape. The
+ownership-union support this needed (see "Ownership is derived, not stored"
+above) is exercised for the first time here, via the new
+`character_discipline` table.
 
 Deliberately **no random discipline drops**. Build-defining progression must not
 be gated behind a drop roll; that converts strategy into lottery participation

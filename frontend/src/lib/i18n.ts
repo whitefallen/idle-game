@@ -152,13 +152,16 @@ const strings: Record<string, string> = {
   'dungeon.title': 'Dungeons',
   'dungeon.enter': 'Enter',
   'dungeon.locked': 'Requires level {level}',
-  'dungeon.keysHeld': '{count} key(s) held',
-  'dungeon.noKey': 'No key — complete a kill quest that rewards one first.',
+  'dungeon.cost': 'Costs {cost}',
+  'dungeon.cannotAfford': 'Not enough materials yet.',
   'dungeon.stages': '{count} stages',
   'dungeon.completionBonus': '+{xp} xp, +{gold} gold on a full clear',
   'dungeon.cleared': 'Cleared',
   'dungeon.notCleared': 'Not cleared — stopped at stage {stage}',
   'dungeon.none': 'No dungeons available yet.',
+  'dungeon.disciplinePickTitle': 'Choose a discipline to keep',
+  'dungeon.pickDiscipline': 'Choose',
+  'dungeon.poolExhausted': 'No disciplines left to offer — collection complete for now.',
 
   'holding.title': 'The Holding',
   'holding.claim': 'Claim',
@@ -265,6 +268,7 @@ const strings: Record<string, string> = {
   'ability.ability.ember_reave': 'Ember Reave',
   'ability.ability.wrath_of_ash': 'Wrath of Ash',
   'ability.ability.vault_mend': 'Vault Mend',
+  'ability.ability.stonebreaker': 'Stonebreaker',
 
   'effect.effect.burning': 'Burning',
   'effect.effect.bleeding': 'Bleeding',
@@ -305,6 +309,7 @@ const strings: Record<string, string> = {
   'questName.quest.stretch1.stalker_hunt': 'Stalker Hunt',
 
   'dungeonName.dungeon.stretch1.blight_hollow': 'The Blight Hollow',
+  'dungeonName.dungeon.stretch1.sealed_vault': 'The Sealed Vault',
 
   'event.damage': '{source} hits {target} for {amount}',
   'event.damage.crit': '{source} critically hits {target} for {amount}',

@@ -71,12 +71,14 @@ final class YamlDungeonDefinitionRepository implements DungeonDefinitionReposito
                 continue;
             }
 
-            if (!$this->materials->has($dungeon->keyMaterialId)) {
-                $issues[] = new ContentIssue(
-                    self::DIRECTORY,
-                    (string) $id,
-                    sprintf('References unknown key material "%s".', $dungeon->keyMaterialId),
-                );
+            foreach (array_keys($dungeon->cost) as $materialId) {
+                if (!$this->materials->has($materialId)) {
+                    $issues[] = new ContentIssue(
+                        self::DIRECTORY,
+                        (string) $id,
+                        sprintf('Cost references unknown material "%s".', $materialId),
+                    );
+                }
             }
 
             foreach ($dungeon->encounterIds as $encounterId) {
@@ -116,7 +118,8 @@ final class YamlDungeonDefinitionRepository implements DungeonDefinitionReposito
             id: (string) $raw['id'],
             localisationKey: (string) $raw['localisationKey'],
             requiredLevel: (int) $raw['requiredLevel'],
-            keyMaterialId: (string) $raw['keyMaterialId'],
+            cost: array_map(intval(...), (array) $raw['cost']),
+            repeatable: (bool) $raw['repeatable'],
             encounterIds: $encounterIds,
             completionBonusExperience: (int) $bonus['xp'],
             completionBonusGold: (int) $bonus['gold'],
