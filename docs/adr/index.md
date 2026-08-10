@@ -12,3 +12,4 @@ decision, the alternatives rejected, and the consequences we accept.
 | [0005](0005-uuidv7-primary-keys.md) | Time-ordered UUIDv7 primary keys |
 | [0006](0006-denormalised-power-score.md) | A named exception to "never store derived values" |
 | [0007](0007-synchronous-domain-event-bus.md) | A synchronous in-process bus for atomic cross-feature effects |
+| [0008](0008-quest-snapshot-resolution.md) | Quest resolution against an accept-time snapshot |

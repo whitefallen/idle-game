@@ -1,0 +1,12 @@
+# Non-refinement fungibles. Kept separate from materials/core.yaml, whose
+# docblock explicitly scopes itself to refinement materials — mixing a quest
+# token in there would contradict what that file says about itself.
+#
+# `kind: quest` is what keeps this off Holding's producible-lines list and out
+# of refinement's tier matching: it carries no `tier`, and RefineItemHandler
+# rejects it as a wrong-tier material if anyone ever tries.
+
+- id: material.dungeon_key
+  localisationKey: material.dungeon_key
+  icon: material_dungeon_key
+  kind: quest

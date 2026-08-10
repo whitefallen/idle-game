@@ -85,6 +85,32 @@ enum AuditAction: string
     case ItemSold = 'item.sold';
 
     /**
+     * A quest accepted: the character's combat state was snapshotted and its
+     * timer started. See docs/adr/0008-quest-snapshot-resolution.md.
+     */
+    case QuestAccepted = 'quest.accepted';
+
+    /**
+     * A quest claimed: the snapshot resolved into a simulated fight and,
+     * on a win, granted its fixed reward. Carries the outcome, seed and
+     * rewards granted.
+     */
+    case QuestClaimed = 'quest.claimed';
+
+    /**
+     * A dungeon entered: its key was consumed. Recorded separately from
+     * DungeonCompleted so a consumed key with no matching completion is
+     * findable even if the run itself failed for an unrelated reason.
+     */
+    case DungeonEntered = 'dungeon.entered';
+
+    /**
+     * A dungeon run finished, cleared or not, with every stage's outcome and
+     * the rewards granted.
+     */
+    case DungeonCompleted = 'dungeon.completed';
+
+    /**
      * Whether this action is a security event rather than ordinary gameplay.
      * Security events are retained and alerted on differently.
      */

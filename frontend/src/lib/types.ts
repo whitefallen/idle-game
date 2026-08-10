@@ -388,3 +388,88 @@ export interface SoldItem {
   sold: { definition_id: string; gold_awarded: number };
   character: CharacterDetail;
 }
+
+/**
+ * A kill quest, as offered to this character.
+ *
+ * `status` is `'available'` both for a never-attempted quest and for one whose
+ * last attempt failed — nothing was spent to reach Failed, so accepting again
+ * is always allowed then. See docs/adr/0008-quest-snapshot-resolution.md.
+ */
+export interface Quest {
+  id: string;
+  localisation_key: string;
+  required_level: number;
+  duration_seconds: number;
+  monsters: string[];
+  rewards: { xp: number; gold: number; materials: Record<string, number> };
+  unlocked: boolean;
+  status: 'available' | 'active' | 'failed' | 'claimed';
+  completes_at: string | null;
+  ready_to_claim: boolean;
+}
+
+export interface AcceptedQuest {
+  quest_id: string;
+  status: 'active';
+  completes_at: string;
+}
+
+/**
+ * The result of a claim. `outcome` is null exactly when the ruleset drifted
+ * since accept — there was no fight to log, and the quest is re-acceptable.
+ */
+export interface QuestClaimResult {
+  quest_id: string;
+  status: 'active' | 'failed' | 'claimed';
+  outcome: 'victory' | 'defeat' | 'draw' | null;
+  rewards: { experience: number; gold: number; materials: Record<string, number> };
+  resolved_at: string | null;
+  log: CombatLog | null;
+}
+
+export interface ClaimedQuest {
+  quest: QuestClaimResult;
+  character: CharacterDetail;
+}
+
+/**
+ * A dungeon: the "hard avenue", gated by a key material a kill quest can
+ * reward. `keys_held` lets the panel show whether entering is actually
+ * possible without a failed request round trip.
+ */
+export interface Dungeon {
+  id: string;
+  localisation_key: string;
+  required_level: number;
+  key_material_id: string;
+  stages: number;
+  completion_bonus: { xp: number; gold: number };
+  unlocked: boolean;
+  keys_held: number;
+}
+
+/** One resolved stage of a dungeon run. Absent stages after a loss simply were never fought. */
+export interface DungeonStage {
+  encounterId: string;
+  seed: string;
+  outcome: 'victory' | 'defeat' | 'draw';
+  rounds: number;
+  experience: number;
+  gold: number;
+  log: CombatLog;
+}
+
+export interface DungeonRunResult {
+  id: string;
+  dungeon_id: string;
+  cleared: boolean;
+  stages: DungeonStage[];
+  rewards: { experience: number; gold: number; items: number; materials: Record<string, number> };
+  created_at: string;
+}
+
+export interface EnteredDungeon {
+  run: DungeonRunResult;
+  character: CharacterDetail;
+}

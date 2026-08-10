@@ -104,8 +104,9 @@ final class YamlMaterialRepository implements MaterialRepository, ContentProvide
         return new MaterialDefinition(
             id: (string) $raw['id'],
             localisationKey: (string) $raw['localisationKey'],
-            tier: (int) $raw['tier'],
             icon: (string) $raw['icon'],
+            tier: isset($raw['tier']) ? (int) $raw['tier'] : null,
+            kind: (string) ($raw['kind'] ?? 'refinement'),
             ratePerHour: $production === null ? null : (int) $production['ratePerHour'],
             productionUnlockLevel: $production === null ? null : (int) $production['unlockLevel'],
         );

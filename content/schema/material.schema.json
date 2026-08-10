@@ -7,12 +7,16 @@
     "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "localisationKey", "tier", "icon"],
+        "required": ["id", "localisationKey", "icon"],
         "properties": {
             "id": { "type": "string", "pattern": "^material\\.[a-z][a-z0-9_]*$" },
             "localisationKey": { "type": "string", "minLength": 1 },
+            "kind": {
+                "comment": "Defaults to 'refinement' when absent. 'quest' marks a fungible that is not a refinement input (e.g. a dungeon key) so it never carries a fake refinement tier — see the allOf rule below.",
+                "enum": ["refinement", "quest"]
+            },
             "tier": {
-                "comment": "Refinement tier. A material of tier N refines items in that tier's item-level band.",
+                "comment": "Refinement tier. A material of tier N refines items in that tier's item-level band. Required for refinement materials, forbidden otherwise: a key that can never be selected for refinement must not carry a tier that claims it can.",
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 4
@@ -28,6 +32,18 @@
                     "unlockLevel": { "type": "integer", "minimum": 1, "maximum": 60 }
                 }
             }
-        }
+        },
+        "allOf": [
+            {
+                "if": {
+                    "anyOf": [
+                        { "not": { "required": ["kind"] } },
+                        { "properties": { "kind": { "const": "refinement" } } }
+                    ]
+                },
+                "then": { "required": ["tier"] },
+                "else": { "not": { "required": ["tier"] } }
+            }
+        ]
     }
 }

@@ -52,6 +52,18 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Feature/Holding/Domain/Entity'
                 prefix: 'App\Feature\Holding\Domain\Entity'
                 alias: Holding
+            Quest:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Feature/Quest/Domain/Entity'
+                prefix: 'App\Feature\Quest\Domain\Entity'
+                alias: Quest
+            Dungeon:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Feature/Dungeon/Domain/Entity'
+                prefix: 'App\Feature\Dungeon\Domain\Entity'
+                alias: Dungeon
 
             # Platform owns two tables of its own: the transactional outbox and
             # idempotency records. Both are technical capabilities rather than

@@ -21,7 +21,8 @@ frontend/src/
 │   ├── inventory/
 │   ├── combat/
 │   ├── holding/
-│   └── quest/
+│   ├── quest/
+│   └── dungeon/
 ├── components/         Shared presentational primitives (Button, Tooltip, …)
 ├── lib/                API client, query client, formatting, i18n
 ├── stores/             Zustand stores — UI state only
