@@ -254,7 +254,12 @@ final class VendorFlowTest extends ApiTestCase
 
         self::assertSame(200, $second['status']);
         self::assertSame('true', $this->client->getResponse()->headers->get('Idempotency-Replayed'));
-        self::assertSame($first['body'], $second['body']);
+        // Not the full envelope: `meta.server_time` is stamped fresh on every
+        // response, including a replay, so comparing it makes this fail
+        // whenever the two requests straddle a wall-clock second — flaky
+        // rather than wrong. `data` is what a replay actually promises to
+        // reproduce.
+        self::assertSame($first['body']['data'], $second['body']['data']);
         self::assertSame(0, $second['body']['data']['character']['gold']);
     }
 
