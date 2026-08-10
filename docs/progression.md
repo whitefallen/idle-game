@@ -211,18 +211,18 @@ of is one they cannot plan around — the same principle as §5.
 | Source | Character of the disciplines gained |
 |--------|-------------------------------------|
 | Level milestones | The baseline kit; guarantees every character has options |
-| Quest rewards | Utility and situational answers to specific mechanics |
-| Dungeon completion | Higher-impact, build-defining options |
 | Reputation vendors | Alternative versions of earlier disciplines, for specialisation |
 
-Quest ([ADR-0008](adr/0008-quest-snapshot-resolution.md)) and Dungeon are now
-built, but neither row above is fulfilled by them yet: today's quest and
-dungeon rewards are XP, gold and materials only. "Quest chains" — a
-prerequisite structure between quests — was considered and dropped: quests
-are deliberately standalone (no accepted quest depends on a prior one), so a
-discipline grant from either system, when it arrives, is expected to be a
-flat reward field alongside the existing ones rather than something gated by
-a chain.
+Quest- and dungeon-granted disciplines were considered and **dropped, not
+merely deferred**. Quest ([ADR-0008](adr/0008-quest-snapshot-resolution.md))
+and Dungeon are both built now, and their existing reward shape — fixed XP,
+gold and materials — was judged sufficient on its own; level milestones
+remain the only acquisition path in active use. `DisciplineSource::Quest` and
+`::Dungeon` stay in the enum rather than being removed, since ownership was
+designed from the start to be "the derived set, union a stored one" for
+exactly these sources (see "Ownership is derived, not stored" above), but no
+content authors against either today, and reopening this is a scope decision,
+not a backlog pull.
 
 Deliberately **no random discipline drops**. Build-defining progression must not
 be gated behind a drop roll; that converts strategy into lottery participation
