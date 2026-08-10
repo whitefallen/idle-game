@@ -135,7 +135,11 @@ const strings: Record<string, string> = {
 
   'quest.title': 'Quests',
   'quest.accept': 'Accept',
-  'quest.claim': 'Claim',
+  // Distinct from holding.claim: two buttons named "Claim" on the same page
+  // is ambiguous for a screen reader (and, as found in manual testing, for
+  // an automated locator too — both resolve "Claim" to whichever renders
+  // first in the DOM, which is Holding's).
+  'quest.claim': 'Claim quest',
   'quest.locked': 'Requires level {level}',
   'quest.active': 'Under way — ready in {time}',
   'quest.readyToClaim': 'Ready to claim',
@@ -360,6 +364,12 @@ export function bp(value: number): string {
 
 export function duration(seconds: number): string {
   if (seconds <= 0) return '0m';
+
+  // Below a minute, rounding to "0m" reads as "ready now" — true for the
+  // Holding's hour-scale windows, misleading for a quest's second-scale one.
+  // Seconds granularity only below this threshold keeps the common case
+  // (everything else in the game) exactly as terse as before.
+  if (seconds < 60) return `${Math.ceil(seconds)}s`;
 
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);

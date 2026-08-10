@@ -119,7 +119,7 @@ backend/src/Feature/Combat/
 
 Built: `Account`, `Character`, `Inventory`, `Combat`, `Encounter`, `Holding`,
 `Quest`, `Dungeon`.
-Not yet built: `Leaderboard`, `Shop` — see §9.1
+Not yet built: `Leaderboard` — see §9.1
 for what each system built so far covers and
 [account.md](account.md) §6 / [items.md](items.md) §9.4 / [idle.md](idle.md)
 §7.3 for what each one still does not.
@@ -349,9 +349,11 @@ own built / deviated / not-yet-built detail where it lives — [idle.md](idle.md
 of the original plan instead of a second copy of a status that would drift the
 moment either document changed without the other.
 
-Still not built, per that exclusion list above: the shop, and art — content
-and items carry an `icon` id (see [items.md](items.md) §7) but no asset exists
-behind any of them yet.
+Of that exclusion list, "the shop" resolved into the Vendor rather than
+shipping as planned — see [vendor.md](vendor.md) §1 for why a fixed-catalogue
+shop was rejected in favour of stock priced and rolled against a character's
+own gear. Still not built: art — content and items carry an `icon` id (see
+[items.md](items.md) §7) but no asset exists behind any of them yet.
 
 ### 9.2 Cut from scope: crafting and guilds
 
