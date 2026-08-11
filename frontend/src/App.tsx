@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Button, ErrorNotice } from '@/components/ui';
+import { Button, ErrorNotice, Tabs } from '@/components/ui';
+import { Navigation, type Section } from '@/components/Navigation';
+import { VitalsBar } from '@/components/VitalsBar';
 import { AuthScreen } from '@/features/auth/AuthScreen';
 import { useLogout, useSession } from '@/features/auth/api';
 import { BattlePlanEditor } from '@/features/character/BattlePlanEditor';
@@ -16,6 +18,9 @@ import { VendorPanel } from '@/features/vendor/VendorPanel';
 import { t } from '@/lib/i18n';
 import type { EncounterDetail } from '@/lib/types';
 
+type AdventureTab = 'beacon' | 'quests' | 'dungeons';
+type GearTab = 'inventory' | 'vendor';
+
 export function App() {
   const session = useSession();
   const logout = useLogout();
@@ -23,6 +28,9 @@ export function App() {
   const [characterId, setCharacterId] = useState<string | null>(null);
   const [replay, setReplay] = useState<EncounterDetail | null>(null);
   const [editingPlan, setEditingPlan] = useState(false);
+  const [section, setSection] = useState<Section>('character');
+  const [adventureTab, setAdventureTab] = useState<AdventureTab>('beacon');
+  const [gearTab, setGearTab] = useState<GearTab>('inventory');
 
   const character = useCharacter(characterId);
 
@@ -43,10 +51,10 @@ export function App() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-5xl p-4">
-      <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <div className="min-h-dvh">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-ash-700 px-4 py-3 sm:px-5">
         <div>
-          <h1 className="text-xl font-semibold text-ember-400">{t('app.title')}</h1>
+          <h1 className="font-display text-xl font-bold text-ember-400">{t('app.title')}</h1>
           <p className="text-xs text-ash-400">{session.data.email}</p>
         </div>
 
@@ -58,6 +66,7 @@ export function App() {
                 setCharacterId(null);
                 setReplay(null);
                 setEditingPlan(false);
+                setSection('character');
               }}
             >
               {t('character.back')}
@@ -69,58 +78,83 @@ export function App() {
         </div>
       </header>
 
-      <main className="space-y-4">
-        {!characterId && <CharacterList onSelect={setCharacterId} />}
+      {!characterId && (
+        <main className="mx-auto max-w-5xl p-4">
+          <CharacterList onSelect={setCharacterId} />
+        </main>
+      )}
 
-        {characterId && character.isError && <ErrorNotice error={character.error} />}
+      {characterId && character.isError && (
+        <main className="mx-auto max-w-5xl p-4">
+          <ErrorNotice error={character.error} />
+        </main>
+      )}
 
-        {characterId && character.data && (
-          <>
-            <CharacterSheet
-              character={character.data}
-              onEditPlan={() => {
-                setEditingPlan(true);
-                setReplay(null);
-              }}
-            />
+      {characterId && character.data && (
+        <>
+          <VitalsBar character={character.data} />
 
-            {editingPlan ? (
+          {editingPlan ? (
+            <main className="mx-auto max-w-5xl p-4">
               <BattlePlanEditor character={character.data} onClose={() => setEditingPlan(false)} />
-            ) : replay ? (
+            </main>
+          ) : replay ? (
+            <main className="mx-auto max-w-5xl p-4">
               <ReplayView encounter={replay} onClose={() => setReplay(null)} />
-            ) : (
-              <>
-                <EncounterPanel characterId={characterId} onResolved={setReplay} />
-                {/*
-                  The idle layer sits under the active one deliberately: the
-                  Holding supplies what the beacon-line spends, and seeing them
-                  together is what makes that relationship legible.
-                */}
-                <HoldingPanel characterId={characterId} />
-                {/*
-                  Quests sit after the Holding: an expedition, not a live
-                  fight — accept, wait out the timer, claim. One of their
-                  possible rewards is the key the Dungeon panel right below
-                  consumes, so the two are ordered to read as cause and effect.
-                */}
-                <QuestPanel characterId={characterId} />
-                <DungeonPanel characterId={characterId} />
-                {/*
-                  Inventory sits after the Holding: it is where the Holding's
-                  output — and the beacon-line's drops — actually get spent.
-                */}
-                <InventoryPanel characterId={characterId} />
-                {/*
-                  The Vendor sits last: it is the other side of the same
-                  inventory screen, buying with the gold everything above just
-                  produced and selling off what it decluttered.
-                */}
-                <VendorPanel characterId={characterId} />
-              </>
-            )}
-          </>
-        )}
-      </main>
+            </main>
+          ) : (
+            <div className="flex flex-col sm:flex-row">
+              <Navigation section={section} onSelect={setSection} />
+
+              <main className="min-w-0 flex-1 space-y-4 p-4 sm:p-5">
+                {section === 'character' && (
+                  <CharacterSheet
+                    character={character.data}
+                    onEditPlan={() => {
+                      setEditingPlan(true);
+                      setReplay(null);
+                    }}
+                  />
+                )}
+
+                {section === 'adventure' && (
+                  <>
+                    <Tabs
+                      tabs={[
+                        { key: 'beacon', label: t('encounter.available') },
+                        { key: 'quests', label: t('quest.title') },
+                        { key: 'dungeons', label: t('dungeon.title') },
+                      ]}
+                      active={adventureTab}
+                      onChange={setAdventureTab}
+                    />
+                    {adventureTab === 'beacon' && <EncounterPanel characterId={characterId} onResolved={setReplay} />}
+                    {adventureTab === 'quests' && <QuestPanel characterId={characterId} />}
+                    {adventureTab === 'dungeons' && <DungeonPanel characterId={characterId} />}
+                  </>
+                )}
+
+                {section === 'holding' && <HoldingPanel characterId={characterId} />}
+
+                {section === 'gear' && (
+                  <>
+                    <Tabs
+                      tabs={[
+                        { key: 'inventory', label: t('item.inventory') },
+                        { key: 'vendor', label: t('vendor.title') },
+                      ]}
+                      active={gearTab}
+                      onChange={setGearTab}
+                    />
+                    {gearTab === 'inventory' && <InventoryPanel characterId={characterId} />}
+                    {gearTab === 'vendor' && <VendorPanel characterId={characterId} />}
+                  </>
+                )}
+              </main>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

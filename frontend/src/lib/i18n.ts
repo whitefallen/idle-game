@@ -12,6 +12,16 @@ const strings: Record<string, string> = {
   'app.title': 'Emberwatch',
   'app.tagline': 'Hold the beacon-line.',
 
+  'nav.sections': 'Sections',
+  'nav.character': 'Character',
+  'nav.characterHint': 'Build & disciplines',
+  'nav.adventure': 'Adventure',
+  'nav.adventureHint': 'Fight, quest, delve',
+  'nav.holding': 'Holding',
+  'nav.holdingHint': 'Idle production',
+  'nav.gear': 'Gear',
+  'nav.gearHint': 'Inventory & vendor',
+
   'auth.signIn': 'Sign in',
   'auth.register': 'Create account',
   'auth.email': 'Email',

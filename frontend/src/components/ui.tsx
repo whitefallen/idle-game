@@ -163,6 +163,39 @@ export function Bar({
   );
 }
 
+export function Tabs<T extends string>({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: { key: T; label: string }[];
+  active: T;
+  onChange: (key: T) => void;
+}) {
+  return (
+    <div role="tablist" className="flex gap-6 border-b border-ash-700">
+      {tabs.map(({ key, label }) => {
+        const selected = key === active;
+
+        return (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onChange(key)}
+            className={`-mb-px border-b-2 pb-2.5 font-display text-xs font-semibold tracking-wider uppercase transition-colors ${
+              selected ? 'border-ember-500 text-ash-50' : 'border-transparent text-ash-400 hover:text-ash-200'
+            }`}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-ash-800 py-1.5 last:border-0">
