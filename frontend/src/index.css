@@ -1,5 +1,16 @@
 @import 'tailwindcss';
 
+/*
+ * Self-hosted (@fontsource), not a Google Fonts <link> — the app has no CDN
+ * dependency anywhere else and a font request shouldn't be the first one.
+ * Three weights only: 600 for section headers, 900 for the wordmark, 500
+ * italic for quest-hook flavour text. Everything else stays the system sans
+ * stack below.
+ */
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/900.css';
+@import '@fontsource/fraunces/500-italic.css';
+
 @theme {
   --color-ash-950: #0b0c10;
   --color-ash-900: #12141a;
@@ -16,6 +27,8 @@
 
   --color-blight-500: #6f9b52;
   --color-danger-500: #c2503f;
+
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
 }
 
 :root {
