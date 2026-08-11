@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feature\Encounter\Domain\Service;
 
 use App\Feature\Character\Domain\Service\ProgressionRules;
+use App\Feature\Combat\Domain\Model\Outcome;
 use App\Feature\Combat\Domain\Rng\Int64;
 use App\Feature\Combat\Domain\Rng\SplitMix64;
 use App\Feature\Encounter\Domain\Model\EncounterDefinition;
@@ -32,6 +33,29 @@ final class RewardRules
 
     private function __construct()
     {
+    }
+
+    /**
+     * Whether an outcome earns experience, gold and loot at all.
+     *
+     * Only a Victory does. A Defeat or a Draw earns nothing — see
+     * game-bible.md section 9's "cost without completion" rule.
+     */
+    public static function isPayable(Outcome $outcome): bool
+    {
+        return $outcome === Outcome::Victory;
+    }
+
+    /**
+     * How much of a spent Vigor cost comes back.
+     *
+     * Only a Draw refunds — it means the round cap was reached, a design
+     * failure rather than a player one. A Defeat keeps the cost spent, same as
+     * a Victory. See docs/combat.md section 4.
+     */
+    public static function vigorRefund(Outcome $outcome, int $vigorCost): int
+    {
+        return $outcome === Outcome::Draw ? $vigorCost : 0;
     }
 
     public static function experience(EncounterDefinition $encounter, int $characterLevel): int

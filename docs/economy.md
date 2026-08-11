@@ -187,13 +187,15 @@ once spent.
 
 ---
 
-## 7. Player trading — deferred, with reasoning
+## 7. Player trading — out of scope, not merely deferred
 
-**Not in the initial design.** Gold and items are bound to the character.
+**Not in the design, and not planned.** Gold and items are bound to the
+character, permanently. No auction house, no direct trade, no player-to-player
+transfer of any kind.
 
-An auction house is attractive: it is an excellent gold sink (fees), it makes
-drops more meaningful, and players ask for it. It is deferred because it is also
-the single largest source of economic risk in the project:
+An auction house was considered: it is an excellent gold sink (fees), it makes
+drops more meaningful, and players ask for it. It is rejected because it is
+also the single largest source of economic risk in the project:
 
 - It is the enabling mechanism for **real-money trading**, which converts every
   gold exploit into a cash exploit and every bot into a business.
@@ -202,13 +204,9 @@ the single largest source of economic risk in the project:
 - It makes the economy **coupled**: after an auction house exists, every drop
   rate change is a market intervention, and mistakes are much harder to reverse.
 
-The right sequence is to launch bound, gather real data on drop rates and gold
-flow, then design trading against that data with the anti-abuse work budgeted
-in advance. Adding trading to a stable economy is tractable; removing it from a
-broken one is not.
-
-An earlier draft named **guild-scoped item donation** as the likely first step —
-most of the social benefit, a bounded and auditable graph, far less RMT surface.
-That route is closed while guilds are out of scope
-([architecture.md](architecture.md) §9.2), so if trading is ever taken up it
-will have to be designed without a guild boundary to lean on.
+This was previously recorded as "deferred, with reasoning" — kept open pending
+real economy data, with a sequence sketched for revisiting it (launch bound,
+gather data, design trading with anti-abuse work budgeted in advance) and
+guild-scoped item donation floated as a lower-risk first step. Both are now
+closed: guilds are out of scope ([architecture.md](architecture.md) §9.2), and
+the decision is no trading of any kind, not a later phase to plan toward.
