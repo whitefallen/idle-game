@@ -193,14 +193,35 @@ Stated explicitly so that future feature proposals can be measured against it:
 Recorded rather than answered, to be resolved before the systems they touch are
 built:
 
-1. **Death penalty.** Currently none beyond the wasted Vigor cost — durability
-   was considered and rejected ([items.md](items.md) §6), so a loss costs only
-   the attempt. Whether losing an encounter should cost anything more is
-   unresolved.
-2. **Trading between players.** An auction house is a powerful economic sink
-   (fees) but is also the single largest vector for real-money trading and bot
-   farming. Deferred until the economy has real data. See [economy.md](economy.md) §7.
-3. **Season structure.** See §4.3.
+1. **Season structure.** See §4.3.
+
+Two items previously listed here are no longer open:
+
+- **Death penalty, generalised: cost without completion.** Settled, and stated
+  as one rule rather than an Encounter-only one: whichever resource an
+  activity spends up front, reaching anything short of the completing outcome
+  grants no reward, refunds nothing, and marks nothing done — the spent
+  resource is simply gone and the player tries again. No exceptions are
+  carved out per system:
+  - **Encounter.** Vigor is spent before the fight resolves
+    (`ResolveEncounterHandler`) and is refunded only on a Draw; a Defeat grants
+    no XP/gold/loot and is not a win.
+  - **Quest.** Spends no resource at all — the cost is the wait, not Vigor —
+    so refund is moot by construction. A non-Victory resolution grants no
+    reward and leaves the run `Failed`, not `Claimed`, so it can be re-accepted
+    rather than counting as done.
+  - **Dungeon.** Entry spends materials, never Vigor. Per-stage rewards for
+    stages already cleared before a losing stage stand (see
+    [dungeons.md](dungeons.md) §1), but the completion bonus, drop-table roll,
+    and discipline offer are all gated on a full clear — a losing run is
+    stored but never counts as `cleared`, so a non-repeatable dungeon may be
+    re-attempted.
+
+  Durability was already rejected as a penalty layered on top of this
+  ([items.md](items.md) §6); this closes the question rather than leaving it
+  open for a heavier penalty later.
+- **Trading between players.** Settled: no auction house, no player trading of
+  any kind. See [economy.md](economy.md) §7.
 
 Guild depth was previously listed here. It is no longer an open question: guilds
 are out of scope ([architecture.md](architecture.md) §9.2).

@@ -260,17 +260,14 @@ final class ResolveEncounterHandler
     ): array {
         $rewards = ['experience' => 0, 'gold' => 0, 'levelsGained' => 0, 'vigorRefunded' => 0];
 
-        if ($log->outcome === Outcome::Draw) {
-            // A draw means the round cap was reached, which is a design failure
-            // rather than a player failure. No rewards, and the Vigor is
-            // returned. See docs/combat.md section 4.
-            $character->refundVigor($definition->vigorCost, $now);
-            $rewards['vigorRefunded'] = $definition->vigorCost;
+        $vigorRefund = RewardRules::vigorRefund($log->outcome, $definition->vigorCost);
 
-            return $rewards;
+        if ($vigorRefund > 0) {
+            $character->refundVigor($vigorRefund, $now);
+            $rewards['vigorRefunded'] = $vigorRefund;
         }
 
-        if ($log->outcome !== Outcome::Victory) {
+        if (!RewardRules::isPayable($log->outcome)) {
             return $rewards;
         }
 

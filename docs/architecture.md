@@ -355,17 +355,22 @@ shop was rejected in favour of stock priced and rolled against a character's
 own gear. Still not built: art — content and items carry an `icon` id (see
 [items.md](items.md) §7) but no asset exists behind any of them yet.
 
-### 9.2 Cut from scope: crafting and guilds
+### 9.2 Cut from scope: crafting, guilds, and player trading
 
-Crafting and guilds are **out of scope**, not merely deferred. Both were sized
-against the effort available and judged too large to build well: crafting needs
-a recipe corpus, a material economy tuned against refinement, and a second
-item-generation path that must not undercut drops; guilds need membership,
-permissions, a social surface, and cooperative content to be about.
+Crafting, guilds, and player trading are **out of scope**, not merely
+deferred. Crafting and guilds were sized against the effort available and
+judged too large to build well: crafting needs a recipe corpus, a material
+economy tuned against refinement, and a second item-generation path that must
+not undercut drops; guilds need membership, permissions, a social surface, and
+cooperative content to be about. Player trading (an auction house or any
+direct transfer) is cut for a different reason — not effort but risk: it is
+the enabling mechanism for real-money trading and requires bot detection as a
+hard ongoing dependency. See [economy.md](economy.md) §7 for the full
+reasoning.
 
-Half-built versions of either would be worse than their absence, so the design
-documents record their *rationale* — the beacon-chain framing, guild feed
-outbox consumers, crafting as a material sink — without treating them as
-pending work. Where a document names them as a motivating example, that example
-now reads as a hypothetical rather than a plan. Reopening either is a scope
-decision, not a backlog pull.
+Half-built versions of any of the three would be worse than their absence, so
+the design documents record their *rationale* — the beacon-chain framing,
+guild feed outbox consumers, crafting as a material sink, the auction-house
+risk analysis — without treating them as pending work. Where a document names
+them as a motivating example, that example now reads as a hypothetical rather
+than a plan. Reopening any of them is a scope decision, not a backlog pull.
