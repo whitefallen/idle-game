@@ -1,0 +1,119 @@
+# The Sundered Causeway item corpus — pool.stretch2.
+#
+# Base stats derive from ilvl at runtime (docs/items.md section 3); the
+# definition carries identity, slot, requirements and economy values only. That
+# is why this file adds *slots and build directions* rather than bigger numbers:
+# a second heavy weapon at a higher ilvl would be the same item, and the stat
+# budget discipline in docs/progression.md section 2.2 exists to forbid exactly
+# that.
+#
+# The pool covers levels 7-14, so it also serves the Drowned Span (stretch 2.5).
+# A wave gets its own pool only when it has a reason to drop different *kinds*
+# of thing, not merely stronger ones.
+#
+# Attribute requirements are sized against roughly half the point budget of a
+# character at the required level, so an item is reachable by the build it is
+# for and out of reach for a character who has specialised elsewhere. Only
+# allocated attributes count toward a requirement (docs/progression.md section
+# 2.1), so these cannot be satisfied by stacking other gear.
+
+# The first light weapon in the library. Dexterity-scaled and lower on the
+# damage curve than a halberd by design (docs/items.md section 3): the reason to
+# carry one is the initiative and dodge a Dexterity build brings with it, not
+# the weapon's own number.
+- id: item.tidewrought_blade
+  localisationKey: item.tidewrought_blade
+  slot: MainHand
+  twoHanded: false
+  weaponClass: light
+  ilvl: 10
+  icon: items/weapons/tidewrought_blade
+  vendorValue: 230
+  requirements:
+    level: 8
+    attributes:
+      DEX: 16
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [causeway, blade, stretch2, pool.stretch2]
+
+- id: item.causeway_maul
+  localisationKey: item.causeway_maul
+  slot: MainHand
+  twoHanded: true
+  weaponClass: heavy
+  ilvl: 11
+  icon: items/weapons/causeway_maul
+  vendorValue: 260
+  requirements:
+    level: 8
+    attributes:
+      STR: 20
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [causeway, maul, stretch2, pool.stretch2]
+
+- id: item.husk_scale_helm
+  localisationKey: item.husk_scale_helm
+  slot: Head
+  twoHanded: false
+  ilvl: 10
+  icon: items/armour/husk_scale_helm
+  vendorValue: 175
+  requirements:
+    level: 8
+    attributes:
+      CON: 16
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [causeway, scale, stretch2, pool.stretch2]
+
+- id: item.lurker_hide_leggings
+  localisationKey: item.lurker_hide_leggings
+  slot: Legs
+  twoHanded: false
+  ilvl: 12
+  icon: items/armour/lurker_hide_leggings
+  vendorValue: 215
+  requirements:
+    level: 10
+    attributes:
+      DEX: 14
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [causeway, hide, stretch2, pool.stretch2]
+
+- id: item.marshwalker_boots
+  localisationKey: item.marshwalker_boots
+  slot: Feet
+  twoHanded: false
+  ilvl: 9
+  icon: items/armour/marshwalker_boots
+  vendorValue: 130
+  requirements:
+    level: 7
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [causeway, hide, stretch2, pool.stretch2]
+
+# Amulets and rings carry no base stats at all, so every point of their value
+# comes from affixes. Vendor value is priced accordingly — high for the ilvl,
+# because what a player is buying is four affix rolls rather than a stat line.
+- id: item.chanters_torc
+  localisationKey: item.chanters_torc
+  slot: Amulet
+  twoHanded: false
+  ilvl: 11
+  icon: items/jewellery/chanters_torc
+  vendorValue: 240
+  requirements:
+    level: 9
+  allowedAffixPools:
+    - jewellery_prefix
+    - jewellery_suffix
+  tags: [causeway, torc, stretch2, pool.stretch2]

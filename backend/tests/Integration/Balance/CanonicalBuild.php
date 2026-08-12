@@ -48,6 +48,15 @@ final class CanonicalBuild
      * how much a plan loses without it — the fallback and the opener first,
      * survival next, situational answers last.
      *
+     * New abilities are **appended** rather than inserted. Reordering this list
+     * changes the reference player at every level with enough slots to notice,
+     * which silently re-tunes tolerances that were declared against the old
+     * order — and re-tuning stretch 1 is not something a stretch 4 content
+     * release should quietly do. The cost is that a late-appended ability is
+     * not exercised until `loadoutSlotsAt` reaches its position, which for
+     * ability.warding_flame is level 36. That gap is recorded in
+     * docs/content.md section 5.
+     *
      * @var list<string>
      */
     private const array PRIORITY = [
@@ -58,6 +67,7 @@ final class CanonicalBuild
         'ability.reaping_blow',
         'ability.mending_tide',
         'ability.shattering_arc',
+        'ability.warding_flame',
     ];
 
     /**
@@ -186,6 +196,20 @@ final class CanonicalBuild
         ];
 
         $rules = [];
+
+        // The Cinder Reach's answer, and the only presence-checked rule the
+        // canonical player writes: Warding Flame is cast on the *tell* rather
+        // than on low health, which is the whole lesson of stretch 4. It sits
+        // above the health-threshold heals because a spike that has not landed
+        // yet is more urgent than damage that already has.
+        if (in_array('ability.warding_flame', $slotted, true)) {
+            $rules[] = new PlanRule(
+                new Condition([
+                    ConditionTerm::hasEffect(ConditionSubject::SelfHasEffect, 'effect.pyre_mark'),
+                ]),
+                'ability.warding_flame',
+            );
+        }
 
         foreach ($conditional as [$abilityId, $subject, $operator, $value]) {
             if (in_array($abilityId, $slotted, true)) {

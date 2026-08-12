@@ -1,0 +1,191 @@
+# Beacon-line stretch 4 bestiary: the Cinder Reach, levels 23-30.
+#
+# The wave's step is the tell. Its threat is not carried by any one monster's
+# stat line — the pyrebinder is weak, the executioner is ordinary — but by the
+# two-round relationship between them: the binder marks, and two rounds later
+# the executioner cashes the mark in for the hardest single hit in the game.
+#
+# This is the first mechanic in the beacon-line that a player cannot answer by
+# reading a number that has already moved. The health thresholds of stretch 3
+# and the round gates of stretch 2.5 both describe a fight that has already
+# changed; the mark describes one that is about to. See docs/content.md
+# section 2.
+#
+# Stats are authored directly rather than derived from attributes; see the note
+# at the top of content/monsters/stretch1.yaml.
+
+# The tell, walking. Fast, so it marks early; frail, so killing it is always
+# tempting; and almost harmless, so killing it is usually wrong. Every point of
+# its danger is spent on somebody else's turn.
+- id: monster.reach_pyrebinder
+  localisationKey: monster.reach_pyrebinder
+  level: 24
+  maxHealth: 340
+  initiative: 195
+  maxFocus: 40
+  focusPerTurn: 6
+  weaponBaseDamage: 40
+  flatDamageBonus: 3
+  scalingBp: 10000
+  critChanceBp: 800
+  critPowerBp: 16000
+  dodgeChanceBp: 600
+  accuracyBp: 300
+  armourRating: 340
+  resistanceRatings:
+    physical: 140
+    arcane: 300
+  abilities:
+    - ability.crushing_blow
+    - ability.pyre_mark
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.pyre_mark
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# The reason the mark matters. Slow to become dangerous and lethal once it is,
+# with the highest initiative in the wave so that when a mark is live it acts on
+# it before the player can act on the binder.
+#
+# `target.has_effect` is what makes the whole encounter legible in the combat
+# log: the player can see the round the execution became legal, and can see that
+# it was a round they were given.
+- id: monster.reach_executioner
+  localisationKey: monster.reach_executioner
+  level: 26
+  maxHealth: 460
+  initiative: 205
+  maxFocus: 44
+  focusPerTurn: 6
+  weaponBaseDamage: 58
+  flatDamageBonus: 4
+  scalingBp: 10000
+  critChanceBp: 1300
+  critPowerBp: 18000
+  dodgeChanceBp: 800
+  accuracyBp: 400
+  armourRating: 380
+  resistanceRatings:
+    physical: 200
+    arcane: 120
+  abilities:
+    - ability.crushing_blow
+    - ability.cinder_execution
+  battlePlan:
+    - condition:
+        - subject: target.has_effect
+          effectId: effect.pyre_mark
+      ability: ability.cinder_execution
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# The wall, and the reason the pair gets to finish its work. The highest armour
+# rating in the library paired with the lowest initiative: it is never the thing
+# that kills the player, it is the thing that costs them the two rounds in which
+# a mark becomes a corpse. The Causeway Husk played the same role for the Rot
+# Chanter; this is that lesson at three times the scale.
+- id: monster.slagborn_hulk
+  localisationKey: monster.slagborn_hulk
+  level: 25
+  maxHealth: 700
+  initiative: 80
+  maxFocus: 26
+  focusPerTurn: 4
+  weaponBaseDamage: 54
+  flatDamageBonus: 2
+  scalingBp: 10000
+  critChanceBp: 500
+  critPowerBp: 15000
+  dodgeChanceBp: 200
+  accuracyBp: 0
+  armourRating: 700
+  resistanceRatings:
+    physical: 320
+    nature: 160
+  abilities:
+    - ability.crushing_blow
+    - ability.slag_sweep
+  battlePlan:
+    - condition:
+        - subject: always
+      ability: ability.slag_sweep
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow
+
+# The second boss, and the wave's thesis in one participant: it marks, then it
+# executes its own mark. Every mechanic the beacon-line has taught is in this
+# plan, read top-down — the Warden of Ash's health phases and round gate, the
+# Drowned Span's insistence that time is a resource, and the Reach's tell.
+#
+# It is deliberately the same shape as the encounter that precedes it. A player
+# who learned to survive a binder standing next to an executioner already knows
+# what to do here; the fight only asks whether they can do it while the
+# Sovereign is also doing everything else.
+- id: monster.cinder_sovereign
+  localisationKey: monster.cinder_sovereign
+  level: 30
+  maxHealth: 2150
+  initiative: 185
+  maxFocus: 80
+  focusPerTurn: 8
+  weaponBaseDamage: 66
+  flatDamageBonus: 5
+  scalingBp: 10000
+  critChanceBp: 1300
+  critPowerBp: 18000
+  dodgeChanceBp: 500
+  accuracyBp: 500
+  armourRating: 620
+  resistanceRatings:
+    physical: 300
+    arcane: 380
+    nature: 260
+  abilities:
+    - ability.crushing_blow
+    - ability.pyre_mark
+    - ability.cinder_execution
+    - ability.emberwake_roar
+    - ability.vault_mend
+  battlePlan:
+    # The emergency heal, first because the most urgent state has to win. Shared
+    # with the Warden of Ash rather than duplicated at a bigger number: a boss's
+    # identity is its plan, not its private copy of a heal.
+    - condition:
+        - subject: self.health_percent
+          operator: lt
+          value: 35
+      ability: ability.vault_mend
+
+    # The enrage, gated on the round as well as on health so it can never fire
+    # in the opening exchange.
+    - condition:
+        - subject: self.health_percent
+          operator: lt
+          value: 60
+        - subject: round
+          operator: gte
+          value: 3
+      ability: ability.emberwake_roar
+
+    # Cashing in its own tell. Above these two rules the Sovereign would execute
+    # before it ever enraged; below them it would never get the chance.
+    - condition:
+        - subject: target.has_effect
+          effectId: effect.pyre_mark
+      ability: ability.cinder_execution
+
+    # Setting the tell. Unconditional, so it falls through on the rounds the
+    # mark is on cooldown — which is precisely when the player is safe, and
+    # precisely what a plan can be written to notice.
+    - condition:
+        - subject: always
+      ability: ability.pyre_mark
+
+    - condition:
+        - subject: always
+      ability: ability.crushing_blow

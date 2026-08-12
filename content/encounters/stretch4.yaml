@@ -1,0 +1,70 @@
+# Encounter definitions for beacon-line stretch 4: the Cinder Reach.
+#
+# Levels 23-30, opening where the Ashen Vault closes and ending on the
+# beacon-line's second boss. tier selects the XP multiplier applied in the
+# progression rules (patrol 10000, elite 25000, boss 60000 basis points).
+#
+# The four encounters are a teaching sequence, and the order is the whole
+# design: the mark alone, the mark with time to work, the mark with somebody to
+# use it, and finally one opponent doing all three at once.
+
+# The tell, with nothing behind it. A lone pyrebinder marks the player every
+# three rounds and can do almost nothing with it, so the player's first
+# encounter with the mechanic costs them a combat log to read and nothing else.
+- id: encounter.stretch4.reach_watch
+  localisationKey: encounter.stretch4.reach_watch
+  level: 23
+  tier: patrol
+  vigorCost: 16
+  requiredLevel: 22
+  monsters:
+    - monster.reach_pyrebinder
+  dropTable: droptable.stretch4.patrol
+
+# The mark, given time. The hulk does not use the mark and does not care about
+# it; it simply makes the fight long enough that the marks start to add up.
+- id: encounter.stretch4.slag_line
+  localisationKey: encounter.stretch4.slag_line
+  level: 25
+  tier: patrol
+  vigorCost: 18
+  requiredLevel: 24
+  monsters:
+    - monster.slagborn_hulk
+    - monster.reach_pyrebinder
+  dropTable: droptable.stretch4.patrol
+
+# The mechanic, examined. Binder, executioner and a wall to protect them both.
+# This is the fight the default plan is expected to lose: it answers spikes
+# after they land, and this encounter's spike is designed to be unsurvivable
+# after it lands and trivial before it.
+- id: encounter.stretch4.execution
+  localisationKey: encounter.stretch4.execution
+  level: 27
+  tier: elite
+  vigorCost: 32
+  requiredLevel: 26
+  monsters:
+    - monster.slagborn_hulk
+    - monster.reach_pyrebinder
+    - monster.reach_pyrebinder
+    - monster.reach_executioner
+  dropTable: droptable.stretch4.elite
+
+# The beacon-line's second boss, gated two levels below its own level and
+# costing a little over a third of a full Vigor pool.
+#
+# Its escort is the pair the player has just spent a stretch learning to break,
+# which makes the fight a re-examination rather than a new lesson: the Sovereign
+# is doing the same thing its servants do, and doing it while enraging.
+- id: encounter.stretch4.cinder_sovereign
+  localisationKey: encounter.stretch4.cinder_sovereign
+  level: 30
+  tier: boss
+  vigorCost: 45
+  requiredLevel: 28
+  monsters:
+    - monster.cinder_sovereign
+    - monster.reach_pyrebinder
+    - monster.reach_executioner
+  dropTable: droptable.stretch4.boss

@@ -6,9 +6,9 @@
 # game having taken something from the player. Every other table is allowed to
 # roll nothing because the Vigor cost is small enough to be shrugged off.
 #
-# As with stretch 2, the item entries draw from pool.stretch1 until a deeper
-# item corpus is authored; item level is what scales power. See
-# content/droptables/stretch2.yaml.
+# The item entries draw from pool.stretch3 (content/items/stretch3.yaml), the
+# wave that adds the first focus weapon — so the Vault is where an Intelligence
+# build finally finds something to hold.
 
 - id: droptable.stretch3.patrol
   rolls: 1
@@ -25,7 +25,7 @@
       quantity: [1, 2]
     - weight: 1200
       type: item
-      pool: pool.stretch1
+      pool: pool.stretch3
       ilvlRange: [14, 20]
 
 - id: droptable.stretch3.elite
@@ -43,7 +43,7 @@
       quantity: [2, 4]
     - weight: 3300
       type: item
-      pool: pool.stretch1
+      pool: pool.stretch3
       ilvlRange: [16, 22]
 
 - id: droptable.stretch3.boss
@@ -59,5 +59,5 @@
       quantity: [3, 6]
     - weight: 4500
       type: item
-      pool: pool.stretch1
+      pool: pool.stretch3
       ilvlRange: [20, 26]
