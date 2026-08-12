@@ -129,7 +129,7 @@ final class DisciplineAvailabilityTest extends KernelTestCase
      */
     private static function levelsUnderTest(): array
     {
-        $levels = [1, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 22, 24];
+        $levels = [1, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 22, 24, 26, 28, 30];
 
         sort($levels);
 

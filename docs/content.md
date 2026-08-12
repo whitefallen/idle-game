@@ -42,11 +42,18 @@ handles badly, so progression is felt as learning rather than as a bigger number
 |---------|--------|-----------------|-------------------------------|
 | **1 — Beacon Patrol** | 1–6 | Groups. One strong enemy and three weak ones are different problems | Slot an area ability; learn that a plan needs a fallback |
 | **2 — The Sundered Causeway** | 7–12 | **Sustain.** Enemies undo progress: the Rot Chanter heals its allies, the Causeway Ravager buffs itself the longer it lives | Kill order and pace. A plan that wins slowly stops winning |
+| **2.5 — The Drowned Span** | 13–14 | **The clock.** The Tide Herald's threat is a function of the round, not of its health, and its buff never lapses once it starts | Pace. Open harder and finish before round six; there is nothing to wait out |
 | **3 — The Ashen Vault** | 15–22 | **Phases.** The Warden of Ash changes behaviour with its health and the round number, and brings adds | Conditional rules — `target.health_percent`, `round` — instead of a priority list |
+| **4 — The Cinder Reach** | 23–30 | **The tell.** A pyrebinder marks the player; two rounds later an executioner cashes the mark in for the hardest hit in the game | `self.has_effect` — healing *before* the spike rather than after it |
 
-The gap between stretch 2 (ends at 12) and stretch 3 (opens at 15) is
-deliberate: it is where a stretch 2.5 wave lands, and leaving it empty is
-honest about the fact that it has not been designed yet.
+Each step is a rung, and the order is load-bearing. Stretch 2.5 exists because
+`round` is a subject the Warden of Ash relies on and nothing before it had ever
+used, so a player met the boss's round gate having never seen a fight where the
+round number mattered. Stretch 4 is the first content of any kind to use a
+presence subject: the Reach's executioner reads `target.has_effect` about the
+player, and the answer the wave is built around is the player reading
+`self.has_effect` about themselves — a rule the plan editor has always been able
+to express and that no fight had ever given a reason to write.
 
 ### 2.1 Encounters
 
@@ -60,10 +67,20 @@ honest about the fact that it has not been designed yet.
 | `stretch2.lurkers` | 10 | patrol | 9 | 12 | Marsh Lurker ×2 |
 | `stretch2.warren` | 11 | elite | 10 | 22 | Rot Chanter, Marsh Lurker ×2 |
 | `stretch2.ravager` | 12 | elite | 11 | 25 | Causeway Ravager |
+| `stretch2_5.span` | 13 | patrol | 12 | 13 | Span Leech ×2 |
+| `stretch2_5.herald` | 14 | elite | 13 | 26 | Tide Herald, Span Leech |
 | `stretch3.vault_watch` | 16 | patrol | 15 | 14 | Vault Sentinel |
 | `stretch3.revenants` | 18 | patrol | 17 | 16 | Ash Revenant, Emberbound Thrall |
 | `stretch3.sentinels` | 19 | elite | 18 | 28 | Vault Sentinel ×2, Emberbound Thrall |
 | `stretch3.warden_of_ash` | 22 | **boss** | 20 | 40 | Warden of Ash, Emberbound Thrall ×2 |
+| `stretch4.reach_watch` | 23 | patrol | 22 | 16 | Reach Pyrebinder |
+| `stretch4.slag_line` | 25 | patrol | 24 | 18 | Slagborn Hulk, Reach Pyrebinder |
+| `stretch4.execution` | 27 | elite | 26 | 32 | Slagborn Hulk, Reach Pyrebinder ×2, Reach Executioner |
+| `stretch4.cinder_sovereign` | 30 | **boss** | 28 | 45 | Cinder Sovereign, Reach Pyrebinder, Reach Executioner |
+
+The Reach's four encounters are a teaching sequence and the order is the design:
+the mark alone, the mark with time to work, the mark with somebody to use it,
+and one opponent doing all three at once.
 
 `requiredLevel` sits one or two levels below the encounter's own level
 throughout. A gate the player reaches slightly under-levelled is a challenge;
@@ -146,10 +163,30 @@ Enforced by JSON Schema (`content/schema/*.schema.json`), by each repository's
 
 Recorded rather than quietly tolerated:
 
-- **The item corpus has not kept pace.** `pool.stretch1` is still the only
-  authored item pool, so stretch 2 and 3 drop tables draw from it at higher item
-  levels. That works — item level, not the pool, is what scales an item's power
-  ([items.md](items.md) §3) — but it means deeper content drops the same three
-  bases. Adding items tagged `pool.stretch2` / `pool.stretch3` and repointing the
-  `pool` field is the whole fix.
-- **Levels 13–14 and 23+ have no content.**
+- **Off-hand items cannot be authored.** `EquipmentSlot::OffHand` carries an
+  armour weight of 12000 — a shield's share of the curve — but every off-hand
+  item is rejected by `YamlItemDefinitionRepository::validateContent()`, which
+  requires a weapon class on any hand slot. The rule conflates "hand slot" with
+  "weapon"; `ItemDefinition` itself is happy with an off-hand that has none. The
+  fix is to narrow that rule to `MainHand`, and it is a PHP change rather than a
+  content one, which is why no wave has quietly worked around it.
+- **A new player ability is not exercised by the balance suite until the
+  loadout has room for it.** `CanonicalBuild::PRIORITY` is append-only on
+  purpose — reordering it re-tunes every tolerance declared against the old
+  order — so `ability.warding_flame` sits eighth and is not slotted until level
+  36, well past the content it answers. The tolerances for stretch 4 therefore
+  describe a player fighting the Cinder Reach *without* the Reach's own answer,
+  which is a conservative floor rather than a wrong one. Revisiting the priority
+  list is a deliberate re-tuning exercise, not a side effect of a content wave.
+- **The beacon-line stops at level 31**, and the level-source discipline
+  catalogue stops at 22: `loadoutSlotsAt` keeps granting a slot every six
+  levels, so a character past level 30 accumulates room faster than the game
+  gives them anything to put in it. The dungeon discipline pool
+  ([progression.md](progression.md) §4.2) partly answers this, but it is a
+  collection mechanic rather than a level curve, so it cannot be relied on to
+  fill a slot at a particular level.
+- **`self.focus` and `self.has_effect` are the two condition subjects no
+  authored content uses.** `self.has_effect` is deliberate for now — it is the
+  *player's* half of stretch 4's mechanic, and nothing in the bestiary has yet
+  wanted to read an effect on itself — but a subject no content demonstrates is
+  a subject most players never discover.

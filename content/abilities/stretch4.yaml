@@ -1,0 +1,82 @@
+# Abilities introduced with beacon-line stretch 4: the Cinder Reach.
+#
+# Two enemies and one ability make the wave's mechanic: the pyrebinder applies
+# the mark, the executioner reads it. Neither is interesting alone, which is the
+# design — the threat is a *relationship between two monsters*, so the answer is
+# a target priority rather than a bigger number, and an encounter can be made
+# harder by changing who stands next to whom.
+#
+# Player and monster abilities share one pool because the engine draws no
+# distinction between them. See content/abilities/core.yaml.
+
+# ------------------------------------------------------------------ player kit
+
+# The answer to a telegraphed spike, and the first player ability written to be
+# cast on a rule the player could not previously express:
+#
+#     IF  I have Pyre-marked  THEN  Warding Flame
+#
+# Priced as the most expensive heal in the game and put on the longest cooldown,
+# because it is not a panic button — it is a *scheduled* one. A player who casts
+# it reactively on low health has bought the same healing Emberdraught offers
+# for twice the Focus, which is exactly the wrong lesson and exactly the right
+# punishment for learning it.
+- id: ability.warding_flame
+  localisationKey: ability.warding_flame
+  focusCost: 22
+  cooldownRounds: 5
+  damageCoefficientBp: 0
+  healCoefficientBp: 13000
+  school: nature
+  selector: self
+  effectId: effect.mending
+  effectChanceBp: 10000
+
+# ----------------------------------------------------------------- monster kit
+
+# The tell. Low damage on purpose: a pyrebinder that hurt would be answered by
+# killing it, and the fight is meant to be a question about *when* rather than
+# about whom.
+- id: ability.pyre_mark
+  localisationKey: ability.pyre_mark
+  focusCost: 10
+  cooldownRounds: 3
+  damageCoefficientBp: 4000
+  healCoefficientBp: 0
+  school: arcane
+  selector: lowest_health_enemy
+  effectId: effect.pyre_mark
+  effectChanceBp: 9000
+
+# The payoff, and the hardest single hit in the library. It is legal only
+# against a marked target, so its entire cost is paid by another monster two
+# rounds earlier — which is why the executioner's own stat line is unremarkable
+# and why killing it first is not obviously correct.
+- id: ability.cinder_execution
+  localisationKey: ability.cinder_execution
+  focusCost: 18
+  cooldownRounds: 3
+  damageCoefficientBp: 24000
+  healCoefficientBp: 0
+  school: physical
+  selector: lowest_health_enemy
+
+- id: ability.emberwake_roar
+  localisationKey: ability.emberwake_roar
+  focusCost: 14
+  cooldownRounds: 5
+  damageCoefficientBp: 0
+  healCoefficientBp: 0
+  school: arcane
+  selector: self
+  effectId: effect.emberwake
+  effectChanceBp: 10000
+
+- id: ability.slag_sweep
+  localisationKey: ability.slag_sweep
+  focusCost: 12
+  cooldownRounds: 3
+  damageCoefficientBp: 6500
+  healCoefficientBp: 0
+  school: physical
+  selector: all_enemies

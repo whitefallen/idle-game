@@ -1,0 +1,27 @@
+# Effect primitives introduced with the Drowned Span (beacon-line stretch 2.5).
+#
+# The wave's mechanical step is the clock: an enemy whose threat is a function
+# of the round rather than of its health. It therefore adds exactly one effect.
+#
+# That restraint is the point, and it is the same test stretch 2 applied to
+# itself (content/effects/stretch2.yaml): a wave that needs a new primitive per
+# monster is a wave whose designer is decorating rather than designing. The
+# Span's leeches reuse effect.corroded, because "a nature tick that grinds" is
+# already in the vocabulary and a second one would only differ by two points.
+#
+# Stacking rule is unchanged: reapplying refreshes duration, never magnitude.
+
+# The clock made visible. Larger than frenzy (+35%) and smaller than the Warden
+# of Ash's enrage (+50%), which is the ordering the beacon-line needs: the Span
+# sits between the stretch that introduced self-buffing and the stretch that
+# builds a boss out of it.
+#
+# Four rounds rather than frenzy's three, and applied on a four-round cooldown,
+# so once the herald starts casting it the buff is *permanent* for the rest of
+# the fight. There is no waiting it out. That is what makes it a clock rather
+# than a window.
+- id: effect.rising_tide
+  localisationKey: effect.rising_tide
+  kind: damage_modifier
+  magnitude: 4000
+  durationRounds: 4

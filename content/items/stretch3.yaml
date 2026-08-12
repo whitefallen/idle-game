@@ -1,0 +1,125 @@
+# The Ashen Vault item corpus — pool.stretch3, levels 15-22.
+#
+# The wave that completes the weapon triangle: item.ashcallers_rod is the first
+# `focus` weapon in the library, so all three weapon classes in
+# docs/items.md section 3 finally have something to equip. Until now an
+# Intelligence build had a damage curve on paper and nothing to hold.
+#
+# See content/items/stretch2.yaml for how requirements are sized.
+
+- id: item.vault_greatmaul
+  localisationKey: item.vault_greatmaul
+  slot: MainHand
+  twoHanded: true
+  weaponClass: heavy
+  ilvl: 20
+  icon: items/weapons/vault_greatmaul
+  vendorValue: 470
+  requirements:
+    level: 16
+    attributes:
+      STR: 34
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [vault, maul, stretch3, pool.stretch3]
+
+- id: item.emberglass_edge
+  localisationKey: item.emberglass_edge
+  slot: MainHand
+  twoHanded: false
+  weaponClass: light
+  ilvl: 19
+  icon: items/weapons/emberglass_edge
+  vendorValue: 440
+  requirements:
+    level: 16
+    attributes:
+      DEX: 30
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [vault, blade, stretch3, pool.stretch3]
+
+# The first focus weapon. Its class multiplier sits between heavy and light
+# (docs/items.md section 3), which is the point: an Intelligence build buys its
+# advantage in Focus economy — more abilities cast per fight — rather than in
+# the weapon's own damage.
+- id: item.ashcallers_rod
+  localisationKey: item.ashcallers_rod
+  slot: MainHand
+  twoHanded: false
+  weaponClass: focus
+  ilvl: 19
+  icon: items/weapons/ashcallers_rod
+  vendorValue: 450
+  requirements:
+    level: 16
+    attributes:
+      INT: 30
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [vault, rod, stretch3, pool.stretch3]
+
+- id: item.sentinel_cuirass
+  localisationKey: item.sentinel_cuirass
+  slot: Chest
+  twoHanded: false
+  ilvl: 20
+  icon: items/armour/sentinel_cuirass
+  vendorValue: 400
+  requirements:
+    level: 16
+    attributes:
+      CON: 32
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [vault, plate, stretch3, pool.stretch3]
+
+- id: item.ashen_visor
+  localisationKey: item.ashen_visor
+  slot: Head
+  twoHanded: false
+  ilvl: 18
+  icon: items/armour/ashen_visor
+  vendorValue: 320
+  requirements:
+    level: 15
+    attributes:
+      CON: 26
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [vault, plate, stretch3, pool.stretch3]
+
+- id: item.emberbound_gauntlets
+  localisationKey: item.emberbound_gauntlets
+  slot: Hands
+  twoHanded: false
+  ilvl: 19
+  icon: items/armour/emberbound_gauntlets
+  vendorValue: 300
+  requirements:
+    level: 16
+    attributes:
+      STR: 26
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [vault, plate, stretch3, pool.stretch3]
+
+- id: item.warden_signet
+  localisationKey: item.warden_signet
+  slot: Ring1
+  twoHanded: false
+  ilvl: 21
+  icon: items/jewellery/warden_signet
+  vendorValue: 480
+  requirements:
+    level: 18
+  allowedAffixPools:
+    - jewellery_prefix
+    - jewellery_suffix
+  tags: [vault, signet, stretch3, pool.stretch3]

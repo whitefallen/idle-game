@@ -1,0 +1,40 @@
+# Abilities introduced with the Drowned Span (beacon-line stretch 2.5).
+#
+# Monster-side only. The Span adds no player ability on purpose: its answer is
+# a *plan* change rather than a new tool — open harder, drop the fallback rule
+# that trades safely, and finish before round six — and a wave whose lesson can
+# be learned with the kit the player already owns is the cheapest lesson the
+# beacon-line can teach. See docs/content.md section 2.
+#
+# Player and monster abilities share one pool because the engine draws no
+# distinction between them. See content/abilities/core.yaml.
+
+# A whole turn spent on nothing, exactly like blood_frenzy — but on a cooldown
+# one round shorter than the buff it applies, so from the moment the herald
+# starts casting it the buff never lapses. blood_frenzy is a window the player
+# can wait out; this is not.
+- id: ability.call_the_tide
+  localisationKey: ability.call_the_tide
+  focusCost: 12
+  cooldownRounds: 4
+  damageCoefficientBp: 0
+  healCoefficientBp: 0
+  school: nature
+  selector: self
+  effectId: effect.rising_tide
+  effectChanceBp: 10000
+
+# The payoff the clock is counting toward. Expensive enough that the herald
+# cannot open with it and cannot sustain it every round, and aimed at everything
+# rather than at one target so that it is the fight's damage ceiling rather than
+# a spike on a single roll.
+- id: ability.tidal_surge
+  localisationKey: ability.tidal_surge
+  focusCost: 20
+  cooldownRounds: 3
+  damageCoefficientBp: 11000
+  healCoefficientBp: 0
+  school: nature
+  selector: all_enemies
+  effectId: effect.corroded
+  effectChanceBp: 5000

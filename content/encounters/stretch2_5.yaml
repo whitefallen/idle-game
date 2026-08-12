@@ -1,0 +1,35 @@
+# Encounter definitions for the Drowned Span (beacon-line stretch 2.5).
+#
+# Levels 13-14 — the gap the beacon-line deliberately left between the Causeway
+# (ends 12) and the Vault (opens 15). tier selects the XP multiplier applied in
+# the progression rules (patrol 10000, elite 25000, boss 60000 basis points).
+#
+# Two encounters rather than the four or five a full stretch carries. A
+# half-step should read as a short detour on the way to the Vault, not as a
+# region; padding it out with a third patrol would make levels 13-14 slower to
+# cross than levels 7-12, which is the opposite of what a bridge is for.
+
+- id: encounter.stretch2_5.span
+  localisationKey: encounter.stretch2_5.span
+  level: 13
+  tier: patrol
+  vigorCost: 13
+  requiredLevel: 12
+  monsters:
+    - monster.span_leech
+    - monster.span_leech
+  dropTable: droptable.stretch2_5.patrol
+
+# The clock, examined. The leech beside the herald is not there for its damage —
+# it is there to cost the player the two or three rounds that put them on the
+# wrong side of round six.
+- id: encounter.stretch2_5.herald
+  localisationKey: encounter.stretch2_5.herald
+  level: 14
+  tier: elite
+  vigorCost: 26
+  requiredLevel: 13
+  monsters:
+    - monster.tide_herald
+    - monster.span_leech
+  dropTable: droptable.stretch2_5.elite

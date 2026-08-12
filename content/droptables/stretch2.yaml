@@ -4,11 +4,10 @@
 # tuned in one place rather than duplicated across every table.
 # See docs/items.md section 8.
 #
-# These tables draw from pool.stretch1 because that is still the only authored
-# item pool. Item level, not the pool, is what scales an item's power
-# (docs/items.md section 3), so the same bases roll meaningfully stronger here.
-# The pool reference is the seam a stretch 2 item corpus lands on: adding items
-# tagged pool.stretch2 and changing these three lines is the whole change.
+# These tables draw from pool.stretch2 (content/items/stretch2.yaml), which is
+# also the pool the Drowned Span draws from: the two waves span levels 7-14 and
+# want the same *kinds* of item, and item level rather than the pool is what
+# scales an item's power (docs/items.md section 3).
 
 - id: droptable.stretch2.patrol
   rolls: 1
@@ -21,7 +20,7 @@
       quantity: [2, 4]
     - weight: 1300
       type: item
-      pool: pool.stretch1
+      pool: pool.stretch2
       ilvlRange: [6, 12]
 
 - id: droptable.stretch2.elite
@@ -39,5 +38,5 @@
       quantity: [1, 2]
     - weight: 3400
       type: item
-      pool: pool.stretch1
+      pool: pool.stretch2
       ilvlRange: [9, 15]

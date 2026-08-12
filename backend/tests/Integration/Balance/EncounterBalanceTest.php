@@ -82,6 +82,16 @@ final class EncounterBalanceTest extends KernelTestCase
         yield 'ravager is a coin flip at its gate' => ['encounter.stretch2.ravager', 11, 0.35, 0.65];
         yield 'ravager is routine by level 13' => ['encounter.stretch2.ravager', 13, 0.92, 1.0];
 
+        // ---------------------------------------------------- stretch 2.5
+        // The Drowned Span. Its step is the clock, so the elite's tolerance is
+        // a statement about pace rather than about power: the herald's buff
+        // never lapses once it starts, and the only reason a level 13 warden
+        // wins is that they got there first.
+        yield 'the Span is safe at its gate' => ['encounter.stretch2_5.span', 12, 0.95, 1.0];
+
+        yield 'the herald is demanding at its gate' => ['encounter.stretch2_5.herald', 13, 0.60, 0.92];
+        yield 'the herald is routine by level 15' => ['encounter.stretch2_5.herald', 15, 0.92, 1.0];
+
         // ------------------------------------------------------ stretch 3
         yield 'vault watch is safe at its gate' => ['encounter.stretch3.vault_watch', 15, 0.95, 1.0];
         yield 'revenant patrol is safe at its gate' => ['encounter.stretch3.revenants', 17, 0.92, 1.0];
@@ -95,6 +105,24 @@ final class EncounterBalanceTest extends KernelTestCase
         // everyone is not a boss.
         yield 'the Warden of Ash is winnable at its gate' => ['encounter.stretch3.warden_of_ash', 20, 0.45, 0.78];
         yield 'the Warden of Ash is beaten by level 22' => ['encounter.stretch3.warden_of_ash', 22, 0.90, 1.0];
+
+        // ------------------------------------------------------ stretch 4
+        // The Cinder Reach. Both patrols are near-certain, and deliberately so:
+        // they are where the player is *shown* the mark, and a teaching fight
+        // that can kill you teaches the wrong thing.
+        yield 'reach watch is safe at its gate' => ['encounter.stretch4.reach_watch', 22, 0.95, 1.0];
+        yield 'the slag line is safe at its gate' => ['encounter.stretch4.slag_line', 24, 0.95, 1.0];
+
+        // The elite is where the mark is examined, and the sharpest tolerance
+        // in the suite. That sharpness is the mechanic: an execution either
+        // lands on a healthy warden or on a dying one, so two levels of health
+        // move the win rate much further here than in an attrition fight.
+        yield 'the execution is a real challenge at its gate' => ['encounter.stretch4.execution', 26, 0.45, 0.85];
+        yield 'the execution is routine by level 28' => ['encounter.stretch4.execution', 28, 0.92, 1.0];
+
+        // The second boss, held to the same shape as the first.
+        yield 'the Cinder Sovereign is winnable at its gate' => ['encounter.stretch4.cinder_sovereign', 28, 0.45, 0.78];
+        yield 'the Cinder Sovereign is beaten by level 30' => ['encounter.stretch4.cinder_sovereign', 30, 0.90, 1.0];
     }
 
     #[DataProvider('tolerances')]

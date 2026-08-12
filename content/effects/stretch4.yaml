@@ -1,0 +1,36 @@
+# Effect primitives introduced with beacon-line stretch 4: the Cinder Reach.
+#
+# Stretch 4's mechanical step is the tell: damage stops arriving evenly and
+# starts arriving as a spike, announced two rounds in advance by an effect the
+# player is wearing. Every previous stretch could be answered by reacting to a
+# number that had already moved — health, round count, enemy count. This one can
+# only be answered *before* the damage lands.
+#
+# That makes it the first wave to use `self.has_effect` / `target.has_effect`,
+# the half of the battle plan grammar (docs/combat.md section 5.1) that nothing
+# in the game had ever exercised. The Reach's enemies read it about the player,
+# and the player's answer is to read it about themselves.
+#
+# Stacking rule is unchanged: reapplying refreshes duration, never magnitude.
+
+# The tell. It is a real effect and not merely a flag — it ticks, so a player
+# who ignores it still pays something — but its tick is deliberately small for
+# its tier. What it costs is not health; it is the two rounds of warning it
+# gives, which are worthless to a player who has not written a rule about them.
+- id: effect.pyre_mark
+  localisationKey: effect.pyre_mark
+  kind: damage_over_time
+  magnitude: 20
+  durationRounds: 3
+  school: arcane
+
+# The Sovereign's enrage, and the largest damage modifier in the library. It is
+# a step of five percentage points over the Warden of Ash's, not a doubling:
+# the Reach is meant to be harder because the *shape* of its damage is harder to
+# plan around, and a wave that answers "make it hurt more" is stat inflation
+# wearing a boss's name. See docs/progression.md section 2.2.
+- id: effect.emberwake
+  localisationKey: effect.emberwake
+  kind: damage_modifier
+  magnitude: 5500
+  durationRounds: 3

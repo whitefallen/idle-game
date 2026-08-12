@@ -1,0 +1,135 @@
+# The Cinder Reach item corpus — pool.stretch4, levels 23-30.
+#
+# The first pool whose item levels cross ilvl 30, which is where affix tier 3
+# unlocks (content/affixes/stretch1.yaml). That is the wave's item-side step: the
+# bases are ordinary, the *rolls* on them are not, so the reason to keep farming
+# the Reach is a better roll rather than a better base.
+#
+# See content/items/stretch2.yaml for how requirements are sized.
+
+- id: item.cinderforged_greataxe
+  localisationKey: item.cinderforged_greataxe
+  slot: MainHand
+  twoHanded: true
+  weaponClass: heavy
+  ilvl: 30
+  icon: items/weapons/cinderforged_greataxe
+  vendorValue: 720
+  requirements:
+    level: 24
+    attributes:
+      STR: 48
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [reach, axe, stretch4, pool.stretch4]
+
+- id: item.reachwarden_blade
+  localisationKey: item.reachwarden_blade
+  slot: MainHand
+  twoHanded: false
+  weaponClass: light
+  ilvl: 29
+  icon: items/weapons/reachwarden_blade
+  vendorValue: 680
+  requirements:
+    level: 24
+    attributes:
+      DEX: 44
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [reach, blade, stretch4, pool.stretch4]
+
+- id: item.pyre_sigil
+  localisationKey: item.pyre_sigil
+  slot: MainHand
+  twoHanded: false
+  weaponClass: focus
+  ilvl: 29
+  icon: items/weapons/pyre_sigil
+  vendorValue: 690
+  requirements:
+    level: 24
+    attributes:
+      INT: 44
+  allowedAffixPools:
+    - weapon_prefix
+    - weapon_suffix
+  tags: [reach, sigil, stretch4, pool.stretch4]
+
+- id: item.slagplate_harness
+  localisationKey: item.slagplate_harness
+  slot: Chest
+  twoHanded: false
+  ilvl: 30
+  icon: items/armour/slagplate_harness
+  vendorValue: 610
+  requirements:
+    level: 24
+    attributes:
+      CON: 46
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [reach, plate, stretch4, pool.stretch4]
+
+- id: item.reachwarden_pauldrons
+  localisationKey: item.reachwarden_pauldrons
+  slot: Hands
+  twoHanded: false
+  ilvl: 28
+  icon: items/armour/reachwarden_pauldrons
+  vendorValue: 470
+  requirements:
+    level: 23
+    attributes:
+      STR: 38
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [reach, plate, stretch4, pool.stretch4]
+
+- id: item.emberwake_treads
+  localisationKey: item.emberwake_treads
+  slot: Feet
+  twoHanded: false
+  ilvl: 27
+  icon: items/armour/emberwake_treads
+  vendorValue: 430
+  requirements:
+    level: 23
+    attributes:
+      DEX: 34
+  allowedAffixPools:
+    - armour_prefix
+    - armour_suffix
+  tags: [reach, hide, stretch4, pool.stretch4]
+
+- id: item.cinderglass_amulet
+  localisationKey: item.cinderglass_amulet
+  slot: Amulet
+  twoHanded: false
+  ilvl: 30
+  icon: items/jewellery/cinderglass_amulet
+  vendorValue: 760
+  requirements:
+    level: 26
+  allowedAffixPools:
+    - jewellery_prefix
+    - jewellery_suffix
+  tags: [reach, amulet, stretch4, pool.stretch4]
+
+- id: item.sovereigns_band
+  localisationKey: item.sovereigns_band
+  slot: Ring1
+  twoHanded: false
+  ilvl: 30
+  icon: items/jewellery/sovereigns_band
+  vendorValue: 780
+  requirements:
+    level: 26
+  allowedAffixPools:
+    - jewellery_prefix
+    - jewellery_suffix
+  tags: [reach, band, stretch4, pool.stretch4]

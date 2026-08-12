@@ -1,0 +1,27 @@
+# Disciplines introduced with beacon-line stretch 4: the Cinder Reach.
+#
+# The first *level-source* entry above level 16. That gap was not a design
+# statement — the Vault was the deepest authored content, so the level curve
+# simply stopped where the monsters did. A wave that extends the beacon-line to
+# level 30 without extending the catalogue would leave a character's build
+# frozen for fourteen levels while `loadoutSlotsAt` keeps handing them empty
+# slots, which is the failure DisciplineAvailabilityTest exists to catch.
+#
+# discipline.stonebreaker is not a counterexample: it is `source: dungeon`, so
+# it arrives when a player clears a dungeon and picks it rather than at a level,
+# and a collection mechanic cannot be counted on to fill a slot on schedule.
+#
+# Only player abilities have disciplines. The Reach's monster kit — pyre_mark,
+# cinder_execution, emberwake_roar, slag_sweep — deliberately has none. See
+# content/disciplines/core.yaml.
+
+# ----------------------------------------------------------------- level 22
+# Lands exactly at the Reach's opening gate (encounter.stretch4.reach_watch,
+# requiredLevel 22), which is the first fight that applies the mark — so the
+# tool and the tell arrive together, and the player meets the mark on a lone
+# pyrebinder that cannot punish them for not yet understanding it.
+- id: discipline.warding_flame
+  localisationKey: discipline.warding_flame
+  abilityId: ability.warding_flame
+  source: level
+  unlockLevel: 22

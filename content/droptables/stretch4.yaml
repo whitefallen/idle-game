@@ -1,0 +1,77 @@
+# Drop tables for beacon-line stretch 4: the Cinder Reach.
+#
+# The first tables to drop material.slagiron. Until now the tier-2 production
+# material could only be produced by a Holding line and never found, which made
+# it the one material whose supply a player could not affect by playing. The
+# Reach opens at level 23 and the slagiron line unlocks at 15, so a player
+# arriving here already has a line running: the drops accelerate a project
+# already under way rather than starting one. That interdependence is the point
+# of the idle design — see docs/idle.md section 1.
+#
+# The boss table has no `nothing` entry, for the same reason the Warden of Ash's
+# does not: a 45-Vigor spend that returns an empty result reads as the game
+# having taken something. See content/droptables/stretch3.yaml.
+
+- id: droptable.stretch4.patrol
+  rolls: 1
+  entries:
+    - weight: 4800
+      type: nothing
+    - weight: 3000
+      type: material
+      materialId: material.emberash
+      quantity: [4, 8]
+    - weight: 700
+      type: material
+      materialId: material.slagiron
+      quantity: [1, 3]
+    - weight: 300
+      type: material
+      materialId: material.blightcore
+      quantity: [1, 2]
+    - weight: 1200
+      type: item
+      pool: pool.stretch4
+      ilvlRange: [21, 27]
+
+- id: droptable.stretch4.elite
+  rolls: 2
+  entries:
+    - weight: 2400
+      type: nothing
+    - weight: 2900
+      type: material
+      materialId: material.emberash
+      quantity: [5, 11]
+    - weight: 1100
+      type: material
+      materialId: material.slagiron
+      quantity: [2, 5]
+    - weight: 800
+      type: material
+      materialId: material.blightcore
+      quantity: [2, 4]
+    - weight: 3400
+      type: item
+      pool: pool.stretch4
+      ilvlRange: [24, 30]
+
+- id: droptable.stretch4.boss
+  rolls: 3
+  entries:
+    - weight: 2400
+      type: material
+      materialId: material.emberash
+      quantity: [8, 18]
+    - weight: 1800
+      type: material
+      materialId: material.slagiron
+      quantity: [4, 9]
+    - weight: 1300
+      type: material
+      materialId: material.blightcore
+      quantity: [4, 8]
+    - weight: 4500
+      type: item
+      pool: pool.stretch4
+      ilvlRange: [28, 34]
