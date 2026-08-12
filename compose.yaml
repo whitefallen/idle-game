@@ -46,6 +46,14 @@ services:
       # because of the host filesystem's temporary entries. Keeping var/ inside
       # the container removes the failure and is substantially faster.
       - backend-var:/app/var
+      # Dependencies, for the same reason and a larger payoff. vendor/ is ~7900
+      # files that PHP stats and reads on every boot and that the host never
+      # edits — Composer runs in the container. On a Windows bind mount a file
+      # read costs ~1.9ms against ~0.008ms on the container filesystem, so
+      # keeping the largest read-only tree off the bind mount is the cheapest
+      # available fix for boot time. Run `make install` after a fresh clone or
+      # a `docker compose down -v`, or the volume starts empty.
+      - backend-vendor:/app/vendor
       - ./content:/content:ro
       - composer-cache:/root/.composer/cache
     healthcheck:
@@ -84,4 +92,5 @@ volumes:
   postgres-data:
   composer-cache:
   backend-var:
+  backend-vendor:
   frontend-node-modules:

@@ -21,6 +21,21 @@
             losing the test-only services.
         -->
         <env name="APP_ENV" value="test" force="true" />
+        <!--
+            Debug off, which is a performance decision rather than a stylistic
+            one. With debug on, Symfony re-checks every cached config resource
+            on every kernel boot, and KernelTestCase boots per test: measured on
+            this project a debug boot costs 966ms against 22ms without it.
+
+            The trade-off is that the compiled container is no longer rebuilt
+            when its sources change, so after editing service configuration you
+            must clear the test cache by hand (bin/console cache:clear, with the
+            env option set to test) or the suite will run against a stale
+            container. Content YAML is unaffected — ContentSource reads it at
+            runtime rather than compiling it in — and CI always starts from a
+            fresh container, so this only bites locally.
+        -->
+        <env name="APP_DEBUG" value="0" force="true" />
         <env name="KERNEL_CLASS" value="App\Kernel" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
