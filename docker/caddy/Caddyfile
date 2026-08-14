@@ -1,12 +1,16 @@
-# The TLS edge. Caddy is the only container that binds a public port.
+# The edge. Caddy is the only container that binds a public port.
 #
-# Certificates are obtained and renewed automatically from Let's Encrypt and
-# stored in the caddy-data volume. That volume is the one piece of edge state
-# worth keeping: losing it means re-issuing certificates on the next start,
-# which the rate limits punish if it happens repeatedly.
+# Plain HTTP for now, deliberately: TLS is deferred until the production
+# rollout formally adds it (tracked alongside the initial deploy). auto_https
+# off stops Caddy attempting any ACME challenge, and the explicit http://
+# scheme keeps it listening on the HTTP port rather than defaulting to 443.
+# To turn TLS back on: drop `auto_https off`, restore `email {$ACME_EMAIL}`,
+# drop the `http://` prefix below, and restore the HSTS header — only once the
+# domain is confirmed serving valid certificates, per the original comment
+# this replaced.
 
 {
-	email {$ACME_EMAIL}
+	auto_https off
 
 	# Health of the origin is nginx's to report; Caddy should not cache a
 	# failing upstream decision across a deployment.
@@ -15,12 +19,8 @@
 	}
 }
 
-{$EMBERWATCH_DOMAIN} {
+http://{$EMBERWATCH_DOMAIN} {
 	encode zstd gzip
-
-	# HSTS. Only meaningful once the domain is confirmed working over TLS —
-	# a browser that has seen this header will refuse plain HTTP for a year.
-	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
 	# The API sets session cookies and returns player state; no shared cache
 	# between players may ever hold it.

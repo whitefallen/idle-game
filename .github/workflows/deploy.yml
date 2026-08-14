@@ -32,7 +32,9 @@ jobs:
     # the repository settings to gate who can ship. docs/deployment.md.
     environment:
       name: production
-      url: https://${{ vars.EMBERWATCH_DOMAIN }}
+      # TLS is currently disabled (docker/caddy/Caddyfile) — revert to https://
+      # once Caddy is issuing certificates again.
+      url: http://${{ vars.EMBERWATCH_DOMAIN }}
 
     permissions:
       contents: read
@@ -168,9 +170,11 @@ jobs:
       # a bad certificate, a wrong port, an upstream that never becomes healthy.
       - name: Verify the site is live
         run: |
+          # http://, not https:// — TLS is disabled for now, see
+          # docker/caddy/Caddyfile.
           for attempt in $(seq 1 12); do
             code=$(curl -sS -o /dev/null -w '%{http_code}' \
-              "https://${{ vars.EMBERWATCH_DOMAIN }}/healthz" || echo 000)
+              "http://${{ vars.EMBERWATCH_DOMAIN }}/healthz" || echo 000)
             if [ "$code" = "200" ]; then
               echo "Healthy after ${attempt} attempt(s)."
               exit 0
