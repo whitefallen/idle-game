@@ -1,0 +1,12 @@
+# Shell scripts must keep LF endings regardless of the developer's platform.
+# Most of this project's contributors are on Windows, and a CRLF-terminated
+# shebang makes the kernel look for an interpreter called "/bin/sh\r", which
+# fails inside the container with the famously unhelpful "no such file or
+# directory" — naming a file that plainly exists.
+*.sh text eol=lf
+
+# Same reasoning: these are read by Linux tooling inside containers.
+Dockerfile text eol=lf
+*.conf text eol=lf
+Caddyfile text eol=lf
+Makefile text eol=lf

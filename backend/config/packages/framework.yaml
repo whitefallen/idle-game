@@ -3,7 +3,14 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    #
+    # save_path is pinned outside the cache directory. Symfony's default puts
+    # session files under var/cache/<env>/sessions, which cache:clear removes —
+    # in production that means every deployment signs out every logged-in
+    # player. var/sessions is a mounted volume there instead. See
+    # compose.prod.yaml.
+    session:
+        save_path: '%kernel.project_dir%/var/sessions'
 
     #esi: true
     #fragments: true

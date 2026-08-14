@@ -1,0 +1,28 @@
+# Build context exclusions.
+#
+# Without this file the production image would copy the host's backend/vendor
+# into itself, silently shipping dev dependencies that `composer install
+# --no-dev` had just excluded, and every build would upload hundreds of
+# megabytes of node_modules and .git to the builder.
+
+.git
+.github
+.claude
+
+# Installed by the image itself, never copied in.
+backend/vendor
+frontend/node_modules
+docs/node_modules
+
+# Container-local state and build output.
+backend/var
+backend/.phpstan-cache
+frontend/dist
+frontend/tsconfig.tsbuildinfo
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# Local secrets and overrides must never reach an image layer.
+**/.env.local
+**/.env.*.local
+.env.prod

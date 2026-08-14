@@ -45,6 +45,7 @@ export default defineConfig({
           { text: '11. Account & authentication', link: '/account' },
           { text: '12. Vendor', link: '/vendor' },
           { text: '13. Frontend architecture', link: '/frontend-architecture' },
+          { text: '14. Deployment', link: '/deployment' },
         ],
       },
       {
@@ -57,6 +58,9 @@ export default defineConfig({
           { text: '0004 — Transactional outbox', link: '/adr/0004-transactional-outbox' },
           { text: '0005 — UUIDv7 primary keys', link: '/adr/0005-uuidv7-primary-keys' },
           { text: '0006 — Denormalised power score', link: '/adr/0006-denormalised-power-score' },
+          { text: '0007 — Synchronous domain event bus', link: '/adr/0007-synchronous-domain-event-bus' },
+          { text: '0008 — Quest snapshot resolution', link: '/adr/0008-quest-snapshot-resolution' },
+          { text: '0009 — Registry-built images, manual deploy', link: '/adr/0009-registry-built-images-manual-deploy' },
         ],
       },
     ],
