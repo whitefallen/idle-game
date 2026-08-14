@@ -1,13 +1,21 @@
-# The edge. Caddy is the only container that binds a public port.
+# The edge — or, in the "something else already owns it" topology from
+# docs/deployment.md section 3.5, the layer just behind the real one.
 #
-# Plain HTTP for now, deliberately: TLS is deferred until the production
-# rollout formally adds it (tracked alongside the initial deploy). auto_https
-# off stops Caddy attempting any ACME challenge, and the explicit http://
-# scheme keeps it listening on the HTTP port rather than defaulting to 443.
-# To turn TLS back on: drop `auto_https off`, restore `email {$ACME_EMAIL}`,
-# drop the `http://` prefix below, and restore the HSTS header — only once the
-# domain is confirmed serving valid certificates, per the original comment
-# this replaced.
+# Caddy does not terminate TLS here. auto_https off stops it attempting any
+# ACME challenge, and the explicit http:// scheme keeps it listening on the
+# HTTP port rather than defaulting to 443. docker/web/default.conf derives
+# whether the original request was HTTPS from X-Forwarded-Proto rather than
+# assuming either way, so whichever of the two topologies below is in front
+# of Caddy, the application sees the truth without this file needing to agree
+# with it in advance:
+#
+#   - Caddy owns the edge (section 3.5's default): drop `auto_https off`,
+#     restore `email {$ACME_EMAIL}`, drop the `http://` prefix below, and
+#     restore the HSTS header — only once the domain is confirmed serving
+#     valid certificates.
+#   - Something else already owns the edge (this deployment's choice: the
+#     production host's own nginx, via certbot): leave this file as is. The
+#     other proxy is responsible for setting X-Forwarded-Proto.
 
 {
 	auto_https off
