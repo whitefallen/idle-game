@@ -46,6 +46,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The production host is an arm64 Hetzner instance; the runner building
+      # this is amd64. Without QEMU, buildx can only produce images for its
+      # own platform, and an amd64-only image simply will not run there.
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
       - uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
@@ -74,6 +81,10 @@ jobs:
           file: ${{ matrix.dockerfile }}
           target: ${{ matrix.target }}
           push: true
+          # amd64 native, arm64 under QEMU. Both land in one manifest list per
+          # tag, so `docker pull` resolves the right image on either host
+          # without the tag needing to say which.
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Shared with the backend CI workflow's builder cache, which already
