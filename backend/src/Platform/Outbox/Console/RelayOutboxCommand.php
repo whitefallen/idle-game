@@ -66,7 +66,11 @@ final class RelayOutboxCommand extends Command
             ->findBy(['publishedAt' => null], ['occurredAt' => 'ASC'], $batch);
 
         if ($pending === []) {
-            $io->writeln('Nothing to publish.');
+            // Verbose only. In production the relay runs on a five-second loop
+            // (compose.prod.yaml), where an idle tick is the normal state and
+            // logging it would write seventeen thousand lines a day that say
+            // nothing happened. Run with -v to see the ticks.
+            $io->writeln('Nothing to publish.', OutputInterface::VERBOSITY_VERBOSE);
 
             return Command::SUCCESS;
         }

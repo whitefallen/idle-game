@@ -26,6 +26,7 @@ For someone new to the project, read in this order:
 | 11 | [account.md](account.md) | Registration, login, rate limiting, the session every other endpoint depends on |
 | 12 | [vendor.md](vendor.md) | Daily stock generation, pricing, buying and selling — the gold sink that replaced durability |
 | 13 | [frontend-architecture.md](frontend-architecture.md) | State ownership, replay rendering, UI principles |
+| 14 | [deployment.md](deployment.md) | How the game reaches production: images, the Hetzner stack, the runbook |
 
 ## Architecture Decision Records
 
@@ -41,6 +42,8 @@ context, the decision, the alternatives rejected, and the consequences we accept
 | [0005](adr/0005-uuidv7-primary-keys.md) | Time-ordered UUIDv7 primary keys |
 | [0006](adr/0006-denormalised-power-score.md) | A named exception to "never store derived values" |
 | [0007](adr/0007-synchronous-domain-event-bus.md) | A synchronous in-process bus for atomic cross-feature effects |
+| [0008](adr/0008-quest-snapshot-resolution.md) | Quest resolution against an accept-time snapshot |
+| [0009](adr/0009-registry-built-images-manual-deploy.md) | Registry-built images with a manually triggered deploy |
 
 ## Status
 

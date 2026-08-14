@@ -1,0 +1,200 @@
+name: Deploy
+
+# Manual only. Release builds every commit on main into a tagged image; this
+# workflow decides which of those tags production runs, so there is always room
+# to exercise a build before players see it. See ADR-0009.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy, e.g. sha-1a2b3c4 (from the Release workflow summary)'
+        required: true
+        type: string
+      skip_migrations:
+        description: 'Skip doctrine:migrations:migrate (only for a rollback to a pre-migration tag)'
+        required: false
+        default: false
+        type: boolean
+
+# Never two deployments at once, and never cancel one mid-flight: a cancelled
+# deploy can leave migrations applied against the previous image.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Hetzner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Attach required reviewers or a branch restriction to this environment in
+    # the repository settings to gate who can ship. docs/deployment.md.
+    environment:
+      name: production
+      url: https://${{ vars.EMBERWATCH_DOMAIN }}
+
+    permissions:
+      contents: read
+      packages: read
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      REMOTE_DIR: ${{ vars.DEPLOY_DIR || '/opt/emberwatch' }}
+      SSH_PORT: ${{ vars.DEPLOY_SSH_PORT || '22' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # `main` is a moving pointer. Deploying it would mean the artefact that
+      # was tested and the artefact that shipped are only probably the same.
+      - name: Reject moving tags
+        run: |
+          case "$IMAGE_TAG" in
+            main|latest|'')
+              echo "Refusing to deploy '$IMAGE_TAG': deploy an immutable sha- tag." >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Verify the images exist
+        run: |
+          echo '${{ secrets.GITHUB_TOKEN }}' \
+            | docker login "$REGISTRY" -u '${{ github.actor }}' --password-stdin
+          REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')
+          for image in php web; do
+            ref="$REGISTRY/$REPO/emberwatch-$image:$IMAGE_TAG"
+            if ! docker manifest inspect "$ref" > /dev/null 2>&1; then
+              echo "No such image: $ref" >&2
+              echo "Check the Release workflow finished for that commit." >&2
+              exit 1
+            fi
+            echo "Found $ref"
+          done
+
+      # Written by hand rather than through a third-party SSH action: the key
+      # is the credential to the production host, and this keeps the number of
+      # things that see it to ssh itself.
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          # Pinned host key, not StrictHostKeyChecking=no: without it the first
+          # connection would trust whatever answers on that address.
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # The server holds no checkout. These two files are the whole of its
+      # configuration and are replaced from this commit on every deploy, so the
+      # running topology always matches the repository.
+      - name: Copy stack configuration
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "mkdir -p '$REMOTE_DIR'"
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
+            compose.prod.yaml docker/caddy/Caddyfile \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$REMOTE_DIR/"
+
+      - name: Deploy
+        run: |
+          REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')
+
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            REMOTE_DIR="$REMOTE_DIR" \
+            PHP_IMAGE="$REGISTRY/$REPO/emberwatch-php:$IMAGE_TAG" \
+            WEB_IMAGE="$REGISTRY/$REPO/emberwatch-web:$IMAGE_TAG" \
+            GHCR_USER='${{ github.actor }}' \
+            GHCR_TOKEN='${{ secrets.GITHUB_TOKEN }}' \
+            SKIP_MIGRATIONS='${{ inputs.skip_migrations }}' \
+            REPO_URL='${{ github.server_url }}/${{ github.repository }}' \
+            'bash -euo pipefail -s' <<'REMOTE'
+          cd "$REMOTE_DIR"
+
+          # Holds the database password, APP_SECRET and the domain. Created once
+          # by hand from .env.prod.example; see docs/deployment.md. Deliberately
+          # not generated here — production secrets do not travel through a
+          # workflow that anyone with write access can read the inputs of.
+          if [ ! -f .env ]; then
+            echo "$REMOTE_DIR/.env is missing. Create it from .env.prod.example before the first deploy." >&2
+            exit 1
+          fi
+
+          # The server holds no registry credential of its own. The job's token
+          # is scoped to this run and expires with it, so a compromised host
+          # does not yield standing pull access.
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+          # Pinned into the env file so a manual `docker compose up` on the host
+          # — after a reboot, say — brings back exactly what was deployed.
+          sed -i '/^PHP_IMAGE=/d;/^WEB_IMAGE=/d' .env
+          printf 'PHP_IMAGE=%s\nWEB_IMAGE=%s\n' "$PHP_IMAGE" "$WEB_IMAGE" >> .env
+
+          compose() { docker compose -f compose.prod.yaml --env-file .env "$@"; }
+
+          compose pull
+
+          # Postgres first: migrations run against the new image before any
+          # application container serves a request on the new code.
+          compose up -d postgres
+          for _ in $(seq 1 30); do
+            if compose exec -T postgres pg_isready -U emberwatch -d emberwatch; then
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$SKIP_MIGRATIONS" != "true" ]; then
+            compose run --rm php php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+          else
+            echo "Migrations skipped by request."
+          fi
+
+          compose up -d --remove-orphans
+
+          # Reclaims the previous deployment's layers. Filtered to this
+          # project's own images: the host runs other applications, and an
+          # unfiltered prune would collect their dangling layers too.
+          docker image prune -f --filter "label=org.opencontainers.image.source=$REPO_URL"
+          docker logout ghcr.io
+          REMOTE
+
+      # Proves the deployment answers over the public hostname, not just that
+      # the containers started. A container can be up and the site still down —
+      # a bad certificate, a wrong port, an upstream that never becomes healthy.
+      - name: Verify the site is live
+        run: |
+          for attempt in $(seq 1 12); do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' \
+              "https://${{ vars.EMBERWATCH_DOMAIN }}/healthz" || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "Healthy after ${attempt} attempt(s)."
+              exit 0
+            fi
+            echo "Attempt ${attempt}: HTTP ${code}"
+            sleep 10
+          done
+          echo "Site did not become healthy. Roll back by re-running this workflow with the previous tag." >&2
+          exit 1
+
+      - name: Container state on failure
+        if: failure()
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd '$REMOTE_DIR' && docker compose -f compose.prod.yaml ps && docker compose -f compose.prod.yaml logs --tail 100" \
+            || true
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Deployment"
+            echo
+            echo "- Tag: \`$IMAGE_TAG\`"
+            echo "- Result: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"

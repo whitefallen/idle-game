@@ -1,0 +1,155 @@
+name: emberwatch-prod
+
+# Production stack. Deployed to the Hetzner host by .github/workflows/deploy.yml,
+# which copies this file plus docker/caddy/Caddyfile to the server and runs
+# `docker compose -f compose.prod.yaml up -d`.
+#
+# Nothing is built here. Every image is pulled by digest-stable tag from GHCR,
+# built once by .github/workflows/release.yml. The server never compiles PHP,
+# never runs npm, and never needs a checkout of this repository. See
+# docs/deployment.md and ADR-0009.
+#
+# compose.yaml (development) is a separate file on purpose rather than an
+# override layer: the two stacks share no service definition worth inheriting —
+# different images, different targets, different volumes — and a partial
+# override would make it possible to read either file and be wrong about what
+# production actually runs.
+
+# Docker's default json-file driver never rotates. Six services on a host that
+# also runs other applications will fill the disk given enough uptime, and a
+# full disk stops Postgres writing — a far worse outage than losing old log
+# lines. Capped per service rather than configured in the host's daemon.json,
+# because this stack is not the only tenant and must not change global defaults.
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: '10m'
+      max-file: '3'
+
+x-php-image: &php-image
+  image: ${PHP_IMAGE:?PHP_IMAGE is required}
+
+x-php-env: &php-env
+  APP_ENV: prod
+  APP_SECRET: ${APP_SECRET:?APP_SECRET is required}
+  DATABASE_URL: "postgresql://emberwatch:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/emberwatch?serverVersion=17&charset=utf8"
+  CONTENT_DIR: /content
+  DEFAULT_URI: "https://${EMBERWATCH_DOMAIN:?EMBERWATCH_DOMAIN is required}"
+  MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
+
+services:
+  postgres:
+    <<: *logging
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: emberwatch
+      POSTGRES_USER: emberwatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      # Identical to development. A collation change alters index ordering and
+      # would silently corrupt unique constraints on a rebuilt volume, so the
+      # two environments must initialise the cluster the same way.
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=und-x-icu --encoding=UTF8"
+    # No published port. The database is reachable only from the compose
+    # network; administrative access goes through an SSH session on the host.
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emberwatch -d emberwatch"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  php:
+    <<: [*logging, *php-image]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: *php-env
+    volumes:
+      # Sessions outlive the container. Without this volume every deployment
+      # would sign out every logged-in player, because the session files live
+      # inside the container's filesystem. See config/packages/framework.yaml.
+      - php-sessions:/app/var/sessions
+    healthcheck:
+      test: ["CMD-SHELL", "php -v > /dev/null 2>&1"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  # Publishes staged domain events onto the message bus. A separate process by
+  # design: publication must not sit in the request path. See ADR-0004.
+  #
+  # The command drains one batch and exits, so it is run on a short loop rather
+  # than as a daemon. `relay || true` keeps a transient database error from
+  # ending the loop; the next tick retries, and delivery is at-least-once
+  # anyway.
+  outbox-relay:
+    <<: [*logging, *php-image]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: *php-env
+    command:
+      - sh
+      - -c
+      - 'while true; do php bin/console outbox:relay --no-interaction || true; sleep 5; done'
+
+  # Consumes what the relay publishes. --time-limit recycles the worker so a
+  # long-lived process cannot accumulate leaked memory or hold a stale Doctrine
+  # connection; restart: unless-stopped brings it straight back.
+  messenger:
+    <<: [*logging, *php-image]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: *php-env
+    command:
+      - php
+      - bin/console
+      - messenger:consume
+      - async
+      - --time-limit=3600
+      - --memory-limit=256M
+      - --no-interaction
+
+  web:
+    <<: *logging
+    image: ${WEB_IMAGE:?WEB_IMAGE is required}
+    restart: unless-stopped
+    depends_on:
+      - php
+    # No published port either: Caddy is the only ingress.
+
+  caddy:
+    <<: *logging
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    # Configurable because the host already runs other containers. Leave these
+    # at 80/443 to let Caddy own the edge and issue its own certificates; point
+    # them elsewhere if something already binds those ports, in which case that
+    # proxy must terminate TLS and forward here. See docs/deployment.md.
+    ports:
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+    environment:
+      EMBERWATCH_DOMAIN: ${EMBERWATCH_DOMAIN:?EMBERWATCH_DOMAIN is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  postgres-data:
+  php-sessions:
+  caddy-data:
+  caddy-config:

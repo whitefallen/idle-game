@@ -38,6 +38,12 @@
 # Docker
 /.docker-data/
 
+# Deployment
+# The filled-in production environment file. Only .env.prod.example, which holds
+# no values, is tracked. See docs/deployment.md section 3.3.
+/.env.prod
+/.env.production
+
 # Tooling
 .idea/
 .vscode/

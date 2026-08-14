@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend ci-docs audit prune prune-dry docs docs-build
+.PHONY: help up down restart build logs shell db psql install migrate migration test test-backend test-frontend lint content-validate fresh ci ci-backend ci-frontend ci-docs audit prune prune-dry docs docs-build prod-build prod-config
 
 DC := docker compose
 PHP := $(DC) exec -T php
@@ -91,6 +91,22 @@ prune: ## Delete rows past their retention window
 
 prune-dry: ## Report what retention would delete, without deleting it
 	$(PHP) php bin/console db:retention:prune --dry-run
+
+# The production images are built by .github/workflows/release.yml, never by
+# hand for deployment. This target exists so a Dockerfile change can be proved
+# to build before it is pushed — a broken production image otherwise only
+# surfaces on main, where it blocks every release.
+prod-build: ## Build the production images locally, without pushing
+	docker build -f docker/php/Dockerfile --target prod -t emberwatch-php:local .
+	docker build -f docker/web/Dockerfile -t emberwatch-web:local .
+
+# The secrets the example file deliberately leaves blank are supplied as
+# throwaway values here: the point is to prove the file parses and every
+# required variable is declared, not to assemble a runnable stack.
+prod-config: ## Validate compose.prod.yaml with the example environment
+	POSTGRES_PASSWORD=validate APP_SECRET=validate PHP_IMAGE=php:validate WEB_IMAGE=web:validate \
+		docker compose -f compose.prod.yaml --env-file .env.prod.example config > /dev/null
+	@echo "compose.prod.yaml is valid."
 
 fresh: ## Drop, recreate and migrate the database
 	$(PHP) php bin/console doctrine:database:drop --force --if-exists

@@ -1,0 +1,100 @@
+name: Release
+
+# Publishes the production images to GHCR. It does not deploy anything —
+# deployment is a manual trigger (deploy.yml) so a merge to main can be tested
+# against the built image before it reaches players. See ADR-0009.
+#
+# Not path-filtered like the CI workflows. The two images between them cover
+# backend, frontend, content and the container configuration, and a release
+# that skipped one of them would leave a tag whose name says "this commit" and
+# whose contents are older. Every commit on main gets a complete set.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  images:
+    name: Build and push ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      # One failing image must not cancel the other: a half-published pair is
+      # harder to reason about than two independent failures.
+      fail-fast: false
+      matrix:
+        include:
+          - name: php
+            dockerfile: docker/php/Dockerfile
+            target: prod
+          - name: web
+            dockerfile: docker/web/Dockerfile
+            target: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # sha-<short> is the tag deployments name. `main` is a moving pointer for
+      # convenience only — never deploy it to production, because the tag that
+      # was tested is not necessarily the tag it resolves to an hour later.
+      - name: Derive tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/emberwatch-${{ matrix.name }}
+          tags: |
+            type=sha,format=short,prefix=sha-
+            type=raw,value=main,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Shared with the backend CI workflow's builder cache, which already
+          # builds the same base layers on every pull request.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Prints the tag to deploy. Without this the operator has to read a build log
+  # to find out what the commit was published as.
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: images
+    steps:
+      - name: Report the deployable tag
+        run: |
+          TAG="sha-$(echo '${{ github.sha }}' | cut -c1-7)"
+          {
+            echo "### Published"
+            echo
+            echo 'Image tag: `'"$TAG"'`'
+            echo
+            echo "Deploy it with the **Deploy** workflow, entering that tag."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -54,5 +54,18 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-in
 
 COPY backend/ ./
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev \
-    && mkdir -p var/cache var/log \
+    && mkdir -p var/cache var/log var/sessions \
     && chown -R www-data:www-data var
+
+# The content library is baked in rather than mounted. A deployed image must be
+# reproducible from its tag alone: if content lived on the server's filesystem,
+# the same image tag would produce different monsters, drops and prices
+# depending on when the server last pulled the repository.
+COPY content/ /content/
+ENV CONTENT_DIR=/content
+
+COPY docker/php/entrypoint-prod.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint
+
+ENTRYPOINT ["entrypoint"]
+CMD ["php-fpm"]
