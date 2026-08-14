@@ -93,7 +93,10 @@ chmod 600 /opt/emberwatch/.env
 Generate the two secrets it needs:
 
 ```bash
-openssl rand -base64 32   # POSTGRES_PASSWORD
+openssl rand -hex 32      # POSTGRES_PASSWORD — hex, not base64: this value is
+                          # embedded directly into DATABASE_URL as a
+                          # postgresql:// DSN in compose.prod.yaml, and
+                          # base64's `/+=` corrupt that URL silently
 openssl rand -hex 32      # APP_SECRET
 ```
 
